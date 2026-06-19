@@ -26,6 +26,9 @@
     .history-table { width: 100%; font-size: 13px; border-collapse: collapse; }
     .history-table th { text-align: left; padding: 8px 12px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
     .history-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+    .btn-revoke { padding: 2px 8px; font-size: 11px; background: var(--red-bg, #2a1515); border: 1px solid var(--red-border, #5a2020); border-radius: 4px; color: var(--red, #ff6b6b); cursor: pointer; transition: all 0.2s; }
+    .btn-revoke:hover { background: var(--red, #ff6b6b); color: white; }
+    .revoked-row { opacity: 0.5; text-decoration: line-through; }
     @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
   </style>
   <link rel="icon" href="https://lbby.rstudio.live/assets/favicon-32.png">
@@ -330,6 +333,7 @@
     let privateKey = null; // CryptoKey (non-extractable) or null
     let privateKeyPem = null; // Only held in memory for signing, never persisted
     let history = JSON.parse(localStorage.getItem('lbby-license-history') || '[]');
+    let revoked = JSON.parse(localStorage.getItem('lbby-revoked') || '[]');
     let lastGeneratedJwt = '';
 
     // IndexedDB helpers for non-extractable key storage
@@ -609,14 +613,108 @@
       renderHistory();
     }
 
+    function isRevoked(jwtId) {
+      return revoked.some(r => r.jwtId === jwtId);
+    }
+
     function renderHistory() {
       const area = document.getElementById('historyArea');
       if (history.length === 0) { area.innerHTML = '<p class="text-muted" style="font-size:13px;">No licenses generated yet.</p>'; return; }
       const rows = history.map(h => {
         const expDate = new Date(h.exp * 1000).toLocaleDateString();
-        return `<tr><td>${escapeHtml(h.userId)}</td><td>${escapeHtml(h.tier)}</td><td>${expDate}</td><td style="font-size:11px;font-family:monospace;">${escapeHtml(h.jwtId)}</td></tr>`;
+        const revokedClass = isRevoked(h.jwtId) ? ' class="revoked-row"' : '';
+        const revokeBtn = isRevoked(h.jwtId) ? '<span style="color:var(--red,#ff6b6b);font-size:11px;">Revoked</span>' : `<button class="btn-revoke" onclick="revokeLicense('${escapeHtml(h.jwtId)}','${escapeHtml(h.userId)}')">Revoke</button>`;
+        return `<tr${revokedClass}><td>${escapeHtml(h.userId)}</td><td>${escapeHtml(h.tier)}</td><td>${expDate}</td><td style="font-size:11px;font-family:monospace;">${escapeHtml(h.jwtId)}</td><td>${revokeBtn}</td></tr>`;
       }).join('');
-      area.innerHTML = `<table class="history-table"><thead><tr><th>User ID</th><th>Tier</th><th>Expires</th><th>JWT ID</th></tr></thead><tbody>${rows}</tbody></table>`;
+      area.innerHTML = `<table class="history-table"><thead><tr><th>User ID</th><th>Tier</th><th>Expires</th><th>JWT ID</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+      renderRevocations();
+    }
+
+    async function revokeLicense(jwtId, userId) {
+      const reason = prompt(`Revoke license for ${userId}?\n\nEnter reason (optional):`);
+      if (reason === null) return; // cancelled
+
+      revoked.push({
+        jwtId: jwtId,
+        reason: reason || 'No reason given',
+        revokedAt: Date.now(),
+        revokedBy: 'admin'
+      });
+      localStorage.setItem('lbby-revoked', JSON.stringify(revoked));
+
+      // Sign the revocation list if private key is available
+      if (privateKey) {
+        try {
+          const signed = await signRevocationList();
+          localStorage.setItem('lbby-revoked-signed', JSON.stringify(signed));
+        } catch (e) {
+          console.warn('Could not sign revocation list:', e);
+        }
+      }
+
+      renderHistory();
+    }
+
+    async function signRevocationList() {
+      const payload = {
+        version: 1,
+        generatedAt: Date.now(),
+        entries: revoked
+      };
+      const data = new TextEncoder().encode(JSON.stringify(payload));
+      const signature = await crypto.subtle.sign('Ed25519', privateKey, data);
+      const sigB64 = btoa(String.fromCharCode(...new Uint8Array(signature))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      return { ...payload, signature: sigB64 };
+    }
+
+    function renderRevocations() {
+      const area = document.getElementById('revocationsArea');
+      if (revoked.length === 0) { area.innerHTML = '<p class="text-muted" style="font-size:13px;">No licenses revoked yet.</p>'; return; }
+      const rows = revoked.map(r => {
+        const date = new Date(r.revokedAt).toLocaleDateString();
+        return `<tr><td style="font-size:11px;font-family:monospace;">${escapeHtml(r.jwtId)}</td><td>${escapeHtml(r.reason)}</td><td>${date}</td></tr>`;
+      }).join('');
+      area.innerHTML = `<table class="history-table"><thead><tr><th>JWT ID</th><th>Reason</th><th>Date</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+
+    async function exportRevoked() {
+      let data;
+      if (privateKey) {
+        data = await signRevocationList();
+      } else {
+        data = { version: 1, generatedAt: Date.now(), entries: revoked, signature: null };
+      }
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'revoked.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importRevoked() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        const text = await file.text();
+        try {
+          const data = JSON.parse(text);
+          if (data.entries && Array.isArray(data.entries)) {
+            revoked = data.entries;
+            localStorage.setItem('lbby-revoked', JSON.stringify(revoked));
+            if (data.signature) {
+              localStorage.setItem('lbby-revoked-signed', JSON.stringify(data));
+            }
+            renderHistory();
+          }
+        } catch (e) {
+          alert('Invalid revoked.json file');
+        }
+      };
+      input.click();
     }
 
     function escapeHtml(str) {
