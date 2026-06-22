@@ -203,13 +203,30 @@
         <div id="decodeOutput" class="output-area" style="display: none; margin-top: 12px;"></div>
       </div>
 
+      <!-- Cloud Activations -->
+      <div class="license-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h3 style="font-size: 16px; font-weight: 800;">☁️ Cloud Activations (SQL)</h3>
+        </div>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">Manage live device activations from the Cloudflare D1 database.</p>
+        
+        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+          <input type="password" id="adminSecretInput" placeholder="Enter ADMIN_SECRET" style="flex: 1; padding: 8px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-family: inherit; outline: none;">
+          <button class="btn btn-primary btn-sm" onclick="fetchCloudDevices()">Load Devices</button>
+        </div>
+        
+        <div id="cloudArea" style="overflow-x: auto;">
+          <p class="text-muted" style="font-size: 13px;">Enter admin secret to load devices.</p>
+        </div>
+      </div>
+
       <!-- History -->
       <div class="license-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <h3 style="font-size: 16px; font-weight: 800;">📋 History</h3>
+          <h3 style="font-size: 16px; font-weight: 800;">📋 Local History</h3>
           <button class="btn btn-secondary btn-sm" onclick="exportHistory()">Export</button>
         </div>
-        <div id="historyArea" style="overflow-x: auto;">
+        <div id="historyArea" style="overflow-x: auto; margin-bottom: 12px;">
           <p class="text-muted" style="font-size: 13px;">No licenses generated yet.</p>
         </div>
       </div>
@@ -735,6 +752,95 @@
 
     function newJwtId() {
       document.getElementById('jwtId').value = generateId();
+    }
+
+    // ── Cloud SQL Activations ───────────────────────────────────────
+    async function fetchCloudDevices() {
+      const secret = document.getElementById('adminSecretInput').value.trim();
+      if (!secret) {
+        alert('Please enter ADMIN_SECRET');
+        return;
+      }
+      const area = document.getElementById('cloudArea');
+      area.innerHTML = '<p class="text-muted" style="font-size:13px;">Loading devices...</p>';
+      
+      try {
+        const res = await fetch('/v1/admin/devices', {
+          headers: { 'Authorization': 'Bearer ' + secret }
+        });
+        if (!res.ok) throw new Error('API Error: ' + res.status + ' ' + res.statusText);
+        const data = await res.json();
+        
+        if (data.length === 0) {
+          area.innerHTML = '<p class="text-muted" style="font-size:13px;">No devices found in database.</p>';
+          return;
+        }
+        
+        const rows = data.map(d => {
+          const date = new Date(d.last_seen_at).toLocaleDateString();
+          const jti = d.user_id + '_' + d.jwt_issued_at;
+          const isRevoked = d.revoked_at !== null;
+          const revokedClass = isRevoked ? ' opacity: 0.5; background: var(--bg-elevated);' : '';
+          
+          let actionBtn;
+          if (isRevoked) {
+            actionBtn = `<button class="btn btn-secondary btn-sm" onclick="reenableCloudDevice('${d.user_id}', '${d.device_id}')" style="font-size:11px; padding: 2px 8px;">Re-enable</button>`;
+          } else {
+            actionBtn = `<button class="btn btn-sm" style="font-size:11px; padding: 2px 8px; background: var(--red-bg, #2a1515); border: 1px solid var(--red-border, #5a2020); color: var(--red, #ff6b6b);" onclick="revokeCloudDevice('${d.user_id}', '${d.device_id}')">Revoke</button>`;
+          }
+
+          return `<tr style="${revokedClass}">
+            <td>${escapeHtml(String(d.user_id))}</td>
+            <td style="font-size:11px;font-family:monospace;">${escapeHtml(d.device_label || d.device_id)}</td>
+            <td style="font-size:11px;font-family:monospace;">${escapeHtml(jti)}</td>
+            <td>${date}</td>
+            <td>${isRevoked ? '<span style="color:var(--red,#ff6b6b);font-size:11px;">Revoked</span>' : '<span style="color:var(--green);font-size:11px;">Active</span>'}</td>
+            <td>${actionBtn}</td>
+          </tr>`;
+        }).join('');
+        
+        area.innerHTML = `<table class="history-table">
+          <thead><tr><th>User ID</th><th>Device</th><th>JTI</th><th>Last Seen</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+      } catch (err) {
+        area.innerHTML = `<p style="color:var(--red);font-size:13px;">Failed to load: ${escapeHtml(err.message)}</p>`;
+      }
+    }
+
+    async function revokeCloudDevice(userId, deviceId) {
+      const secret = document.getElementById('adminSecretInput').value.trim();
+      const reason = prompt(`Revoke device ${deviceId} for user ${userId}?\n\nEnter reason (optional):`, "Admin License Generator");
+      if (reason === null) return;
+      
+      try {
+        const res = await fetch('/v1/admin/revoke', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + secret, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId, device_id: deviceId, reason })
+        });
+        if (!res.ok) throw new Error('API Error: ' + res.status);
+        fetchCloudDevices();
+      } catch (err) {
+        alert("Failed to revoke: " + err.message);
+      }
+    }
+
+    async function reenableCloudDevice(userId, deviceId) {
+      const secret = document.getElementById('adminSecretInput').value.trim();
+      if (!confirm(`Re-enable device ${deviceId} for user ${userId}?`)) return;
+      
+      try {
+        const res = await fetch('/v1/admin/reenable', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + secret, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId, device_id: deviceId })
+        });
+        if (!res.ok) throw new Error('API Error: ' + res.status);
+        fetchCloudDevices();
+      } catch (err) {
+        alert("Failed to re-enable: " + err.message);
+      }
     }
 
     function logout() {
