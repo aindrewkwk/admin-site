@@ -769,7 +769,8 @@
           headers: { 'Authorization': 'Bearer ' + secret }
         });
         if (!res.ok) throw new Error('API Error: ' + res.status + ' ' + res.statusText);
-        const data = await res.json();
+        const json = await res.json();
+        const data = json.devices || [];
         
         if (data.length === 0) {
           area.innerHTML = '<p class="text-muted" style="font-size:13px;">No devices found in database.</p>';
