@@ -765,7 +765,7 @@
       area.innerHTML = '<p class="text-muted" style="font-size:13px;">Loading devices...</p>';
       
       try {
-        const res = await fetch('/v1/admin/devices', {
+        const res = await fetch('https://lbby-license-server.rstudio.workers.dev/v1/admin/devices', {
           headers: { 'Authorization': 'Bearer ' + secret }
         });
         if (!res.ok) throw new Error('API Error: ' + res.status + ' ' + res.statusText);
@@ -814,7 +814,7 @@
       if (reason === null) return;
       
       try {
-        const res = await fetch('/v1/admin/revoke', {
+        const res = await fetch('https://lbby-license-server.rstudio.workers.dev/v1/admin/revoke', {
           method: 'POST',
           headers: { 'Authorization': 'Bearer ' + secret, 'Content-Type': 'application/json' },
           body: JSON.stringify({ user_id: userId, device_id: deviceId, reason })
@@ -831,7 +831,7 @@
       if (!confirm(`Re-enable device ${deviceId} for user ${userId}?`)) return;
       
       try {
-        const res = await fetch('/v1/admin/reenable', {
+        const res = await fetch('https://lbby-license-server.rstudio.workers.dev/v1/admin/reenable', {
           method: 'POST',
           headers: { 'Authorization': 'Bearer ' + secret, 'Content-Type': 'application/json' },
           body: JSON.stringify({ user_id: userId, device_id: deviceId })
