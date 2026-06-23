@@ -220,6 +220,61 @@
         </div>
       </div>
 
+      <!-- Dashboard Licenses -->
+      <div class="license-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h3 style="font-size: 16px; font-weight: 800;">🎫 Dashboard Licenses</h3>
+        </div>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">Issue and manage license keys via the dashboard API. Keys are signed server-side and stored in D1.</p>
+
+        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+          <input type="password" id="dashApiKey" placeholder="Dashboard API Key" style="flex: 1; padding: 8px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-family: inherit; outline: none;">
+          <button class="btn btn-primary btn-sm" onclick="fetchDashLicenses()">Load Licenses</button>
+        </div>
+
+        <!-- Generate via Dashboard -->
+        <div style="border-top: 1px solid var(--border); padding-top: 16px; margin-bottom: 16px;">
+          <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Generate via Dashboard</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label>User Email</label>
+              <input type="email" id="dashEmail" placeholder="user@example.com">
+            </div>
+            <div class="form-group">
+              <label>Tier</label>
+              <select id="dashTier">
+                <option value="novice">Novice</option>
+                <option value="master">Master</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Billing Cycle</label>
+              <select id="dashCycle">
+                <option value="monthly">Monthly (30 days)</option>
+                <option value="yearly">Yearly (365 days)</option>
+                <option value="lifetime">Lifetime (10 years)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>&nbsp;</label>
+              <button class="btn btn-primary" onclick="generateDashLicense()" style="width: 100%; justify-content: center;">Generate License</button>
+            </div>
+          </div>
+          <div id="dashGenStatus" class="status-msg"></div>
+          <div id="dashGenOutput" style="display: none;">
+            <div class="output-area" id="dashGenKey"></div>
+            <button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('dashGenKey').textContent)">Copy</button>
+          </div>
+        </div>
+
+        <!-- License list -->
+        <div id="dashLicensesArea" style="overflow-x: auto;">
+          <p class="text-muted" style="font-size: 13px;">Enter API key to load licenses.</p>
+        </div>
+      </div>
+
       <!-- History -->
       <div class="license-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -841,6 +896,132 @@
         fetchCloudDevices();
       } catch (err) {
         alert("Failed to re-enable: " + err.message);
+      }
+    }
+
+    // ── Dashboard License API ─────────────────────────────────────────────
+    // Calls the lbby-dashboard API to generate and manage licenses server-side.
+    // Requires ADMIN_API_KEY env var on the dashboard.
+
+    const DASHBOARD_API = 'https://web.rstudio.live';
+
+    function getDashApiKey() {
+      return document.getElementById('dashApiKey').value.trim();
+    }
+
+    function dashHeaders() {
+      return {
+        'Authorization': 'Bearer ' + getDashApiKey(),
+        'Content-Type': 'application/json',
+      };
+    }
+
+    async function generateDashLicense() {
+      const email = document.getElementById('dashEmail').value.trim();
+      const tier = document.getElementById('dashTier').value;
+      const cycle = document.getElementById('dashCycle').value;
+      const statusEl = document.getElementById('dashGenStatus');
+      const outputEl = document.getElementById('dashGenOutput');
+      const keyEl = document.getElementById('dashGenKey');
+
+      if (!getDashApiKey()) { showDashGenStatus('Enter API key first', 'error'); return; }
+      if (!email) { showDashGenStatus('Email is required', 'error'); return; }
+
+      try {
+        const res = await fetch(DASHBOARD_API + '/api/admin/licenses/generate', {
+          method: 'POST',
+          headers: dashHeaders(),
+          body: JSON.stringify({ email, tier, billing_cycle: cycle }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        keyEl.textContent = data.licenseKey;
+        outputEl.style.display = 'block';
+        showDashGenStatus(`License generated! JTI: ${data.jti}`, 'success');
+        fetchDashLicenses();
+      } catch (err) {
+        showDashGenStatus('Error: ' + err.message, 'error');
+      }
+    }
+
+    function showDashGenStatus(msg, type) {
+      const el = document.getElementById('dashGenStatus');
+      el.textContent = msg;
+      el.className = 'status-msg ' + type;
+    }
+
+    async function fetchDashLicenses() {
+      const area = document.getElementById('dashLicensesArea');
+      if (!getDashApiKey()) { area.innerHTML = '<p style="color:var(--red);font-size:13px;">Enter API key first.</p>'; return; }
+
+      try {
+        const res = await fetch(DASHBOARD_API + '/api/admin/licenses', { headers: dashHeaders() });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        const licenses = data.licenses || [];
+        if (licenses.length === 0) {
+          area.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No licenses issued yet.</p>';
+          return;
+        }
+
+        const rows = licenses.map(lic => {
+          const isRevoked = lic.revoked_at !== null;
+          const isExpired = Math.floor(Date.now() / 1000) > lic.expires_at;
+          const status = isRevoked ? 'Revoked' : isExpired ? 'Expired' : 'Active';
+          const statusColor = isRevoked ? 'var(--red,#ff6b6b)' : isExpired ? 'var(--yellow,#ffd43b)' : 'var(--green)';
+          const revokedClass = isRevoked ? 'opacity:0.5;text-decoration:line-through;' : '';
+
+          const actionBtn = isRevoked
+            ? `<button class="btn btn-secondary btn-sm" onclick="dashReenable('${lic.jti}')" style="font-size:11px;padding:2px 8px;">Re-enable</button>`
+            : `<button class="btn btn-sm" style="font-size:11px;padding:2px 8px;background:var(--red-bg,#2a1515);border:1px solid var(--red-border,#5a2020);color:var(--red,#ff6b6b);" onclick="dashRevoke('${lic.jti}')">Revoke</button>`;
+
+          return `<tr style="${revokedClass}">
+            <td>${escapeHtml(lic.email || 'User #' + lic.user_id)}</td>
+            <td><span style="color:${lic.tier === 'master' ? '#a855f7' : '#3b82f6'};font-size:11px;font-weight:600;">${escapeHtml(lic.tier)}</span></td>
+            <td style="font-size:11px;font-family:monospace;">${escapeHtml(lic.jti.slice(0, 24))}…</td>
+            <td>${new Date(lic.expires_at * 1000).toLocaleDateString()}</td>
+            <td><span style="color:${statusColor};font-size:11px;">${status}</span></td>
+            <td>${actionBtn}</td>
+          </tr>`;
+        }).join('');
+
+        area.innerHTML = `<table class="history-table">
+          <thead><tr><th>User</th><th>Tier</th><th>JTI</th><th>Expires</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+      } catch (err) {
+        area.innerHTML = `<p style="color:var(--red);font-size:13px;">Failed: ${escapeHtml(err.message)}</p>`;
+      }
+    }
+
+    async function dashRevoke(jti) {
+      if (!confirm('Revoke this license? The user will lose access on next app startup.')) return;
+      try {
+        const res = await fetch(DASHBOARD_API + '/api/admin/licenses/revoke', {
+          method: 'POST',
+          headers: dashHeaders(),
+          body: JSON.stringify({ jti, action: 'revoke' }),
+        });
+        if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
+        fetchDashLicenses();
+      } catch (err) {
+        alert('Failed: ' + err.message);
+      }
+    }
+
+    async function dashReenable(jti) {
+      try {
+        const res = await fetch(DASHBOARD_API + '/api/admin/licenses/revoke', {
+          method: 'POST',
+          headers: dashHeaders(),
+          body: JSON.stringify({ jti, action: 'reenable' }),
+        });
+        if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
+        fetchDashLicenses();
+      } catch (err) {
+        alert('Failed: ' + err.message);
       }
     }
 
