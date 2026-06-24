@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://web.rstudio.live; base-uri 'self'; form-action 'self'; frame-ancestors 'none';">
+  <title>Login — R Studio Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="https://lbby.rstudio.live/assets/favicon-32.png">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-brand">
+      <img src="https://lbby.rstudio.live/assets/lbby-r-studio.png" alt="R Studio">
+      <span>R Studio Admin</span>
+    </a>
+    <div class="nav-links">
+      <button onclick="toggleLang()" style="margin-left:auto;padding:4px 10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-size:12px;cursor:pointer;"><span id="langLabel">VI</span></button>
+    </div>
+  </nav>
+
+  <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px;">
+    <div style="max-width: 420px; width: 100%; text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 20px;">🔐</div>
+      <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--text);" data-vi="Đăng nhập quản trị">Admin Login</h1>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;" data-vi="Nhập khóa API của bạn để truy cập bảng điều khiển.">Enter your API key to access the admin panel.</p>
+
+      <div style="text-align: left; margin-bottom: 16px;">
+        <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;" data-vi="Khóa API">API Key</label>
+        <input type="text" id="apiKeyInput" placeholder="lbby_ak_..." autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')doLogin()" style="
+          width: 100%; padding: 14px 18px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          color: var(--text); font-size: 15px;
+          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+          outline: none; letter-spacing: 0.5px;
+        ">
+      </div>
+
+      <button onclick="doLogin()" id="loginBtn" style="
+        width: 100%; padding: 14px 20px;
+        background: var(--accent); color: white;
+        border: none; border-radius: var(--radius-sm);
+        font-size: 16px; font-weight: 700;
+        cursor: pointer; transition: all 0.2s;
+      " data-vi="Đăng nhập">Log In</button>
+
+      <div id="loginError" style="display: none; margin-top: 16px; padding: 12px; border-radius: var(--radius-sm); color: var(--red); background: var(--red-bg); border: 1px solid var(--red-border); font-size: 13px;"></div>
+
+      <div id="loginSuccess" style="display: none; margin-top: 16px; padding: 12px; border-radius: var(--radius-sm); color: var(--green); background: var(--green-bg); border: 1px solid var(--green-border); font-size: 13px;"></div>
+
+      <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border);">
+        <p style="color: var(--text-muted); font-size: 12px; line-height: 1.6;" data-vi="Không có khóa API? Liên hệ quản trị viên nhóm của bạn để nhận khóa.">
+          Don't have an API key? Contact your team admin to get one.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/lang.js"></script>
+  <script src="/auth.js"></script>
+  <script>
+    const { getApiKey, setApiKey, validateKey, getAttemptState, recordAttempt, resetAttempts, isVi, MAX_ATTEMPTS, LOCKOUT_MS } = RStudioAuth;
+
+    // If already logged in, redirect
+    (async function checkExisting() {
+      const key = getApiKey();
+      if (!key) return;
+      const info = await validateKey(key);
+      if (info) {
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get('redirect') || 'index.html';
+        window.location.href = redirect;
+      } else {
+        RStudioAuth.clearApiKey();
+      }
+    })();
+
+    async function doLogin() {
+      const input = document.getElementById('apiKeyInput');
+      const error = document.getElementById('loginError');
+      const success = document.getElementById('loginSuccess');
+      const btn = document.getElementById('loginBtn');
+      const key = input.value.trim();
+
+      error.style.display = 'none';
+      success.style.display = 'none';
+
+      // Rate limit check
+      const attempts = getAttemptState();
+      if (attempts.lockUntil && Date.now() < attempts.lockUntil) {
+        const secs = Math.ceil((attempts.lockUntil - Date.now()) / 1000);
+        error.textContent = isVi() ? `Quá nhiều lần thử. Thử lại sau ${secs}s.` : `Too many attempts. Try again in ${secs}s.`;
+        error.style.display = 'block';
+        return;
+      }
+
+      if (!key) {
+        error.textContent = isVi() ? 'Vui lòng nhập khóa API' : 'Please enter your API key';
+        error.style.display = 'block';
+        return;
+      }
+
+      if (!key.startsWith('lbby_ak_')) {
+        error.textContent = isVi() ? 'Khóa API phải bắt đầu bằng lbby_ak_' : 'API key must start with lbby_ak_';
+        error.style.display = 'block';
+        return;
+      }
+
+      btn.textContent = isVi() ? 'Đang xác minh...' : 'Verifying...';
+      btn.disabled = true;
+
+      try {
+        const info = await validateKey(key);
+        if (info) {
+          recordAttempt(false);
+          setApiKey(key);
+          success.textContent = isVi() ? `Đăng nhập thành công! Xin chào, ${info.keyName}` : `Logged in! Welcome, ${info.keyName}`;
+          success.style.display = 'block';
+
+          // Redirect after brief delay
+          setTimeout(() => {
+            const params = new URLSearchParams(window.location.search);
+            const redirect = params.get('redirect') || 'index.html';
+            window.location.href = redirect;
+          }, 800);
+        } else {
+          recordAttempt(true);
+          error.textContent = isVi() ? 'Khóa API không hợp lệ hoặc đã bị thu hồi' : 'Invalid or revoked API key';
+          error.style.display = 'block';
+          input.value = '';
+          input.focus();
+        }
+      } catch (err) {
+        error.textContent = (isVi() ? 'Lỗi kết nối: ' : 'Connection error: ') + err.message;
+        error.style.display = 'block';
+      } finally {
+        btn.textContent = isVi() ? 'Đăng nhập' : 'Log In';
+        btn.disabled = false;
+      }
+    }
+
+    // Focus input on load
+    document.getElementById('apiKeyInput').focus();
+  </script>
+</body>
+</html>
