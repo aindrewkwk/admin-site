@@ -65,7 +65,14 @@
     if (body) opts.body = JSON.stringify(body);
 
     const res = await fetch(`${DASHBOARD_API}${path}`, opts);
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      // Response is not JSON — extract error from status
+      if (!res.ok) throw new Error(`Server error (${res.status})`);
+      throw new Error('Unexpected response from server');
+    }
     if (!res.ok) throw new Error(data.error || `API error ${res.status}`);
     return data;
   }
