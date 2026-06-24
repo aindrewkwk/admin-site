@@ -45,7 +45,6 @@
 </head>
 <body>
 
-  <!-- ── Nav ──────────────────────────────────────────────────────── -->
   <nav class="nav">
     <a href="index.html" class="nav-brand">
       <img src="https://lbby.rstudio.live/assets/lbby-r-studio.png" alt="R Studio">
@@ -53,55 +52,44 @@
     </a>
     <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
     <div class="nav-links">
-      <a href="index.html">License</a>
-      <a href="api-keys.html" class="active">API Keys</a>
+      <a href="index.html" data-vi="Giấy phép">License</a>
+      <a href="api-keys.html" class="active" data-vi="Khóa API">API Keys</a>
       <a href="https://lbby.rstudio.live">Lbby</a>
       <button onclick="toggleLang()" style="margin-left:auto;padding:4px 10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-size:12px;cursor:pointer;"><span id="langLabel">VI</span></button>
       <a href="#" onclick="logout()" style="opacity:0.6;font-size:13px;" data-vi="Đăng xuất">Logout</a>
     </div>
   </nav>
 
-  <!-- ── Password Gate ────────────────────────────────────────────── -->
   <div id="passwordGate" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px;">
     <div style="max-width: 400px; width: 100%; text-align: center;">
       <div style="font-size: 48px; margin-bottom: 20px;">🔑</div>
       <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--text);" data-vi="Quản lý khóa API">API Key Manager</h1>
       <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;" data-vi="Nhập mật khẩu nhóm để truy cập">Enter the team password to access</p>
       <div style="margin-bottom: 16px;">
-        <input type="password" id="passwordInput" placeholder="Enter password" data-vi-placeholder="Nhập mật khẩu" onkeydown="if(event.key==='Enter')checkPassword()" style="
-          width: 100%; padding: 14px 18px;
-          background: var(--bg-card);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-sm);
-          color: var(--text); font-size: 16px;
-          font-family: inherit; outline: none;
-          text-align: center; letter-spacing: 2px;
+        <input type="password" id="passwordInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPassword()" style="
+          width: 100%; padding: 14px 18px; background: var(--bg-card); border: 1px solid var(--border);
+          border-radius: var(--radius-sm); color: var(--text); font-size: 16px; font-family: inherit;
+          outline: none; text-align: center; letter-spacing: 2px;
         ">
       </div>
       <button onclick="checkPassword()" style="
-        width: 100%; padding: 14px 20px;
-        background: var(--accent); color: white;
-        border: none; border-radius: var(--radius-sm);
-        font-size: 16px; font-weight: 700;
+        width: 100%; padding: 14px 20px; background: var(--accent); color: white;
+        border: none; border-radius: var(--radius-sm); font-size: 16px; font-weight: 700;
         cursor: pointer; transition: all 0.2s;
       " data-vi="Truy cập trình quản lý">Access Manager</button>
       <div id="passwordError" style="display: none; margin-top: 12px; color: var(--red); font-size: 13px;"></div>
     </div>
   </div>
 
-  <!-- ── Main Content ─────────────────────────────────────────────── -->
   <div id="mainContent" style="display: none;">
-
     <div class="keys-container">
       <h1 style="font-size: 28px; font-weight: 900; margin-bottom: 8px;">🔑 <span data-vi="Khóa API">API Keys</span></h1>
       <p style="color: var(--text-muted); margin-bottom: 28px;" data-vi="Quản lý khóa API cho thành viên nhóm và công cụ bên ngoài.">Manage admin API keys for team members and external tools.</p>
 
-      <!-- Connection Status -->
       <div id="connectionStatus" class="info-box" style="border-color: var(--border);" data-vi="Đang kết nối đến dashboard API...">
         Connecting to dashboard API...
       </div>
 
-      <!-- Create Key -->
       <div class="keys-card">
         <h3 data-vi="Tạo khóa mới">Create New Key</h3>
         <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;" data-vi="Mỗi thành viên nhóm nhận một khóa riêng. Khóa chỉ hiển thị một lần — sao chép ngay.">
@@ -110,14 +98,12 @@
         <div class="form-row">
           <div class="form-group">
             <label data-vi="Tên khóa">Key Name</label>
-            <input type="text" id="keyName" placeholder="e.g. Tien Anh, Hung, CI Pipeline" maxlength="64"
-              onkeydown="if(event.key==='Enter')createKey()">
+            <input type="text" id="keyName" placeholder="e.g. Tien Anh, Hung, CI Pipeline" maxlength="64" onkeydown="if(event.key==='Enter')createKey()">
           </div>
           <button onclick="createKey()" id="createBtn" style="
-            padding: 10px 20px; background: var(--accent); color: white;
-            border: none; border-radius: var(--radius-sm);
-            font-size: 14px; font-weight: 700; cursor: pointer;
-            white-space: nowrap; transition: all 0.2s;
+            padding: 10px 20px; background: var(--accent); color: white; border: none;
+            border-radius: var(--radius-sm); font-size: 14px; font-weight: 700;
+            cursor: pointer; white-space: nowrap; transition: all 0.2s;
           " data-vi="Tạo khóa">Generate Key</button>
         </div>
 
@@ -129,14 +115,12 @@
           </div>
           <div class="key-value" id="newKeyValue"></div>
           <button onclick="copyNewKey()" id="copyBtn" style="
-            padding: 8px 16px; background: var(--bg-card); color: var(--text);
-            border: 1px solid var(--border); border-radius: var(--radius-sm);
-            font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+            padding: 8px 16px; background: var(--bg-card); color: var(--text); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
           " data-vi="Sao chép khóa">Copy Key</button>
         </div>
       </div>
 
-      <!-- Usage Info -->
       <div class="keys-card">
         <h3>📖 <span data-vi="Cách sử dụng">How to Use</span></h3>
         <div class="info-box" style="margin-bottom: 0;">
@@ -148,17 +132,14 @@
         </div>
       </div>
 
-      <!-- Key List -->
       <div class="keys-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
           <h3 style="margin-bottom: 0;">📋 <span data-vi="Khóa đang hoạt động">Active Keys</span></h3>
           <button onclick="fetchKeys()" style="
-            padding: 6px 12px; background: var(--bg-elevated); color: var(--text-muted);
-            border: 1px solid var(--border); border-radius: 6px;
-            font-size: 12px; cursor: pointer; transition: all 0.15s;
+            padding: 6px 12px; background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border);
+            border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.15s;
           " data-vi="↻ Tải lại">↻ Refresh</button>
         </div>
-
         <div id="keysTable">
           <p style="color: var(--text-muted); font-size: 13px;" data-vi="Đang tải...">Loading...</p>
         </div>
@@ -172,44 +153,22 @@
 
   <script src="/lang.js"></script>
   <script>
-    // ── Config ───────────────────────────────────────────────────────
-    const DASHBOARD_API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:3000'
-      : 'https://web.rstudio.live';
-
+    const DASHBOARD_API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://web.rstudio.live';
     const BOOTSTRAP_KEY = 'de8754c60f99504c20fe27318b7821141d0f2af0dfed243c53d921cfa57453af';
     const PASSWORD_HASH = 'c59bc9d351d040c66f96275b4caede8832a403c6d7f4a6220b758c4012df4b94';
-    const AUTH_TOKEN_TTL = 3600000;
-    const MAX_ATTEMPTS = 5;
-    const LOCKOUT_MS = 300000;
-
+    const AUTH_TOKEN_TTL = 3600000; const MAX_ATTEMPTS = 5; const LOCKOUT_MS = 300000;
     let activeApiKey = null;
     const isVi = () => localStorage.getItem('rstudio-lang') === 'vi';
 
-    // ── Password auth ────────────────────────────────────────────────
-    function getAttemptState() {
-      try {
-        const s = JSON.parse(sessionStorage.getItem('lbby-attempts') || '{}');
-        if (s.lockUntil && Date.now() > s.lockUntil) { return { count: 0, lockUntil: 0 }; }
-        return s;
-      } catch { return { count: 0, lockUntil: 0 }; }
-    }
-
-    function recordAttempt(failed) {
-      const s = getAttemptState();
-      s.count = failed ? (s.count || 0) + 1 : 0;
-      if (s.count >= MAX_ATTEMPTS) { s.lockUntil = Date.now() + LOCKOUT_MS; s.count = 0; }
-      sessionStorage.setItem('lbby-attempts', JSON.stringify(s));
-    }
+    function getAttemptState() { try { const s = JSON.parse(sessionStorage.getItem('lbby-attempts') || '{}'); if (s.lockUntil && Date.now() > s.lockUntil) { return { count: 0, lockUntil: 0 }; } return s; } catch { return { count: 0, lockUntil: 0 }; } }
+    function recordAttempt(failed) { const s = getAttemptState(); s.count = failed ? (s.count || 0) + 1 : 0; if (s.count >= MAX_ATTEMPTS) { s.lockUntil = Date.now() + LOCKOUT_MS; s.count = 0; } sessionStorage.setItem('lbby-attempts', JSON.stringify(s)); }
 
     function sha256Fallback(str) {
       function rightRotate(v, n) { return (v >>> n) | (v << (32 - n)); }
       const K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
       let H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
-      const bytes = new TextEncoder().encode(str);
-      const l = bytes.length; const bitLen = l * 8; const padLen = ((l + 9 + 63) & ~63);
-      const msg = new Uint8Array(padLen); msg.set(bytes); msg[l] = 0x80;
-      msg[padLen-8] = (bitLen / 0x100000000) >>> 0; msg[padLen-4] = bitLen >>> 0;
+      const bytes = new TextEncoder().encode(str); const l = bytes.length; const bitLen = l * 8; const padLen = ((l + 9 + 63) & ~63);
+      const msg = new Uint8Array(padLen); msg.set(bytes); msg[l] = 0x80; msg[padLen-8] = (bitLen / 0x100000000) >>> 0; msg[padLen-4] = bitLen >>> 0;
       for (let off = 0; off < padLen; off += 64) {
         const W = new Uint32Array(64);
         for (let i = 0; i < 16; i++) W[i] = (msg[off+i*4]<<24)|(msg[off+i*4+1]<<16)|(msg[off+i*4+2]<<8)|msg[off+i*4+3];
@@ -227,116 +186,63 @@
     }
 
     async function checkPassword() {
-      const input = document.getElementById('passwordInput');
-      const error = document.getElementById('passwordError');
+      const input = document.getElementById('passwordInput'); const error = document.getElementById('passwordError');
       const attempts = getAttemptState();
-      if (attempts.lockUntil && Date.now() < attempts.lockUntil) {
-        const secs = Math.ceil((attempts.lockUntil - Date.now()) / 1000);
-        error.textContent = isVi() ? `Quá nhiều lần thử. Thử lại sau ${secs}s.` : `Too many attempts. Try again in ${secs}s.`;
-        error.style.display = 'block'; return;
-      }
+      if (attempts.lockUntil && Date.now() < attempts.lockUntil) { const secs = Math.ceil((attempts.lockUntil - Date.now()) / 1000); error.textContent = isVi() ? `Quá nhiều lần thử. Thử lại sau ${secs}s.` : `Too many attempts. Try again in ${secs}s.`; error.style.display = 'block'; return; }
       const password = input.value;
       if (!password) { error.textContent = isVi() ? 'Vui lòng nhập mật khẩu' : 'Please enter a password'; error.style.display = 'block'; return; }
       const hash = await hashPassword(password);
       if (hash === PASSWORD_HASH) {
-        recordAttempt(false);
-        const token = crypto.randomUUID(); const expiry = Date.now() + AUTH_TOKEN_TTL;
+        recordAttempt(false); const token = crypto.randomUUID(); const expiry = Date.now() + AUTH_TOKEN_TTL;
         sessionStorage.setItem('lbby-auth', JSON.stringify({ token, expiry }));
-        document.getElementById('passwordGate').style.display = 'none';
-        document.getElementById('mainContent').style.display = 'block';
-        initApp();
-      } else {
-        recordAttempt(true);
-        error.textContent = isVi() ? 'Mật khẩu không đúng' : 'Incorrect password';
-        error.style.display = 'block'; input.value = ''; input.focus();
-      }
+        document.getElementById('passwordGate').style.display = 'none'; document.getElementById('mainContent').style.display = 'block'; initApp();
+      } else { recordAttempt(true); error.textContent = isVi() ? 'Mật khẩu không đúng' : 'Incorrect password'; error.style.display = 'block'; input.value = ''; input.focus(); }
     }
 
-    (function checkExistingAuth() {
-      try { const auth = JSON.parse(sessionStorage.getItem('lbby-auth'));
-        if (auth && auth.token && auth.expiry && Date.now() < auth.expiry) {
-          document.getElementById('passwordGate').style.display = 'none';
-          document.getElementById('mainContent').style.display = 'block'; initApp();
-        }
-      } catch (e) {}
-    })();
+    (function checkExistingAuth() { try { const auth = JSON.parse(sessionStorage.getItem('lbby-auth')); if (auth && auth.token && auth.expiry && Date.now() < auth.expiry) { document.getElementById('passwordGate').style.display = 'none'; document.getElementById('mainContent').style.display = 'block'; initApp(); } } catch (e) {} })();
 
-    // ── API helpers ──────────────────────────────────────────────────
     async function apiCall(method, path, body) {
       const key = activeApiKey || BOOTSTRAP_KEY;
       const opts = { method, headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' } };
       if (body) opts.body = JSON.stringify(body);
-      const res = await fetch(`${DASHBOARD_API}${path}`, opts);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || `API error ${res.status}`);
-      return data;
+      const res = await fetch(`${DASHBOARD_API}${path}`, opts); const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `API error ${res.status}`); return data;
     }
 
-    // ── Init ─────────────────────────────────────────────────────────
-    async function initApp() {
-      const saved = sessionStorage.getItem('lbby-api-key');
-      if (saved) activeApiKey = saved;
-      await testConnection(); await fetchKeys();
-    }
+    async function initApp() { const saved = sessionStorage.getItem('lbby-api-key'); if (saved) activeApiKey = saved; await testConnection(); await fetchKeys(); }
 
     async function testConnection() {
       const el = document.getElementById('connectionStatus');
-      try {
-        await apiCall('GET', '/api/admin/api-keys');
-        const using = activeApiKey ? (isVi() ? 'khóa riêng' : 'named key') : (isVi() ? 'khóa gốc' : 'bootstrap key');
-        el.innerHTML = `✅ ${isVi() ? 'Đã kết nối đến dashboard API' : 'Connected to dashboard API'} <span style="opacity:0.6">(${using})</span>`;
-        el.style.borderColor = 'var(--green-border)';
-      } catch (err) {
-        el.innerHTML = `❌ ${isVi() ? 'Kết nối thất bại' : 'Connection failed'}: ${escapeHtml(err.message)}`;
-        el.style.borderColor = 'var(--red-border)';
-      }
+      try { await apiCall('GET', '/api/admin/api-keys'); const using = activeApiKey ? (isVi() ? 'khóa riêng' : 'named key') : (isVi() ? 'khóa gốc' : 'bootstrap key'); el.innerHTML = `✅ ${isVi() ? 'Đã kết nối đến dashboard API' : 'Connected to dashboard API'} <span style="opacity:0.6">(${using})</span>`; el.style.borderColor = 'var(--green-border)';
+      } catch (err) { el.innerHTML = `❌ ${isVi() ? 'Kết nối thất bại' : 'Connection failed'}: ${escapeHtml(err.message)}`; el.style.borderColor = 'var(--red-border)'; }
     }
 
-    // ── Create key ───────────────────────────────────────────────────
     async function createKey() {
-      const nameInput = document.getElementById('keyName');
-      const name = nameInput.value.trim();
-      if (!name) return;
-      const btn = document.getElementById('createBtn');
-      const status = document.getElementById('createStatus');
-      const newKeyBox = document.getElementById('newKeyBox');
+      const nameInput = document.getElementById('keyName'); const name = nameInput.value.trim(); if (!name) return;
+      const btn = document.getElementById('createBtn'); const status = document.getElementById('createStatus'); const newKeyBox = document.getElementById('newKeyBox');
       btn.textContent = isVi() ? 'Đang tạo...' : 'Creating...'; btn.disabled = true;
       status.className = 'status-msg'; status.style.display = 'none'; newKeyBox.style.display = 'none';
       try {
         const data = await apiCall('POST', '/api/admin/api-keys', { name });
-        document.getElementById('newKeyValue').textContent = data.key;
-        newKeyBox.style.display = 'block';
-        status.textContent = isVi() ? `Khóa "${data.name}" đã tạo!` : `Key "${data.name}" created!`;
-        status.className = 'status-msg success';
+        document.getElementById('newKeyValue').textContent = data.key; newKeyBox.style.display = 'block';
+        status.textContent = isVi() ? `Khóa "${data.name}" đã tạo!` : `Key "${data.name}" created!`; status.className = 'status-msg success';
         nameInput.value = ''; fetchKeys();
-      } catch (err) {
-        status.textContent = (isVi() ? 'Lỗi: ' : 'Error: ') + err.message;
-        status.className = 'status-msg error';
+      } catch (err) { status.textContent = (isVi() ? 'Lỗi: ' : 'Error: ') + err.message; status.className = 'status-msg error';
       } finally { btn.textContent = isVi() ? 'Tạo khóa' : 'Generate Key'; btn.disabled = false; }
     }
 
-    function copyNewKey() {
-      navigator.clipboard.writeText(document.getElementById('newKeyValue').textContent);
-      const btn = document.getElementById('copyBtn');
-      btn.textContent = '✓ Copied!'; setTimeout(() => { btn.textContent = isVi() ? 'Sao chép khóa' : 'Copy Key'; }, 2000);
-    }
+    function copyNewKey() { navigator.clipboard.writeText(document.getElementById('newKeyValue').textContent); const btn = document.getElementById('copyBtn'); btn.textContent = '✓ Copied!'; setTimeout(() => { btn.textContent = isVi() ? 'Sao chép khóa' : 'Copy Key'; }, 2000); }
 
-    // ── Fetch keys ───────────────────────────────────────────────────
     async function fetchKeys() {
       const el = document.getElementById('keysTable');
       try {
-        const data = await apiCall('GET', '/api/admin/api-keys');
-        const keys = data.keys || [];
+        const data = await apiCall('GET', '/api/admin/api-keys'); const keys = data.keys || [];
         if (keys.length === 0) { el.innerHTML = `<p style="color:var(--text-muted);font-size:13px;">${isVi() ? 'Chưa có khóa API nào. Tạo ở trên.' : 'No API keys yet. Create one above.'}</p>`; return; }
         const rows = keys.map(k => {
-          const isRevoked = k.revoked_at !== null;
-          const date = new Date(k.created_at * 1000).toLocaleDateString();
-          const statusBadge = isRevoked
-            ? `<span class="badge badge-revoked">${isVi() ? 'Đã thu hồi' : 'Revoked'}</span>`
-            : `<span class="badge badge-active">${isVi() ? 'Hoạt động' : 'Active'}</span>`;
+          const isRevoked = k.revoked_at !== null; const date = new Date(k.created_at * 1000).toLocaleDateString();
+          const statusBadge = isRevoked ? `<span class="badge badge-revoked">${isVi() ? 'Đã thu hồi' : 'Revoked'}</span>` : `<span class="badge badge-active">${isVi() ? 'Hoạt động' : 'Active'}</span>`;
           const actions = isRevoked
-            ? `<button class="btn-restore" onclick="unrevokeKey(${k.id})">${isVi() ? 'Khôi phục' : 'Restore'}</button>
-               <button class="btn-delete" onclick="deleteKey(${k.id}, '${escapeHtml(k.name)}')">${isVi() ? 'Xóa' : 'Delete'}</button>`
+            ? `<button class="btn-restore" onclick="unrevokeKey(${k.id})">${isVi() ? 'Khôi phục' : 'Restore'}</button> <button class="btn-delete" onclick="deleteKey(${k.id}, '${escapeHtml(k.name)}')">${isVi() ? 'Xóa' : 'Delete'}</button>`
             : `<button class="btn-revoke" onclick="revokeKey(${k.id})">${isVi() ? 'Thu hồi' : 'Revoke'}</button>`;
           return `<tr><td style="font-weight:600;">${escapeHtml(k.name)}</td><td><code class="prefix-code">${escapeHtml(k.key_prefix)}…</code></td><td>${date}</td><td>${statusBadge}</td><td><div class="actions-cell">${actions}</div></td></tr>`;
         }).join('');
@@ -344,18 +250,9 @@
       } catch (err) { el.innerHTML = `<p style="color:var(--red);font-size:13px;">${isVi() ? 'Tải thất bại' : 'Failed to load keys'}: ${escapeHtml(err.message)}</p>`; }
     }
 
-    // ── Revoke / Unrevoke / Delete ───────────────────────────────────
-    async function revokeKey(id) {
-      if (!confirm(isVi() ? 'Thu hồi khóa này? Người giữ sẽ mất quyền truy cập ngay lập tức.' : 'Revoke this key? The holder loses admin access immediately.')) return;
-      try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'revoke' }); fetchKeys(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); }
-    }
-    async function unrevokeKey(id) {
-      try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'unrevoke' }); fetchKeys(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); }
-    }
-    async function deleteKey(id, name) {
-      if (!confirm(isVi() ? `Xóa vĩnh viễn "${name}"? Không thể hoàn tác.` : `Permanently delete "${name}"? This cannot be undone.`)) return;
-      try { await apiCall('DELETE', '/api/admin/api-keys', { id }); fetchKeys(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); }
-    }
+    async function revokeKey(id) { if (!confirm(isVi() ? 'Thu hồi khóa này? Người giữ sẽ mất quyền truy cập ngay.' : 'Revoke this key? The holder loses admin access immediately.')) return; try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'revoke' }); fetchKeys(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); } }
+    async function unrevokeKey(id) { try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'unrevoke' }); fetchKeys(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); } }
+    async function deleteKey(id, name) { if (!confirm(isVi() ? `Xóa vĩnh viễn "${name}"? Không thể hoàn tác.` : `Permanently delete "${name}"? This cannot be undone.`)) return; try { await apiCall('DELETE', '/api/admin/api-keys', { id }); fetchKeys(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); } }
 
     function logout() { sessionStorage.removeItem('lbby-auth'); sessionStorage.removeItem('lbby-attempts'); location.reload(); }
     function escapeHtml(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
