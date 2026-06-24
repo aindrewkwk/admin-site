@@ -40,6 +40,7 @@
     .new-key-box .key-value { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; word-break: break-all; color: var(--text); margin: 8px 0; user-select: all; }
     .actions-cell { display: flex; gap: 6px; justify-content: flex-end; }
     .prefix-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; background: var(--bg-elevated); padding: 2px 8px; border-radius: 4px; }
+    .dev-warning { font-size: 12px; color: var(--yellow, #ffd43b); background: rgba(255, 212, 59, 0.08); border: 1px solid rgba(255, 212, 59, 0.2); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
     @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } .actions-cell { flex-wrap: wrap; } }
   </style>
 </head>
@@ -90,6 +91,7 @@
         Connecting to dashboard API...
       </div>
 
+      <!-- Create Key -->
       <div class="keys-card">
         <h3 data-vi="Tạo khóa mới">Create New Key</h3>
         <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;" data-vi="Mỗi thành viên nhóm nhận một khóa riêng. Khóa chỉ hiển thị một lần — sao chép ngay.">
@@ -121,17 +123,38 @@
         </div>
       </div>
 
+      <!-- Dev/Tester API Info -->
       <div class="keys-card">
-        <h3>📖 <span data-vi="Cách sử dụng">How to Use</span></h3>
-        <div class="info-box" style="margin-bottom: 0;">
-          <p style="margin-bottom: 8px;" data-vi="Truyền khóa API làm Bearer token trong header Authorization:">Pass the API key as a Bearer token in the <code>Authorization</code> header:</p>
-          <code style="display: block; padding: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; font-size: 12px; margin-bottom: 8px;">
-            curl -H "Authorization: Bearer lbby_ak_..." https://web.rstudio.live/api/admin/licenses
-          </code>
-          <p style="margin: 0;" data-vi="Hoạt động với tất cả endpoint /api/admin/* — giấy phép, người dùng, đăng ký.">Works with all <code>/api/admin/*</code> endpoints — licenses, users, subscriptions.</p>
+        <h3>🔧 <span data-vi="Tích hợp API (dành cho nhà phát triển / kiểm thử)">API Integration (for developers / testers)</span></h3>
+        <div class="dev-warning">
+          <span>⚠️</span>
+          <span data-vi="Phần này chỉ dành cho nhà phát triển và người kiểm thử cần tích hợp với API trực tiếp. Thành viên nhóm bình thường không cần điều này — chỉ cần sử dụng trang quản trị ở trên.">
+            This section is only for developers and testers who need to integrate with the API directly. Regular team members don't need this — just use the admin panel above.
+          </span>
         </div>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;" data-vi="Truyền khóa API làm Bearer token trong header Authorization:">
+          Pass the API key as a Bearer token in the <code>Authorization</code> header:
+        </p>
+        <code style="display: block; padding: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; font-size: 12px; margin-bottom: 12px;">
+          curl -H "Authorization: Bearer lbby_ak_..." https://web.rstudio.live/api/admin/licenses
+        </code>
+        <details style="margin-bottom: 8px;">
+          <summary style="font-size: 12px; color: var(--text-muted); cursor: pointer; margin-bottom: 8px;" data-vi="Xem tất cả endpoint có sẵn">View all available endpoints</summary>
+          <table class="key-table" style="margin-top: 8px;">
+            <thead><tr><th>Endpoint</th><th data-vi="Mô tả">Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>GET /api/admin/licenses</code></td><td data-vi="Danh sách giấy phép">List licenses</td></tr>
+              <tr><td><code>POST /api/admin/licenses/generate</code></td><td data-vi="Tạo giấy phép">Generate license</td></tr>
+              <tr><td><code>POST /api/admin/licenses/revoke</code></td><td data-vi="Thu hồi / bật lại giấy phép">Revoke / re-enable license</td></tr>
+              <tr><td><code>GET /api/admin/users</code></td><td data-vi="Danh sách người dùng">List users</td></tr>
+              <tr><td><code>PATCH /api/admin/users/:id</code></td><td data-vi="Cập nhật người dùng (admin)">Update user (toggle admin)</td></tr>
+              <tr><td><code>DELETE /api/admin/users/:id</code></td><td data-vi="Xóa người dùng">Delete user</td></tr>
+            </tbody>
+          </table>
+        </details>
       </div>
 
+      <!-- Key List -->
       <div class="keys-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
           <h3 style="margin-bottom: 0;">📋 <span data-vi="Khóa đang hoạt động">Active Keys</span></h3>
@@ -146,9 +169,7 @@
       </div>
     </div>
 
-    <footer class="footer">
-      <p>&copy; 2026 R Studio. All rights reserved.</p>
-    </footer>
+    <footer class="footer"><p>&copy; 2026 R Studio. All rights reserved.</p></footer>
   </div>
 
   <script src="/lang.js"></script>
