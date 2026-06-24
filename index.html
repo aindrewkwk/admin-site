@@ -47,7 +47,8 @@
       <a href="index.html" class="active">License</a>
       <a href="api-keys.html">API Keys</a>
       <a href="https://lbby.rstudio.live">Lbby</a>
-      <a href="#" onclick="logout()" style="margin-left:auto;opacity:0.6;font-size:13px;">Logout</a>
+      <button onclick="toggleLang()" style="margin-left:auto;padding:4px 10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-size:12px;cursor:pointer;"><span id="langLabel">VI</span></button>
+      <a href="#" onclick="logout()" style="opacity:0.6;font-size:13px;" data-vi="Đăng xuất">Logout</a>
     </div>
   </nav>
 
@@ -55,10 +56,10 @@
   <div id="passwordGate" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px;">
     <div style="max-width: 400px; width: 100%; text-align: center;">
       <div style="font-size: 48px; margin-bottom: 20px;">🔐</div>
-      <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--text);">License Generator</h1>
-      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">Enter the team password to access</p>
+      <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--text);" data-vi="Trình tạo giấy phép">License Generator</h1>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;" data-vi="Nhập mật khẩu nhóm để truy cập">Enter the team password to access</p>
       <div style="margin-bottom: 16px;">
-        <input type="password" id="passwordInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPassword()" style="
+        <input type="password" id="passwordInput" placeholder="Enter password" data-vi-placeholder="Nhập mật khẩu" onkeydown="if(event.key==='Enter')checkPassword()" style="
           width: 100%; padding: 14px 18px;
           background: var(--bg-card);
           border: 1px solid var(--border);
@@ -74,7 +75,7 @@
         border: none; border-radius: var(--radius-sm);
         font-size: 16px; font-weight: 700;
         cursor: pointer; transition: all 0.2s;
-      ">Access Generator</button>
+      " data-vi="Truy cập trình tạo">Access Generator</button>
       <div id="passwordError" style="display: none; margin-top: 12px; color: var(--red); font-size: 13px;"></div>
     </div>
   </div>
@@ -83,37 +84,37 @@
   <div id="mainContent" style="display: none;">
 
     <div class="license-container">
-      <h1 style="font-size: 28px; font-weight: 900; margin-bottom: 8px;">🔑 License Generator</h1>
-      <p style="color: var(--text-muted); margin-bottom: 28px;">Generate Ed25519-signed JWT license keys for Lbby.</p>
+      <h1 style="font-size: 28px; font-weight: 900; margin-bottom: 8px;">🔑 <span data-vi="Trình tạo giấy phép">License Generator</span></h1>
+      <p style="color: var(--text-muted); margin-bottom: 28px;" data-vi="Tạo khóa giấy phép JWT ký Ed25519 cho Lbby.">Generate Ed25519-signed JWT license keys for Lbby.</p>
 
       <!-- Key Pair -->
       <div class="license-card">
-        <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">🔑 Key Pair</h3>
-        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">Generate or import your Ed25519 key pair. The private key stays in your browser.</p>
+        <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;" data-vi="🔑 Cặp khóa">🔑 Key Pair</h3>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;" data-vi="Tạo hoặc nhập cặp khóa Ed25519. Khóa riêng ở lại trong trình duyệt của bạn.">Generate or import your Ed25519 key pair. The private key stays in your browser.</p>
         <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-          <button class="btn btn-primary btn-sm" onclick="generateKeyPair()">Generate New Key Pair</button>
-          <button class="btn btn-secondary btn-sm" onclick="showImportKey()">Import Private Key</button>
+          <button class="btn btn-primary btn-sm" onclick="generateKeyPair()" data-vi="Tạo cặp khóa mới">Generate New Key Pair</button>
+          <button class="btn btn-secondary btn-sm" onclick="showImportKey()" data-vi="Nhập khóa riêng">Import Private Key</button>
         </div>
         <div id="importKeyArea" style="display: none; margin-bottom: 12px;">
-          <textarea id="importKeyInput" placeholder="Paste your PEM private key here..." style="
+          <textarea id="importKeyInput" placeholder="Paste your PEM private key here..." data-vi-placeholder="Dán khóa riêng PEM vào đây..." style="
             width: 100%; min-height: 80px; padding: 12px;
             background: var(--bg-card); border: 1px solid var(--border);
             border-radius: var(--radius-sm); color: var(--text);
             font-family: ui-monospace, monospace; font-size: 11px;
             outline: none; resize: vertical; word-break: break-all;
           "></textarea>
-          <button class="btn btn-sm btn-primary" onclick="importKey()" style="margin-top: 8px;">Import</button>
+          <button class="btn btn-sm btn-primary" onclick="importKey()" style="margin-top: 8px;" data-vi="Nhập">Import</button>
         </div>
         <div id="keyStatus" class="status-msg"></div>
       </div>
 
       <!-- Generate License -->
       <div class="license-card">
-        <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">📜 Generate License</h3>
+        <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;" data-vi="📜 Tạo giấy phép">📜 Generate License</h3>
 
         <div class="form-row">
           <div class="form-group">
-            <label>User ID</label>
+            <label data-vi="ID người dùng">User ID</label>
             <input type="text" id="userId" placeholder="Telegram user ID">
           </div>
           <div class="form-group">
@@ -127,22 +128,22 @@
 
         <div class="form-row">
           <div class="form-group">
-            <label>Validity</label>
+            <label data-vi="Thời hạn">Validity</label>
             <div style="display: flex; gap: 8px;">
               <input type="number" id="expiryValue" value="30" min="1" style="width: 100px;">
               <select id="expiryUnit" style="flex: 1;">
-                <option value="minutes">Minutes</option>
-                <option value="hours">Hours</option>
-                <option value="days" selected>Days</option>
-                <option value="weeks">Weeks</option>
-                <option value="months">Months</option>
-                <option value="years">Years</option>
+                <option value="minutes" data-vi="Phút">Minutes</option>
+                <option value="hours" data-vi="Giờ">Hours</option>
+                <option value="days" selected data-vi="Ngày">Days</option>
+                <option value="weeks" data-vi="Tuần">Weeks</option>
+                <option value="months" data-vi="Tháng">Months</option>
+                <option value="years" data-vi="Năm">Years</option>
               </select>
             </div>
           </div>
           <div class="form-group">
-            <label>JWT ID (optional)</label>
-            <input type="text" id="jwtId" placeholder="Auto-generated">
+            <label data-vi="JWT ID (tùy chọn)">JWT ID (optional)</label>
+            <input type="text" id="jwtId" placeholder="Auto-generated" data-vi-placeholder="Tự động tạo">
           </div>
         </div>
 
@@ -162,68 +163,68 @@
 
         <div class="form-row">
           <div class="form-group">
-            <label>Email (optional)</label>
+            <label data-vi="Email (tùy chọn)">Email (optional)</label>
             <input type="text" id="email" placeholder="user@example.com">
           </div>
           <div class="form-group">
-            <label>Telegram Username (optional)</label>
+            <label data-vi="Telegram (tùy chọn)">Telegram Username (optional)</label>
             <input type="text" id="tgUsername" placeholder="@username">
           </div>
         </div>
 
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
           <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
-            <input type="checkbox" id="bindDevice"> Bind to device
+            <input type="checkbox" id="bindDevice"> <span data-vi="Gắn vào thiết bị">Bind to device</span>
           </label>
-          <input type="text" id="deviceId" placeholder="Device fingerprint" style="flex: 1; padding: 8px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-family: inherit; outline: none;">
+          <input type="text" id="deviceId" placeholder="Device fingerprint" data-vi-placeholder="Dấu vân tay thiết bị" style="flex: 1; padding: 8px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-family: inherit; outline: none;">
         </div>
 
-        <button class="btn btn-primary" onclick="generateLicense()" style="width: 100%; justify-content: center;">Generate License Key</button>
+        <button class="btn btn-primary" onclick="generateLicense()" style="width: 100%; justify-content: center;" data-vi="Tạo khóa giấy phép">Generate License Key</button>
 
         <div id="licenseStatus" class="status-msg"></div>
 
         <div id="licenseOutput" style="display: none;">
-          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block;">Generated License</label>
+          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block;" data-vi="GIẤY PHÉP ĐÃ TẠO">GENERATED LICENSE</label>
           <div class="output-area" id="jwtOutput"></div>
           <div style="display: flex; gap: 8px;">
-            <button class="btn btn-secondary btn-sm" onclick="copyLicense()">Copy</button>
-            <button class="btn btn-secondary btn-sm" onclick="copyActivationMessage()">Copy Activation Message</button>
+            <button class="btn btn-secondary btn-sm" onclick="copyLicense()" data-vi="Sao chép">Copy</button>
+            <button class="btn btn-secondary btn-sm" onclick="copyActivationMessage()" data-vi="Sao chép tin nhắn kích hoạt">Copy Activation Message</button>
           </div>
         </div>
       </div>
 
       <!-- Decode JWT -->
       <div class="license-card">
-        <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">🔍 Decode JWT</h3>
-        <textarea id="decodeInput" placeholder="Paste a JWT to decode..." style="
+        <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;" data-vi="🔍 Giải mã JWT">🔍 Decode JWT</h3>
+        <textarea id="decodeInput" placeholder="Paste a JWT to decode..." data-vi-placeholder="Dán JWT vào để giải mã..." style="
           width: 100%; min-height: 60px; padding: 12px;
           background: var(--bg-card); border: 1px solid var(--border);
           border-radius: var(--radius-sm); color: var(--text);
           font-family: ui-monospace, monospace; font-size: 11px;
           outline: none; resize: vertical; word-break: break-all;
         "></textarea>
-        <button class="btn btn-secondary btn-sm" onclick="decodeJwt()" style="margin-top: 8px;">Decode</button>
+        <button class="btn btn-secondary btn-sm" onclick="decodeJwt()" style="margin-top: 8px;" data-vi="Giải mã">Decode</button>
         <div id="decodeOutput" class="output-area" style="display: none; margin-top: 12px;"></div>
       </div>
 
       <!-- Dashboard Licenses -->
       <div class="license-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <h3 style="font-size: 16px; font-weight: 800;">🎫 Dashboard Licenses</h3>
+          <h3 style="font-size: 16px; font-weight: 800;">🎫 <span data-vi="Giấy phép Dashboard">Dashboard Licenses</span></h3>
         </div>
-        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">Issue and manage license keys via the dashboard API. Keys are signed server-side and stored in D1.</p>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;" data-vi="Phát hành và quản lý khóa giấy phép qua dashboard API. Khóa được ký phía máy chủ và lưu trong D1.">Issue and manage license keys via the dashboard API. Keys are signed server-side and stored in D1.</p>
 
         <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-          <input type="password" id="dashApiKey" placeholder="Dashboard API Key" style="flex: 1; padding: 8px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-family: inherit; outline: none;">
-          <button class="btn btn-primary btn-sm" onclick="fetchDashLicenses()">Load Licenses</button>
+          <input type="password" id="dashApiKey" placeholder="Dashboard API Key" data-vi-placeholder="Khóa API Dashboard" style="flex: 1; padding: 8px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-family: inherit; outline: none;">
+          <button class="btn btn-primary btn-sm" onclick="fetchDashLicenses()" data-vi="Tải giấy phép">Load Licenses</button>
         </div>
 
         <!-- Generate via Dashboard -->
         <div style="border-top: 1px solid var(--border); padding-top: 16px; margin-bottom: 16px;">
-          <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Generate via Dashboard</h4>
+          <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;" data-vi="Tạo qua Dashboard">Generate via Dashboard</h4>
           <div class="form-row">
             <div class="form-group">
-              <label>User Email</label>
+              <label data-vi="Email người dùng">User Email</label>
               <input type="email" id="dashEmail" placeholder="user@example.com">
             </div>
             <div class="form-group">
@@ -236,39 +237,39 @@
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>Billing Cycle</label>
+              <label data-vi="Chu kỳ thanh toán">Billing Cycle</label>
               <select id="dashCycle">
-                <option value="monthly">Monthly (30 days)</option>
-                <option value="yearly">Yearly (365 days)</option>
-                <option value="lifetime">Lifetime (10 years)</option>
+                <option value="monthly" data-vi="Hàng tháng (30 ngày)">Monthly (30 days)</option>
+                <option value="yearly" data-vi="Hàng năm (365 ngày)">Yearly (365 days)</option>
+                <option value="lifetime" data-vi="Trọn đời (10 năm)">Lifetime (10 years)</option>
               </select>
             </div>
             <div class="form-group">
               <label>&nbsp;</label>
-              <button class="btn btn-primary" onclick="generateDashLicense()" style="width: 100%; justify-content: center;">Generate License</button>
+              <button class="btn btn-primary" onclick="generateDashLicense()" style="width: 100%; justify-content: center;" data-vi="Tạo giấy phép">Generate License</button>
             </div>
           </div>
           <div id="dashGenStatus" class="status-msg"></div>
           <div id="dashGenOutput" style="display: none;">
             <div class="output-area" id="dashGenKey"></div>
-            <button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('dashGenKey').textContent)">Copy</button>
+            <button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('dashGenKey').textContent)" data-vi="Sao chép">Copy</button>
           </div>
         </div>
 
         <!-- License list -->
         <div id="dashLicensesArea" style="overflow-x: auto;">
-          <p class="text-muted" style="font-size: 13px;">Enter API key to load licenses.</p>
+          <p class="text-muted" style="font-size: 13px;" data-vi="Nhập khóa API để tải giấy phép.">Enter API key to load licenses.</p>
         </div>
       </div>
 
       <!-- History -->
       <div class="license-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <h3 style="font-size: 16px; font-weight: 800;">📋 Local History</h3>
-          <button class="btn btn-secondary btn-sm" onclick="exportHistory()">Export</button>
+          <h3 style="font-size: 16px; font-weight: 800;" data-vi="📋 Lịch sử cục bộ">📋 Local History</h3>
+          <button class="btn btn-secondary btn-sm" onclick="exportHistory()" data-vi="Xuất">Export</button>
         </div>
         <div id="historyArea" style="overflow-x: auto; margin-bottom: 12px;">
-          <p class="text-muted" style="font-size: 13px;">No licenses generated yet.</p>
+          <p class="text-muted" style="font-size: 13px;" data-vi="Chưa tạo giấy phép nào.">No licenses generated yet.</p>
         </div>
       </div>
     </div>
@@ -278,351 +279,143 @@
     </footer>
   </div>
 
+  <script src="/lang.js"></script>
   <script>
-    // ── Password ────────────────────────────────────────────────────
-    // SECURITY: Password hash is still visible (unavoidable on static sites).
-    // Added: time-limited auth tokens, rate-limited attempts, non-extractable key storage.
-    // For true security, move this behind a server-side API.
     const PASSWORD_HASH = 'c59bc9d351d040c66f96275b4caede8832a403c6d7f4a6220b758c4012df4b94';
-    const AUTH_TOKEN_TTL = 3600000; // 1 hour
+    const AUTH_TOKEN_TTL = 3600000;
     const MAX_ATTEMPTS = 5;
-    const LOCKOUT_MS = 300000; // 5 min lockout after 5 failures
-
-    // ── Key management now uses IndexedDB + non-extractable CryptoKey ──
-    // Private keys are NEVER stored in localStorage anymore.
-    // Keys are stored as PEM in IndexedDB and re-imported as non-extractable CryptoKey on load.
+    const LOCKOUT_MS = 300000;
+    const isVi = () => localStorage.getItem('rstudio-lang') === 'vi';
 
     function getAttemptState() {
-      try {
-        const s = JSON.parse(sessionStorage.getItem('lbby-attempts') || '{}');
-        if (s.lockUntil && Date.now() > s.lockUntil) { return { count: 0, lockUntil: 0 }; }
-        return s;
-      } catch { return { count: 0, lockUntil: 0 }; }
+      try { const s = JSON.parse(sessionStorage.getItem('lbby-attempts') || '{}'); if (s.lockUntil && Date.now() > s.lockUntil) { return { count: 0, lockUntil: 0 }; } return s; } catch { return { count: 0, lockUntil: 0 }; }
     }
-
     function recordAttempt(failed) {
-      const s = getAttemptState();
-      s.count = failed ? (s.count || 0) + 1 : 0;
+      const s = getAttemptState(); s.count = failed ? (s.count || 0) + 1 : 0;
       if (s.count >= MAX_ATTEMPTS) { s.lockUntil = Date.now() + LOCKOUT_MS; s.count = 0; }
       sessionStorage.setItem('lbby-attempts', JSON.stringify(s));
     }
 
-    // Pure JS SHA-256 fallback for HTTP (crypto.subtle requires HTTPS)
     function sha256Fallback(str) {
       function rightRotate(v, n) { return (v >>> n) | (v << (32 - n)); }
       const K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
       let H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
-      const bytes = new TextEncoder().encode(str);
-      const l = bytes.length;
-      const bitLen = l * 8;
-      const padLen = ((l + 9 + 63) & ~63);
-      const msg = new Uint8Array(padLen);
-      msg.set(bytes);
-      msg[l] = 0x80;
-      msg[padLen-8] = (bitLen / 0x100000000) >>> 0;
-      msg[padLen-4] = bitLen >>> 0;
+      const bytes = new TextEncoder().encode(str); const l = bytes.length; const bitLen = l * 8; const padLen = ((l + 9 + 63) & ~63);
+      const msg = new Uint8Array(padLen); msg.set(bytes); msg[l] = 0x80; msg[padLen-8] = (bitLen / 0x100000000) >>> 0; msg[padLen-4] = bitLen >>> 0;
       for (let off = 0; off < padLen; off += 64) {
         const W = new Uint32Array(64);
         for (let i = 0; i < 16; i++) W[i] = (msg[off+i*4]<<24)|(msg[off+i*4+1]<<16)|(msg[off+i*4+2]<<8)|msg[off+i*4+3];
-        for (let i = 16; i < 64; i++) {
-          const s0 = rightRotate(W[i-15],7)^rightRotate(W[i-15],18)^(W[i-15]>>>3);
-          const s1 = rightRotate(W[i-2],17)^rightRotate(W[i-2],19)^(W[i-2]>>>2);
-          W[i] = (W[i-16]+s0+W[i-7]+s1)|0;
-        }
-        let [a,b,c,d,e,f,g,h] = H;
-        for (let i = 0; i < 64; i++) {
-          const S1 = rightRotate(e,6)^rightRotate(e,11)^rightRotate(e,25);
-          const ch = (e&f)^(~e&g);
-          const t1 = (h+S1+ch+K[i]+W[i])|0;
-          const S0 = rightRotate(a,2)^rightRotate(a,13)^rightRotate(a,22);
-          const maj = (a&b)^(a&c)^(b&c);
-          const t2 = (S0+maj)|0;
-          h=g; g=f; f=e; e=(d+t1)|0; d=c; c=b; b=a; a=(t1+t2)|0;
-        }
-        H = [H[0]+a|0,H[1]+b|0,H[2]+c|0,H[3]+d|0,H[4]+e|0,H[5]+f|0,H[6]+g|0,H[7]+h|0];
+        for (let i = 16; i < 64; i++) { const s0=rightRotate(W[i-15],7)^rightRotate(W[i-15],18)^(W[i-15]>>>3); const s1=rightRotate(W[i-2],17)^rightRotate(W[i-2],19)^(W[i-2]>>>2); W[i]=(W[i-16]+s0+W[i-7]+s1)|0; }
+        let [a,b,c,d,e,f,g,h]=H;
+        for (let i=0;i<64;i++){const S1=rightRotate(e,6)^rightRotate(e,11)^rightRotate(e,25);const ch=(e&f)^(~e&g);const t1=(h+S1+ch+K[i]+W[i])|0;const S0=rightRotate(a,2)^rightRotate(a,13)^rightRotate(a,22);const maj=(a&b)^(a&c)^(b&c);const t2=(S0+maj)|0;h=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0;}
+        H=[H[0]+a|0,H[1]+b|0,H[2]+c|0,H[3]+d|0,H[4]+e|0,H[5]+f|0,H[6]+g|0,H[7]+h|0];
       }
-      return H.map(v => (v>>>0).toString(16).padStart(8,'0')).join('');
+      return H.map(v=>(v>>>0).toString(16).padStart(8,'0')).join('');
     }
 
     async function hashPassword(password) {
-      if (crypto.subtle) {
-        const data = new TextEncoder().encode(password);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-      }
+      if (crypto.subtle) { const data = new TextEncoder().encode(password); const hashBuffer = await crypto.subtle.digest('SHA-256', data); return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join(''); }
       return sha256Fallback(password);
     }
 
     async function checkPassword() {
-      const input = document.getElementById('passwordInput');
-      const error = document.getElementById('passwordError');
-
+      const input = document.getElementById('passwordInput'); const error = document.getElementById('passwordError');
       const attempts = getAttemptState();
       if (attempts.lockUntil && Date.now() < attempts.lockUntil) {
         const secs = Math.ceil((attempts.lockUntil - Date.now()) / 1000);
-        error.textContent = `Too many attempts. Try again in ${secs}s.`;
-        error.style.display = 'block';
-        return;
+        error.textContent = isVi() ? `Quá nhiều lần thử. Thử lại sau ${secs}s.` : `Too many attempts. Try again in ${secs}s.`;
+        error.style.display = 'block'; return;
       }
-
       const password = input.value;
-      if (!password) { error.textContent = 'Please enter a password'; error.style.display = 'block'; return; }
-
+      if (!password) { error.textContent = isVi() ? 'Vui lòng nhập mật khẩu' : 'Please enter a password'; error.style.display = 'block'; return; }
       const hash = await hashPassword(password);
       if (hash === PASSWORD_HASH) {
         recordAttempt(false);
-        // Issue a time-limited auth token
-        const token = crypto.randomUUID();
-        const expiry = Date.now() + AUTH_TOKEN_TTL;
+        const token = crypto.randomUUID(); const expiry = Date.now() + AUTH_TOKEN_TTL;
         sessionStorage.setItem('lbby-auth', JSON.stringify({ token, expiry }));
         document.getElementById('passwordGate').style.display = 'none';
-        document.getElementById('mainContent').style.display = 'block';
-        initApp();
+        document.getElementById('mainContent').style.display = 'block'; initApp();
       } else {
         recordAttempt(true);
-        error.textContent = 'Incorrect password';
-        error.style.display = 'block';
-        input.value = '';
-        input.focus();
+        error.textContent = isVi() ? 'Mật khẩu không đúng' : 'Incorrect password';
+        error.style.display = 'block'; input.value = ''; input.focus();
       }
     }
 
     // ── License Generator Logic ─────────────────────────────────────
-    let privateKey = null; // CryptoKey (non-extractable) or null
-    let privateKeyPem = null; // Only held in memory for signing, never persisted
+    let privateKey = null; let privateKeyPem = null;
     let history = JSON.parse(localStorage.getItem('lbby-license-history') || '[]');
     let revoked = JSON.parse(localStorage.getItem('lbby-revoked') || '[]');
     let lastGeneratedJwt = '';
 
-    // IndexedDB helpers for non-extractable key storage
-    const DB_NAME = 'lbby-keys';
-    const STORE_NAME = 'keys';
-
-    function openKeyDB() {
-      return new Promise((resolve, reject) => {
-        const req = indexedDB.open(DB_NAME, 1);
-        req.onupgradeneeded = () => req.result.createObjectStore(STORE_NAME);
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
-      });
-    }
-
-    async function saveKeyToIDB(keyData) {
-      const db = await openKeyDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, 'readwrite');
-        tx.objectStore(STORE_NAME).put(keyData, 'private-key');
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
-      });
-    }
-
-    async function loadKeyFromIDB() {
-      const db = await openKeyDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, 'readonly');
-        const req = tx.objectStore(STORE_NAME).get('private-key');
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
-      });
-    }
-
-    async function clearKeyFromIDB() {
-      const db = await openKeyDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, 'readwrite');
-        tx.objectStore(STORE_NAME).delete('private-key');
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
-      });
-    }
-
-    async function importPemAsNonExtractable(pem) {
-      const stripped = pem.replace(/-----BEGIN [^-]+-----/, '').replace(/-----END [^-]+-----/, '').replace(/\s+/g, '');
-      const der = Uint8Array.from(atob(stripped), c => c.charCodeAt(0));
-      // Import as non-extractable — the key can sign but its raw bytes can never be read
-      return crypto.subtle.importKey('pkcs8', der.buffer, { name: 'Ed25519' }, false, ['sign']);
-    }
+    const DB_NAME = 'lbby-keys'; const STORE_NAME = 'keys';
+    function openKeyDB() { return new Promise((resolve, reject) => { const req = indexedDB.open(DB_NAME, 1); req.onupgradeneeded = () => req.result.createObjectStore(STORE_NAME); req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); }); }
+    async function saveKeyToIDB(keyData) { const db = await openKeyDB(); return new Promise((resolve, reject) => { const tx = db.transaction(STORE_NAME, 'readwrite'); tx.objectStore(STORE_NAME).put(keyData, 'private-key'); tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); }); }
+    async function loadKeyFromIDB() { const db = await openKeyDB(); return new Promise((resolve, reject) => { const tx = db.transaction(STORE_NAME, 'readonly'); const req = tx.objectStore(STORE_NAME).get('private-key'); req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); }); }
+    async function clearKeyFromIDB() { const db = await openKeyDB(); return new Promise((resolve, reject) => { const tx = db.transaction(STORE_NAME, 'readwrite'); tx.objectStore(STORE_NAME).delete('private-key'); tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); }); }
+    async function importPemAsNonExtractable(pem) { const stripped = pem.replace(/-----BEGIN [^-]+-----/, '').replace(/-----END [^-]+-----/, '').replace(/\s+/g, ''); const der = Uint8Array.from(atob(stripped), c => c.charCodeAt(0)); return crypto.subtle.importKey('pkcs8', der.buffer, { name: 'Ed25519' }, false, ['sign']); }
 
     async function initApp() {
-      try {
-        const stored = await loadKeyFromIDB();
-        if (stored && stored.pem) {
-          // Re-import the PEM as non-extractable CryptoKey
-          try {
-            privateKey = await importPemAsNonExtractable(stored.pem);
-            privateKeyPem = stored.pem; // Keep in memory for this session only
-            showKeyStatus('Private key loaded from secure storage', 'success');
-          } catch (e) {
-            showKeyStatus('Stored key is invalid. Please re-import.', 'error');
-            await clearKeyFromIDB();
-          }
-        }
-      } catch (e) {
-        // IndexedDB not available or empty — check legacy localStorage
-        const legacy = localStorage.getItem('lbby-private-key');
-        if (legacy) {
-          try {
-            privateKey = await importPemAsNonExtractable(legacy);
-            privateKeyPem = legacy;
-            // Migrate to IndexedDB
-            await saveKeyToIDB({ pem: legacy });
-            localStorage.removeItem('lbby-private-key');
-            showKeyStatus('Key migrated to secure storage', 'success');
-          } catch (e) {
-            showKeyStatus('Legacy key is invalid. Please re-import.', 'error');
-            localStorage.removeItem('lbby-private-key');
-          }
-        }
-      }
+      try { const stored = await loadKeyFromIDB(); if (stored && stored.pem) { try { privateKey = await importPemAsNonExtractable(stored.pem); privateKeyPem = stored.pem; showKeyStatus(isVi() ? 'Khóa riêng đã tải từ bộ nhớ an toàn' : 'Private key loaded from secure storage', 'success'); } catch (e) { showKeyStatus(isVi() ? 'Khóa lưu trữ không hợp lệ. Vui lòng nhập lại.' : 'Stored key is invalid. Please re-import.', 'error'); await clearKeyFromIDB(); } }
+      } catch (e) { const legacy = localStorage.getItem('lbby-private-key'); if (legacy) { try { privateKey = await importPemAsNonExtractable(legacy); privateKeyPem = legacy; await saveKeyToIDB({ pem: legacy }); localStorage.removeItem('lbby-private-key'); showKeyStatus(isVi() ? 'Khóa đã di chuyển sang bộ nhớ an toàn' : 'Key migrated to secure storage', 'success'); } catch (e) { showKeyStatus(isVi() ? 'Khóa cũ không hợp lệ.' : 'Legacy key is invalid.', 'error'); localStorage.removeItem('lbby-private-key'); } } }
       renderHistory();
     }
 
-    // Check session on load — validate token expiry
     (function checkExistingAuth() {
-      try {
-        const auth = JSON.parse(sessionStorage.getItem('lbby-auth'));
-        if (auth && auth.token && auth.expiry && Date.now() < auth.expiry) {
-          document.getElementById('passwordGate').style.display = 'none';
-          document.getElementById('mainContent').style.display = 'block';
-          initApp();
-        } else {
-          sessionStorage.removeItem('lbby-auth');
-        }
-      } catch (e) {
-        sessionStorage.removeItem('lbby-auth');
-      }
+      try { const auth = JSON.parse(sessionStorage.getItem('lbby-auth')); if (auth && auth.token && auth.expiry && Date.now() < auth.expiry) { document.getElementById('passwordGate').style.display = 'none'; document.getElementById('mainContent').style.display = 'block'; initApp(); } else { sessionStorage.removeItem('lbby-auth'); } } catch (e) { sessionStorage.removeItem('lbby-auth'); }
     })();
 
-    function showKeyStatus(msg, type) {
-      const el = document.getElementById('keyStatus');
-      el.textContent = msg;
-      el.className = 'status-msg ' + type;
-    }
-
-    function showLicenseStatus(msg, type) {
-      const el = document.getElementById('licenseStatus');
-      el.textContent = msg;
-      el.className = 'status-msg ' + type;
-    }
+    function showKeyStatus(msg, type) { const el = document.getElementById('keyStatus'); el.textContent = msg; el.className = 'status-msg ' + type; }
+    function showLicenseStatus(msg, type) { const el = document.getElementById('licenseStatus'); el.textContent = msg; el.className = 'status-msg ' + type; }
 
     async function generateKeyPair() {
       try {
-        // Generate with extractable=true so we can export the PEM for storage
         const keyPair = await crypto.subtle.generateKey({ name: 'Ed25519' }, true, ['sign', 'verify']);
         const privateJwk = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
         const privatePem = '-----BEGIN PRIVATE KEY-----\n' + chunkString(btoa(String.fromCharCode(...new Uint8Array(privateJwk))), 64) + '\n-----END PRIVATE KEY-----';
-        const publicJwk = await crypto.subtle.exportKey('spki', keyPair.publicKey);
-        const publicPem = '-----BEGIN PUBLIC KEY-----\n' + chunkString(btoa(String.fromCharCode(...new Uint8Array(publicJwk))), 64) + '\n-----END PRIVATE KEY-----';
-
-        // Re-import as non-extractable for daily use
-        privateKey = await importPemAsNonExtractable(privatePem);
-        privateKeyPem = privatePem;
-
-        // Store PEM in IndexedDB (encrypted at rest by the browser)
-        await saveKeyToIDB({ pem: privatePem });
-
-        // Remove any legacy localStorage key
-        localStorage.removeItem('lbby-private-key');
-
-        showKeyStatus('New key pair generated! Private key stored securely (non-extractable).', 'success');
-      } catch (e) {
-        showKeyStatus('Error generating key pair: ' + e.message, 'error');
-      }
+        privateKey = await importPemAsNonExtractable(privatePem); privateKeyPem = privatePem;
+        await saveKeyToIDB({ pem: privatePem }); localStorage.removeItem('lbby-private-key');
+        showKeyStatus(isVi() ? 'Cặp khóa mới đã tạo! Khóa riêng được lưu an toàn (không thể trích xuất).' : 'New key pair generated! Private key stored securely (non-extractable).', 'success');
+      } catch (e) { showKeyStatus((isVi() ? 'Lỗi tạo cặp khóa: ' : 'Error generating key pair: ') + e.message, 'error'); }
     }
 
-    function showImportKey() {
-      const area = document.getElementById('importKeyArea');
-      area.style.display = area.style.display === 'none' ? 'block' : 'none';
-    }
+    function showImportKey() { const area = document.getElementById('importKeyArea'); area.style.display = area.style.display === 'none' ? 'block' : 'none'; }
 
     async function importKey() {
       const input = document.getElementById('importKeyInput').value.trim();
-      if (!input) { showKeyStatus('Please paste a private key', 'error'); return; }
-      try {
-        // Validate and import as non-extractable
-        privateKey = await importPemAsNonExtractable(input);
-        privateKeyPem = input;
-
-        // Store PEM in IndexedDB
-        await saveKeyToIDB({ pem: input });
-
-        // Remove any legacy localStorage key
-        localStorage.removeItem('lbby-private-key');
-
-        showKeyStatus('Private key imported and stored securely (non-extractable)', 'success');
-        document.getElementById('importKeyArea').style.display = 'none';
-      } catch (e) {
-        showKeyStatus('Invalid private key: ' + e.message, 'error');
-      }
+      if (!input) { showKeyStatus(isVi() ? 'Vui lòng dán khóa riêng' : 'Please paste a private key', 'error'); return; }
+      try { privateKey = await importPemAsNonExtractable(input); privateKeyPem = input; await saveKeyToIDB({ pem: input }); localStorage.removeItem('lbby-private-key');
+        showKeyStatus(isVi() ? 'Khóa riêng đã nhập và lưu an toàn' : 'Private key imported and stored securely', 'success'); document.getElementById('importKeyArea').style.display = 'none';
+      } catch (e) { showKeyStatus((isVi() ? 'Khóa riêng không hợp lệ: ' : 'Invalid private key: ') + e.message, 'error'); }
     }
 
-    function chunkString(str, len) {
-      const chunks = [];
-      for (let i = 0; i < str.length; i += len) chunks.push(str.slice(i, i + len));
-      return chunks.join('\n');
-    }
-
-    function generateId() {
-      return Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, '0')).join('');
-    }
-
-    function setQuickExpiry(value, unit) {
-      document.getElementById('expiryValue').value = value;
-      document.getElementById('expiryUnit').value = unit;
-    }
+    function chunkString(str, len) { const chunks = []; for (let i = 0; i < str.length; i += len) chunks.push(str.slice(i, i + len)); return chunks.join('\n'); }
+    function generateId() { return Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, '0')).join(''); }
+    function setQuickExpiry(value, unit) { document.getElementById('expiryValue').value = value; document.getElementById('expiryUnit').value = unit; }
 
     async function generateLicense() {
-      if (!privateKey) {
-        showLicenseStatus('Please generate or import a private key first', 'error');
-        return;
-      }
-
-      const userId = document.getElementById('userId').value.trim();
-      const tier = document.getElementById('tier').value;
-      const expiryValue = parseInt(document.getElementById('expiryValue').value);
-      const expiryUnit = document.getElementById('expiryUnit').value;
+      if (!privateKey) { showLicenseStatus(isVi() ? 'Vui lòng tạo hoặc nhập khóa riêng trước' : 'Please generate or import a private key first', 'error'); return; }
+      const userId = document.getElementById('userId').value.trim(); const tier = document.getElementById('tier').value;
+      const expiryValue = parseInt(document.getElementById('expiryValue').value); const expiryUnit = document.getElementById('expiryUnit').value;
       const jwtId = document.getElementById('jwtId').value.trim() || generateId();
-      const email = document.getElementById('email').value.trim() || null;
-      const tgUsername = document.getElementById('tgUsername').value.trim() || null;
-      const bindDevice = document.getElementById('bindDevice').checked;
-      const deviceId = document.getElementById('deviceId').value.trim() || null;
-
-      if (!userId) { showLicenseStatus('Please enter a User ID', 'error'); return; }
-      if (bindDevice && !deviceId) { showLicenseStatus('Please enter a device fingerprint when binding is enabled', 'error'); return; }
-
+      const email = document.getElementById('email').value.trim() || null; const tgUsername = document.getElementById('tgUsername').value.trim() || null;
+      const bindDevice = document.getElementById('bindDevice').checked; const deviceId = document.getElementById('deviceId').value.trim() || null;
+      if (!userId) { showLicenseStatus(isVi() ? 'Vui lòng nhập ID người dùng' : 'Please enter a User ID', 'error'); return; }
+      if (bindDevice && !deviceId) { showLicenseStatus(isVi() ? 'Vui lòng nhập dấu vân tay thiết bị khi bật gắn thiết bị' : 'Please enter a device fingerprint when binding is enabled', 'error'); return; }
       try {
         const now = Math.floor(Date.now() / 1000);
-        let expirySeconds;
-        switch (expiryUnit) {
-          case 'minutes': expirySeconds = expiryValue * 60; break;
-          case 'hours': expirySeconds = expiryValue * 60 * 60; break;
-          case 'days': expirySeconds = expiryValue * 24 * 60 * 60; break;
-          case 'weeks': expirySeconds = expiryValue * 7 * 24 * 60 * 60; break;
-          case 'months': expirySeconds = expiryValue * 30 * 24 * 60 * 60; break;
-          case 'years': expirySeconds = expiryValue * 365 * 24 * 60 * 60; break;
-          default: expirySeconds = expiryValue * 24 * 60 * 60;
-        }
+        let expirySeconds; switch (expiryUnit) { case 'minutes': expirySeconds = expiryValue * 60; break; case 'hours': expirySeconds = expiryValue * 3600; break; case 'days': expirySeconds = expiryValue * 86400; break; case 'weeks': expirySeconds = expiryValue * 604800; break; case 'months': expirySeconds = expiryValue * 2592000; break; case 'years': expirySeconds = expiryValue * 31536000; break; default: expirySeconds = expiryValue * 86400; }
         const exp = now + expirySeconds;
-
         const claims = { sub: userId, tier, iat: now, exp, iss: 'lbby', jti: jwtId };
-        if (email) claims.email = email;
-        if (tgUsername) claims.tg_username = tgUsername;
-        if (bindDevice && deviceId) claims.dev = deviceId;
-
-        const jwt = await signJwt(claims);
-        lastGeneratedJwt = jwt;
-        document.getElementById('jwtOutput').textContent = jwt;
-        document.getElementById('licenseOutput').style.display = 'block';
-        showLicenseStatus('License key generated successfully!', 'success');
+        if (email) claims.email = email; if (tgUsername) claims.tg_username = tgUsername; if (bindDevice && deviceId) claims.dev = deviceId;
+        const jwt = await signJwt(claims); lastGeneratedJwt = jwt;
+        document.getElementById('jwtOutput').textContent = jwt; document.getElementById('licenseOutput').style.display = 'block';
+        showLicenseStatus(isVi() ? 'Khóa giấy phép đã tạo thành công!' : 'License key generated successfully!', 'success');
         addToHistory(userId, tier, jwtId, exp);
-      } catch (e) {
-        showLicenseStatus('Error generating license: ' + e.message, 'error');
-      }
+      } catch (e) { showLicenseStatus((isVi() ? 'Lỗi tạo giấy phép: ' : 'Error generating license: ') + e.message, 'error'); }
     }
 
     async function signJwt(claims) {
-      // privateKey is already a non-extractable CryptoKey — use directly
       if (!privateKey) throw new Error('No private key loaded');
       const header = { alg: 'EdDSA', typ: 'JWT' };
       const headerB64 = btoa(JSON.stringify(header)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -633,302 +426,113 @@
       return `${headerB64}.${payloadB64}.${sigB64}`;
     }
 
-    function copyLicense() {
-      if (lastGeneratedJwt) navigator.clipboard.writeText(lastGeneratedJwt);
-    }
-
+    function copyLicense() { if (lastGeneratedJwt) navigator.clipboard.writeText(lastGeneratedJwt); }
     function copyActivationMessage() {
-      const expiryValue = document.getElementById('expiryValue').value;
-      const expiryUnit = document.getElementById('expiryUnit').value;
-      const msg = `🎉 Your Lbby license is ready!\n\nLicense Key:\n${lastGeneratedJwt}\n\nValidity: ${expiryValue} ${expiryUnit}\n\nTo activate:\n1. Open Lbby app\n2. Go to License tab → Advanced\n3. Paste the key and click Activate`;
+      const expiryValue = document.getElementById('expiryValue').value; const expiryUnit = document.getElementById('expiryUnit').value;
+      const msg = isVi()
+        ? `🎉 Giấy phép Lbby của bạn đã sẵn sàng!\n\nKhóa giấy phép:\n${lastGeneratedJwt}\n\nThời hạn: ${expiryValue} ${expiryUnit}\n\nĐể kích hoạt:\n1. Mở ứng dụng Lbby\n2. Vào tab Giấy phép → Nâng cao\n3. Dán khóa và nhấn Kích hoạt`
+        : `🎉 Your Lbby license is ready!\n\nLicense Key:\n${lastGeneratedJwt}\n\nValidity: ${expiryValue} ${expiryUnit}\n\nTo activate:\n1. Open Lbby app\n2. Go to License tab → Advanced\n3. Paste the key and click Activate`;
       navigator.clipboard.writeText(msg);
     }
 
     function decodeJwt() {
-      const input = document.getElementById('decodeInput').value.trim();
-      if (!input) return;
+      const input = document.getElementById('decodeInput').value.trim(); if (!input) return;
       try {
-        const parts = input.split('.');
-        if (parts.length !== 3) throw new Error('Invalid JWT format');
-        const payload = JSON.parse(atob(parts[0] + '=='.slice(0, (4 - parts[0].length % 4) % 4)));
-        // Try proper base64url decode
+        const parts = input.split('.'); if (parts.length !== 3) throw new Error('Invalid JWT format');
         const headerJson = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/')));
         const payloadJson = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-        const output = document.getElementById('decodeOutput');
-        output.style.display = 'block';
+        const output = document.getElementById('decodeOutput'); output.style.display = 'block';
         output.textContent = JSON.stringify({ header: headerJson, payload: payloadJson }, null, 2);
-      } catch (e) {
-        const output = document.getElementById('decodeOutput');
-        output.style.display = 'block';
-        output.textContent = 'Error decoding: ' + e.message;
-      }
+      } catch (e) { const output = document.getElementById('decodeOutput'); output.style.display = 'block'; output.textContent = (isVi() ? 'Lỗi giải mã: ' : 'Error decoding: ') + e.message; }
     }
 
-    function addToHistory(userId, tier, jwtId, exp) {
-      history.unshift({ userId, tier, jwtId, exp, date: Date.now() });
-      if (history.length > 50) history = history.slice(0, 50);
-      localStorage.setItem('lbby-license-history', JSON.stringify(history));
-      renderHistory();
-    }
-
-    function isRevoked(jwtId) {
-      return revoked.some(r => r.jwtId === jwtId);
-    }
+    function addToHistory(userId, tier, jwtId, exp) { history.unshift({ userId, tier, jwtId, exp, date: Date.now() }); if (history.length > 50) history = history.slice(0, 50); localStorage.setItem('lbby-license-history', JSON.stringify(history)); renderHistory(); }
+    function isRevoked(jwtId) { return revoked.some(r => r.jwtId === jwtId); }
 
     function renderHistory() {
       const area = document.getElementById('historyArea');
-      if (history.length === 0) { area.innerHTML = '<p class="text-muted" style="font-size:13px;">No licenses generated yet.</p>'; return; }
+      if (history.length === 0) { area.innerHTML = `<p class="text-muted" style="font-size:13px;">${isVi() ? 'Chưa tạo giấy phép nào.' : 'No licenses generated yet.'}</p>`; return; }
       const rows = history.map(h => {
         const expDate = new Date(h.exp * 1000).toLocaleDateString();
         const revokedClass = isRevoked(h.jwtId) ? ' class="revoked-row"' : '';
-        const revokeBtn = isRevoked(h.jwtId) ? '<span style="color:var(--red,#ff6b6b);font-size:11px;">Revoked</span>' : `<button class="btn-revoke" onclick="revokeLicense('${escapeHtml(h.jwtId)}','${escapeHtml(h.userId)}')">Revoke</button>`;
+        const revokeBtn = isRevoked(h.jwtId) ? `<span style="color:var(--red,#ff6b6b);font-size:11px;">${isVi() ? 'Đã thu hồi' : 'Revoked'}</span>` : `<button class="btn-revoke" onclick="revokeLicense('${escapeHtml(h.jwtId)}','${escapeHtml(h.userId)}')">${isVi() ? 'Thu hồi' : 'Revoke'}</button>`;
         return `<tr${revokedClass}><td>${escapeHtml(h.userId)}</td><td>${escapeHtml(h.tier)}</td><td>${expDate}</td><td style="font-size:11px;font-family:monospace;">${escapeHtml(h.jwtId)}</td><td>${revokeBtn}</td></tr>`;
       }).join('');
-      area.innerHTML = `<table class="history-table"><thead><tr><th>User ID</th><th>Tier</th><th>Expires</th><th>JWT ID</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+      area.innerHTML = `<table class="history-table"><thead><tr><th>${isVi() ? 'ID người dùng' : 'User ID'}</th><th>Tier</th><th>${isVi() ? 'Hết hạn' : 'Expires'}</th><th>JWT ID</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
       renderRevocations();
     }
 
     async function revokeLicense(jwtId, userId) {
-      const reason = prompt(`Revoke license for ${userId}?\n\nEnter reason (optional):`);
-      if (reason === null) return; // cancelled
-
-      revoked.push({
-        jwtId: jwtId,
-        reason: reason || 'No reason given',
-        revokedAt: Date.now(),
-        revokedBy: 'admin'
-      });
+      const reason = prompt(isVi() ? `Thu hồi giấy phép cho ${userId}?\n\nNhập lý do (tùy chọn):` : `Revoke license for ${userId}?\n\nEnter reason (optional):`);
+      if (reason === null) return;
+      revoked.push({ jwtId, reason: reason || (isVi() ? 'Không có lý do' : 'No reason given'), revokedAt: Date.now(), revokedBy: 'admin' });
       localStorage.setItem('lbby-revoked', JSON.stringify(revoked));
-
-      // Sign the revocation list if private key is available
-      if (privateKey) {
-        try {
-          const signed = await signRevocationList();
-          localStorage.setItem('lbby-revoked-signed', JSON.stringify(signed));
-        } catch (e) {
-          console.warn('Could not sign revocation list:', e);
-        }
-      }
-
+      if (privateKey) { try { const signed = await signRevocationList(); localStorage.setItem('lbby-revoked-signed', JSON.stringify(signed)); } catch (e) { console.warn('Could not sign revocation list:', e); } }
       renderHistory();
     }
 
-    async function signRevocationList() {
-      const payload = {
-        version: 1,
-        generatedAt: Date.now(),
-        entries: revoked
-      };
-      const data = new TextEncoder().encode(JSON.stringify(payload));
-      const signature = await crypto.subtle.sign('Ed25519', privateKey, data);
-      const sigB64 = btoa(String.fromCharCode(...new Uint8Array(signature))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-      return { ...payload, signature: sigB64 };
-    }
+    async function signRevocationList() { const payload = { version: 1, generatedAt: Date.now(), entries: revoked }; const data = new TextEncoder().encode(JSON.stringify(payload)); const signature = await crypto.subtle.sign('Ed25519', privateKey, data); const sigB64 = btoa(String.fromCharCode(...new Uint8Array(signature))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); return { ...payload, signature: sigB64 }; }
 
     function renderRevocations() {
-      const area = document.getElementById('revocationsArea');
-      if (revoked.length === 0) { area.innerHTML = '<p class="text-muted" style="font-size:13px;">No licenses revoked yet.</p>'; return; }
-      const rows = revoked.map(r => {
-        const date = new Date(r.revokedAt).toLocaleDateString();
-        return `<tr><td style="font-size:11px;font-family:monospace;">${escapeHtml(r.jwtId)}</td><td>${escapeHtml(r.reason)}</td><td>${date}</td></tr>`;
-      }).join('');
-      area.innerHTML = `<table class="history-table"><thead><tr><th>JWT ID</th><th>Reason</th><th>Date</th></tr></thead><tbody>${rows}</tbody></table>`;
+      const area = document.getElementById('revocationsArea'); if (!area) return;
+      if (revoked.length === 0) { area.innerHTML = `<p class="text-muted" style="font-size:13px;">${isVi() ? 'Chưa thu hồi giấy phép nào.' : 'No licenses revoked yet.'}</p>`; return; }
+      const rows = revoked.map(r => { const date = new Date(r.revokedAt).toLocaleDateString(); return `<tr><td style="font-size:11px;font-family:monospace;">${escapeHtml(r.jwtId)}</td><td>${escapeHtml(r.reason)}</td><td>${date}</td></tr>`; }).join('');
+      area.innerHTML = `<table class="history-table"><thead><tr><th>JWT ID</th><th>${isVi() ? 'Lý do' : 'Reason'}</th><th>${isVi() ? 'Ngày' : 'Date'}</th></tr></thead><tbody>${rows}</tbody></table>`;
     }
 
-    async function exportRevoked() {
-      let data;
-      if (privateKey) {
-        data = await signRevocationList();
-      } else {
-        data = { version: 1, generatedAt: Date.now(), entries: revoked, signature: null };
-      }
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'revoked.json';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function importRevoked() {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.json';
-      input.onchange = async (e) => {
-        const file = e.target.files[0];
-        const text = await file.text();
-        try {
-          const data = JSON.parse(text);
-          if (data.entries && Array.isArray(data.entries)) {
-            revoked = data.entries;
-            localStorage.setItem('lbby-revoked', JSON.stringify(revoked));
-            if (data.signature) {
-              localStorage.setItem('lbby-revoked-signed', JSON.stringify(data));
-            }
-            renderHistory();
-          }
-        } catch (e) {
-          alert('Invalid revoked.json file');
-        }
-      };
-      input.click();
-    }
-
-    function escapeHtml(str) {
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
-    }
-
-    function exportHistory() {
-      const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'lbby-license-history.json';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function newJwtId() {
-      document.getElementById('jwtId').value = generateId();
-    }
+    function escapeHtml(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+    function exportHistory() { const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'lbby-license-history.json'; a.click(); URL.revokeObjectURL(url); }
+    function newJwtId() { document.getElementById('jwtId').value = generateId(); }
 
     // ── Dashboard License API ─────────────────────────────────────────────
-    // Calls the lbby-dashboard API to generate and manage licenses server-side.
-    // Requires ADMIN_API_KEY env var on the dashboard.
+    const DASHBOARD_API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://web.rstudio.live';
+    function getDashApiKey() { return document.getElementById('dashApiKey').value.trim(); }
+    function dashHeaders() { return { 'Authorization': 'Bearer ' + getDashApiKey(), 'Content-Type': 'application/json' }; }
 
-    // Auto-detect: use localhost in dev, production URL in prod
-    const DASHBOARD_API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:3000'
-      : 'https://web.rstudio.live';
-
-    function getDashApiKey() {
-      return document.getElementById('dashApiKey').value.trim();
-    }
-
-    function dashHeaders() {
-      return {
-        'Authorization': 'Bearer ' + getDashApiKey(),
-        'Content-Type': 'application/json',
-      };
-    }
+    function showDashGenStatus(msg, type) { const el = document.getElementById('dashGenStatus'); el.textContent = msg; el.className = 'status-msg ' + type; }
 
     async function generateDashLicense() {
-      const email = document.getElementById('dashEmail').value.trim();
-      const tier = document.getElementById('dashTier').value;
-      const cycle = document.getElementById('dashCycle').value;
-      const statusEl = document.getElementById('dashGenStatus');
-      const outputEl = document.getElementById('dashGenOutput');
-      const keyEl = document.getElementById('dashGenKey');
-
-      if (!getDashApiKey()) { showDashGenStatus('Enter API key first', 'error'); return; }
-      if (!email) { showDashGenStatus('Email is required', 'error'); return; }
-
+      const email = document.getElementById('dashEmail').value.trim(); const tier = document.getElementById('dashTier').value; const cycle = document.getElementById('dashCycle').value;
+      if (!getDashApiKey()) { showDashGenStatus(isVi() ? 'Nhập khóa API trước' : 'Enter API key first', 'error'); return; }
+      if (!email) { showDashGenStatus(isVi() ? 'Email là bắt buộc' : 'Email is required', 'error'); return; }
       try {
-        const res = await fetch(DASHBOARD_API + '/api/admin/licenses/generate', {
-          method: 'POST',
-          headers: dashHeaders(),
-          body: JSON.stringify({ email, tier, billing_cycle: cycle }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-
-        keyEl.textContent = data.licenseKey;
-        outputEl.style.display = 'block';
-        showDashGenStatus(`License generated! JTI: ${data.jti}`, 'success');
-        fetchDashLicenses();
-      } catch (err) {
-        showDashGenStatus('Error: ' + err.message, 'error');
-      }
-    }
-
-    function showDashGenStatus(msg, type) {
-      const el = document.getElementById('dashGenStatus');
-      el.textContent = msg;
-      el.className = 'status-msg ' + type;
+        const res = await fetch(DASHBOARD_API + '/api/admin/licenses/generate', { method: 'POST', headers: dashHeaders(), body: JSON.stringify({ email, tier, billing_cycle: cycle }) });
+        const data = await res.json(); if (!res.ok) throw new Error(data.error);
+        document.getElementById('dashGenKey').textContent = data.licenseKey; document.getElementById('dashGenOutput').style.display = 'block';
+        showDashGenStatus(isVi() ? `Giấy phép đã tạo! JTI: ${data.jti}` : `License generated! JTI: ${data.jti}`, 'success'); fetchDashLicenses();
+      } catch (err) { showDashGenStatus((isVi() ? 'Lỗi: ' : 'Error: ') + err.message, 'error'); }
     }
 
     async function fetchDashLicenses() {
       const area = document.getElementById('dashLicensesArea');
-      if (!getDashApiKey()) { area.innerHTML = '<p style="color:var(--red);font-size:13px;">Enter API key first.</p>'; return; }
-
+      if (!getDashApiKey()) { area.innerHTML = `<p style="color:var(--red);font-size:13px;">${isVi() ? 'Nhập khóa API trước.' : 'Enter API key first.'}</p>`; return; }
       try {
-        const res = await fetch(DASHBOARD_API + '/api/admin/licenses', { headers: dashHeaders() });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-
+        const res = await fetch(DASHBOARD_API + '/api/admin/licenses', { headers: dashHeaders() }); const data = await res.json(); if (!res.ok) throw new Error(data.error);
         const licenses = data.licenses || [];
-        if (licenses.length === 0) {
-          area.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No licenses issued yet.</p>';
-          return;
-        }
-
+        if (licenses.length === 0) { area.innerHTML = `<p style="color:var(--text-muted);font-size:13px;">${isVi() ? 'Chưa phát hành giấy phép nào.' : 'No licenses issued yet.'}</p>`; return; }
         const rows = licenses.map(lic => {
-          const isRevoked = lic.revoked_at !== null;
-          const isExpired = Math.floor(Date.now() / 1000) > lic.expires_at;
-          const status = isRevoked ? 'Revoked' : isExpired ? 'Expired' : 'Active';
+          const isRevoked = lic.revoked_at !== null; const isExpired = Math.floor(Date.now() / 1000) > lic.expires_at;
+          const status = isRevoked ? (isVi() ? 'Đã thu hồi' : 'Revoked') : isExpired ? (isVi() ? 'Hết hạn' : 'Expired') : (isVi() ? 'Hoạt động' : 'Active');
           const statusColor = isRevoked ? 'var(--red,#ff6b6b)' : isExpired ? 'var(--yellow,#ffd43b)' : 'var(--green)';
           const revokedClass = isRevoked ? 'opacity:0.5;text-decoration:line-through;' : '';
-
           const actionBtn = isRevoked
-            ? `<button class="btn btn-secondary btn-sm" onclick="dashReenable('${lic.jti}')" style="font-size:11px;padding:2px 8px;">Re-enable</button>`
-            : `<button class="btn btn-sm" style="font-size:11px;padding:2px 8px;background:var(--red-bg,#2a1515);border:1px solid var(--red-border,#5a2020);color:var(--red,#ff6b6b);" onclick="dashRevoke('${lic.jti}')">Revoke</button>`;
-
-          return `<tr style="${revokedClass}">
-            <td>${escapeHtml(lic.email || 'User #' + lic.user_id)}</td>
-            <td><span style="color:${lic.tier === 'master' ? '#a855f7' : '#3b82f6'};font-size:11px;font-weight:600;">${escapeHtml(lic.tier)}</span></td>
-            <td style="font-size:11px;font-family:monospace;">${escapeHtml(lic.jti.slice(0, 24))}…</td>
-            <td>${new Date(lic.expires_at * 1000).toLocaleDateString()}</td>
-            <td><span style="color:${statusColor};font-size:11px;">${status}</span></td>
-            <td>${actionBtn}</td>
-          </tr>`;
+            ? `<button class="btn btn-secondary btn-sm" onclick="dashReenable('${lic.jti}')" style="font-size:11px;padding:2px 8px;">${isVi() ? 'Bật lại' : 'Re-enable'}</button>`
+            : `<button class="btn btn-sm" style="font-size:11px;padding:2px 8px;background:var(--red-bg,#2a1515);border:1px solid var(--red-border,#5a2020);color:var(--red,#ff6b6b);" onclick="dashRevoke('${lic.jti}')">${isVi() ? 'Thu hồi' : 'Revoke'}</button>`;
+          return `<tr style="${revokedClass}"><td>${escapeHtml(lic.email || 'User #' + lic.user_id)}</td><td><span style="color:${lic.tier === 'master' ? '#a855f7' : '#3b82f6'};font-size:11px;font-weight:600;">${escapeHtml(lic.tier)}</span></td><td style="font-size:11px;font-family:monospace;">${escapeHtml(lic.jti.slice(0, 24))}…</td><td>${new Date(lic.expires_at * 1000).toLocaleDateString()}</td><td><span style="color:${statusColor};font-size:11px;">${status}</span></td><td>${actionBtn}</td></tr>`;
         }).join('');
-
-        area.innerHTML = `<table class="history-table">
-          <thead><tr><th>User</th><th>Tier</th><th>JTI</th><th>Expires</th><th>Status</th><th>Action</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>`;
-      } catch (err) {
-        area.innerHTML = `<p style="color:var(--red);font-size:13px;">Failed: ${escapeHtml(err.message)}</p>`;
-      }
+        area.innerHTML = `<table class="history-table"><thead><tr><th>${isVi() ? 'Người dùng' : 'User'}</th><th>Tier</th><th>JTI</th><th>${isVi() ? 'Hết hạn' : 'Expires'}</th><th>${isVi() ? 'Trạng thái' : 'Status'}</th><th>${isVi() ? 'Hành động' : 'Action'}</th></tr></thead><tbody>${rows}</tbody></table>`;
+      } catch (err) { area.innerHTML = `<p style="color:var(--red);font-size:13px;">${isVi() ? 'Thất bại' : 'Failed'}: ${escapeHtml(err.message)}</p>`; }
     }
 
     async function dashRevoke(jti) {
-      if (!confirm('Revoke this license? The user will lose access on next app startup.')) return;
-      try {
-        const res = await fetch(DASHBOARD_API + '/api/admin/licenses/revoke', {
-          method: 'POST',
-          headers: dashHeaders(),
-          body: JSON.stringify({ jti, action: 'revoke' }),
-        });
-        if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
-        fetchDashLicenses();
-      } catch (err) {
-        alert('Failed: ' + err.message);
-      }
+      if (!confirm(isVi() ? 'Thu hồi giấy phép này? Người dùng sẽ mất quyền truy cập khi khởi động lại ứng dụng.' : 'Revoke this license? The user will lose access on next app startup.')) return;
+      try { const res = await fetch(DASHBOARD_API + '/api/admin/licenses/revoke', { method: 'POST', headers: dashHeaders(), body: JSON.stringify({ jti, action: 'revoke' }) }); if (!res.ok) { const d = await res.json(); throw new Error(d.error); } fetchDashLicenses(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); }
     }
-
     async function dashReenable(jti) {
-      try {
-        const res = await fetch(DASHBOARD_API + '/api/admin/licenses/revoke', {
-          method: 'POST',
-          headers: dashHeaders(),
-          body: JSON.stringify({ jti, action: 'reenable' }),
-        });
-        if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
-        fetchDashLicenses();
-      } catch (err) {
-        alert('Failed: ' + err.message);
-      }
+      try { const res = await fetch(DASHBOARD_API + '/api/admin/licenses/revoke', { method: 'POST', headers: dashHeaders(), body: JSON.stringify({ jti, action: 'reenable' }) }); if (!res.ok) { const d = await res.json(); throw new Error(d.error); } fetchDashLicenses(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); }
     }
 
-    function logout() {
-      sessionStorage.removeItem('lbby-auth');
-      sessionStorage.removeItem('lbby-attempts');
-      location.reload();
-    }
+    function logout() { sessionStorage.removeItem('lbby-auth'); sessionStorage.removeItem('lbby-attempts'); location.reload(); }
   </script>
 </body>
 </html>
