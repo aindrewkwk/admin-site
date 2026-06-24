@@ -44,6 +44,7 @@
     <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
     <div class="nav-links">
       <a href="index.html" class="active" data-vi="Giấy phép">License</a>
+      <a href="users.html" data-vi="Người dùng">Users</a>
       <a href="api-keys.html" data-vi="Khóa API">API Keys</a>
       <a href="https://lbby.rstudio.live">Lbby</a>
       <button onclick="toggleLang()" style="margin-left:auto;padding:4px 10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-size:12px;cursor:pointer;"><span id="langLabel">VI</span></button>
@@ -296,8 +297,8 @@
     async function importPemAsNonExtractable(pem) { const stripped = pem.replace(/-----BEGIN [^-]+-----/, '').replace(/-----END [^-]+-----/, '').replace(/\s+/g, ''); const der = Uint8Array.from(atob(stripped), c => c.charCodeAt(0)); return crypto.subtle.importKey('pkcs8', der.buffer, { name: 'Ed25519' }, false, ['sign']); }
 
     async function initApp() {
-      try { const stored = await loadKeyFromIDB(); if (stored && stored.pem) { try { privateKey = await importPemAsNonExtractable(stored.pem); privateKeyPem = stored.pem; showKeyStatus(isVi() ? 'Khóa riêng đã tải từ bộ nhớ an toàn' : 'Private key loaded from secure storage', 'success'); } catch (e) { showKeyStatus(isVi() ? 'Khóa lưu trữ không hợp lệ.' : 'Stored key is invalid.', 'error'); await clearKeyFromIDB(); } }
-      } catch (e) { const legacy = localStorage.getItem('lbby-private-key'); if (legacy) { try { privateKey = await importPemAsNonExtractable(legacy); privateKeyPem = legacy; await saveKeyToIDB({ pem: legacy }); localStorage.removeItem('lbby-private-key'); showKeyStatus(isVi() ? 'Khóa đã di chuyển sang bộ nhớ an toàn' : 'Key migrated to secure storage', 'success'); } catch (e) { showKeyStatus(isVi() ? 'Khóa cũ không hợp lệ.' : 'Legacy key is invalid.', 'error'); localStorage.removeItem('lbby-private-key'); } } }
+      try { const stored = await loadKeyFromIDB(); if (stored && stored.pem) { try { privateKey = await importPemAsNonExtractable(stored.pem); privateKeyPem = stored.pem; showKeyStatus(isVi() ? 'Khóa riêng đã tải' : 'Private key loaded', 'success'); } catch (e) { showKeyStatus(isVi() ? 'Khóa không hợp lệ.' : 'Invalid key.', 'error'); await clearKeyFromIDB(); } }
+      } catch (e) { const legacy = localStorage.getItem('lbby-private-key'); if (legacy) { try { privateKey = await importPemAsNonExtractable(legacy); privateKeyPem = legacy; await saveKeyToIDB({ pem: legacy }); localStorage.removeItem('lbby-private-key'); showKeyStatus(isVi() ? 'Khóa đã di chuyển' : 'Key migrated', 'success'); } catch (e) { showKeyStatus(isVi() ? 'Khóa cũ không hợp lệ.' : 'Legacy key invalid.', 'error'); localStorage.removeItem('lbby-private-key'); } } }
       renderHistory();
     }
 
