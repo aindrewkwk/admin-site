@@ -13,7 +13,6 @@
     .keys-container { max-width: 900px; margin: 0 auto; padding: 100px 24px 60px; }
     .keys-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 20px; }
     .keys-card h3 { font-size: 16px; font-weight: 800; margin-bottom: 12px; }
-    .form-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end; }
     .form-group { display: flex; flex-direction: column; gap: 4px; }
     .form-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
     .form-group input { padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; font-family: inherit; outline: none; }
@@ -22,7 +21,6 @@
     .status-msg.success { display: block; color: var(--green); background: var(--green-bg); border: 1px solid var(--green-border); }
     .status-msg.error { display: block; color: var(--red); background: var(--red-bg); border: 1px solid var(--red-border); }
     .info-box { font-size: 13px; color: var(--text-muted); padding: 12px 16px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 16px; line-height: 1.5; }
-    .info-box code { background: var(--bg-card); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
     .key-table { width: 100%; font-size: 13px; border-collapse: collapse; }
     .key-table th { text-align: left; padding: 10px 12px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
     .key-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
@@ -40,11 +38,7 @@
     .new-key-box .key-value { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; word-break: break-all; color: var(--text); margin: 8px 0; user-select: all; }
     .actions-cell { display: flex; gap: 6px; justify-content: flex-end; }
     .prefix-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; background: var(--bg-elevated); padding: 2px 8px; border-radius: 4px; }
-    .dev-warning { font-size: 12px; color: var(--yellow, #ffd43b); background: rgba(255, 212, 59, 0.08); border: 1px solid rgba(255, 212, 59, 0.2); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-    .toggle-row { display: flex; gap: 8px; margin-bottom: 12px; }
-    .toggle-btn { padding: 6px 14px; font-size: 12px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; font-weight: 600; }
-    .toggle-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
-    @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } .actions-cell { flex-wrap: wrap; } }
+    @media (max-width: 640px) { .actions-cell { flex-wrap: wrap; } }
   </style>
 </head>
 <body>
@@ -68,7 +62,7 @@
   <div id="mainContent">
     <div class="keys-container">
       <h1 style="font-size: 28px; font-weight: 900; margin-bottom: 8px;">🔑 <span data-vi="Khóa API">API Keys</span></h1>
-      <p style="color: var(--text-muted); margin-bottom: 28px;" data-vi="Quản lý khóa API cho thành viên nhóm và công cụ bên ngoài.">Manage admin API keys for team members and external tools.</p>
+      <p style="color: var(--text-muted); margin-bottom: 28px;" data-vi="Quản lý khóa API cho thành viên nhóm.">Manage API keys for team members.</p>
 
       <div id="connectionStatus" class="info-box" style="border-color: var(--border);" data-vi="Đang kết nối...">
         Connecting...
@@ -77,43 +71,34 @@
       <!-- Create Key -->
       <div class="keys-card">
         <h3 data-vi="Tạo khóa mới">Create New Key</h3>
-        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;" data-vi="Tạo khóa tự động hoặc đặt khóa tùy chỉnh dễ nhớ.">
-          Auto-generate a random key or set a custom memorable key.
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;" data-vi="Đặt tên và khóa tùy chỉnh cho thành viên nhóm.">
+          Set a name and custom key for a team member.
         </p>
 
-        <!-- Toggle: Auto vs Custom -->
-        <div class="toggle-row">
-          <button class="toggle-btn active" id="modeAuto" onclick="setMode('auto')" data-vi="Tự động tạo">Auto Generate</button>
-          <button class="toggle-btn" id="modeCustom" onclick="setMode('custom')" data-vi="Tùy chỉnh">Custom Key</button>
-        </div>
-
         <div class="form-group" style="margin-bottom: 12px;">
-          <label data-vi="Tên khóa">Key Name</label>
-          <input type="text" id="keyName" placeholder="e.g. Tien Anh, Hung, CI Pipeline" maxlength="64" onkeydown="if(event.key==='Enter')createKey()">
+          <label data-vi="Tên (hiển thị trong hệ thống)">Name (shown in system)</label>
+          <input type="text" id="keyName" placeholder="e.g. Tien Anh, Hung, Phuc" maxlength="64">
         </div>
 
-        <!-- Custom key input (hidden by default) -->
-        <div id="customKeyRow" style="display: none; margin-bottom: 12px;">
-          <div class="form-group">
-            <label data-vi="Khóa tùy chỉnh">Custom Key</label>
-            <input type="text" id="customKeyInput" placeholder="e.g. my-secret-key-123" maxlength="120" onkeydown="if(event.key==='Enter')createKey()">
-            <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" data-vi="Tối thiểu 8 ký tự. Tự động thêm lbby_ak_ nếu chưa có.">
-              Min 8 characters. Auto-prefixed with lbby_ak_ if missing.
-            </p>
-          </div>
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label data-vi="Khóa API">API Key</label>
+          <input type="text" id="customKeyInput" placeholder="e.g. aindrew, hung1234, phucdz" maxlength="120" onkeydown="if(event.key==='Enter')createKey()">
+          <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" data-vi="Tối thiểu 8 ký tự. Tự động thêm lbby_ak_ nếu chưa có.">
+            Min 8 characters. Auto-prefixed with lbby_ak_ if missing.
+          </p>
         </div>
 
         <button onclick="createKey()" id="createBtn" style="
           padding: 10px 20px; background: var(--accent); color: white; border: none;
           border-radius: var(--radius-sm); font-size: 14px; font-weight: 700;
           cursor: pointer; white-space: nowrap; transition: all 0.2s;
-        " data-vi="Tạo khóa">Generate Key</button>
+        " data-vi="Tạo khóa">Create Key</button>
 
         <div id="createStatus" class="status-msg"></div>
 
         <div id="newKeyBox" class="new-key-box">
           <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-            <span style="color: var(--green); font-weight: 700; font-size: 13px;" data-vi="⚠️ Sao chép khóa ngay — sẽ KHÔNG hiển thị lại!">⚠️ Copy this key now — it will NOT be shown again!</span>
+            <span style="color: var(--green); font-weight: 700; font-size: 13px;" data-vi="✅ Khóa đã tạo! Gửi cho thành viên nhóm.">✅ Key created! Send it to the team member.</span>
           </div>
           <div class="key-value" id="newKeyValue"></div>
           <button onclick="copyNewKey()" id="copyBtn" style="
@@ -144,7 +129,6 @@
   <script src="/auth.js"></script>
   <script>
     const { apiCall, isVi, getApiKey } = RStudioAuth;
-    let currentMode = 'auto';
 
     (async function() {
       if (!await RStudioAuth.requireAuth()) return;
@@ -155,62 +139,68 @@
       await fetchKeys();
     })();
 
-    function setMode(mode) {
-      currentMode = mode;
-      document.getElementById('modeAuto').classList.toggle('active', mode === 'auto');
-      document.getElementById('modeCustom').classList.toggle('active', mode === 'custom');
-      document.getElementById('customKeyRow').style.display = mode === 'custom' ? 'block' : 'none';
-      const btn = document.getElementById('createBtn');
-      btn.textContent = mode === 'auto'
-        ? (isVi() ? 'Tạo khóa' : 'Generate Key')
-        : (isVi() ? 'Tạo khóa' : 'Create Key');
-    }
-
     async function createKey() {
-      const nameInput = document.getElementById('keyName'); const name = nameInput.value.trim(); if (!name) return;
-      const btn = document.getElementById('createBtn'); const status = document.getElementById('createStatus'); const newKeyBox = document.getElementById('newKeyBox');
+      const nameInput = document.getElementById('keyName');
+      const keyInput = document.getElementById('customKeyInput');
+      const name = nameInput.value.trim();
+      const key = keyInput.value.trim();
+      const btn = document.getElementById('createBtn');
+      const status = document.getElementById('createStatus');
+      const newKeyBox = document.getElementById('newKeyBox');
+
+      if (!name) { status.textContent = isVi() ? 'Nhập tên' : 'Enter a name'; status.className = 'status-msg error'; return; }
+      if (!key) { status.textContent = isVi() ? 'Nhập khóa' : 'Enter a key'; status.className = 'status-msg error'; return; }
+
       btn.textContent = isVi() ? 'Đang tạo...' : 'Creating...'; btn.disabled = true;
       status.className = 'status-msg'; status.style.display = 'none'; newKeyBox.style.display = 'none';
 
-      const body = { name };
-      if (currentMode === 'custom') {
-        const custom = document.getElementById('customKeyInput').value.trim();
-        if (!custom) { status.textContent = isVi() ? 'Nhập khóa tùy chỉnh' : 'Enter a custom key'; status.className = 'status-msg error'; btn.textContent = isVi() ? 'Tạo khóa' : 'Create Key'; btn.disabled = false; return; }
-        body.key = custom;
-      }
-
       try {
-        const data = await apiCall('POST', '/api/admin/api-keys', body);
-        document.getElementById('newKeyValue').textContent = data.key; newKeyBox.style.display = 'block';
-        status.textContent = isVi() ? `Khóa "${data.name}" đã tạo!` : `Key "${data.name}" created!`; status.className = 'status-msg success';
-        nameInput.value = ''; if (currentMode === 'custom') document.getElementById('customKeyInput').value = '';
+        const data = await apiCall('POST', '/api/admin/api-keys', { name, key });
+        document.getElementById('newKeyValue').textContent = data.key;
+        newKeyBox.style.display = 'block';
+        status.textContent = isVi() ? `Khóa "${data.name}" đã tạo!` : `Key "${data.name}" created!`;
+        status.className = 'status-msg success';
+        nameInput.value = ''; keyInput.value = '';
         fetchKeys();
-      } catch (err) { status.textContent = (isVi() ? 'Lỗi: ' : 'Error: ') + err.message; status.className = 'status-msg error';
-      } finally { btn.textContent = currentMode === 'auto' ? (isVi() ? 'Tạo khóa' : 'Generate Key') : (isVi() ? 'Tạo khóa' : 'Create Key'); btn.disabled = false; }
+      } catch (err) {
+        status.textContent = (isVi() ? 'Lỗi: ' : 'Error: ') + err.message;
+        status.className = 'status-msg error';
+      } finally {
+        btn.textContent = isVi() ? 'Tạo khóa' : 'Create Key'; btn.disabled = false;
+      }
     }
 
-    function copyNewKey() { navigator.clipboard.writeText(document.getElementById('newKeyValue').textContent); const btn = document.getElementById('copyBtn'); btn.textContent = '✓ Copied!'; setTimeout(() => { btn.textContent = isVi() ? 'Sao chép khóa' : 'Copy Key'; }, 2000); }
+    function copyNewKey() {
+      navigator.clipboard.writeText(document.getElementById('newKeyValue').textContent);
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = '✓ Copied!';
+      setTimeout(() => { btn.textContent = isVi() ? 'Sao chép khóa' : 'Copy Key'; }, 2000);
+    }
 
     async function fetchKeys() {
       const el = document.getElementById('keysTable');
       try {
-        const data = await apiCall('GET', '/api/admin/api-keys'); const keys = data.keys || [];
-        if (keys.length === 0) { el.innerHTML = `<p style="color:var(--text-muted);font-size:13px;">${isVi() ? 'Chưa có khóa API nào. Tạo ở trên.' : 'No API keys yet. Create one above.'}</p>`; return; }
+        const data = await apiCall('GET', '/api/admin/api-keys');
+        const keys = data.keys || [];
+        if (keys.length === 0) { el.innerHTML = `<p style="color:var(--text-muted);font-size:13px;">${isVi() ? 'Chưa có khóa nào.' : 'No keys yet.'}</p>`; return; }
         const rows = keys.map(k => {
-          const isRevoked = k.revoked_at !== null; const date = new Date(k.created_at * 1000).toLocaleDateString();
-          const statusBadge = isRevoked ? `<span class="badge badge-revoked">${isVi() ? 'Đã thu hồi' : 'Revoked'}</span>` : `<span class="badge badge-active">${isVi() ? 'Hoạt động' : 'Active'}</span>`;
+          const isRevoked = k.revoked_at !== null;
+          const date = new Date(k.created_at * 1000).toLocaleDateString();
+          const badge = isRevoked
+            ? `<span class="badge badge-revoked">${isVi() ? 'Đã thu hồi' : 'Revoked'}</span>`
+            : `<span class="badge badge-active">${isVi() ? 'Hoạt động' : 'Active'}</span>`;
           const actions = isRevoked
-            ? `<button class="btn-restore" onclick="unrevokeKey(${k.id})">${isVi() ? 'Khôi phục' : 'Restore'}</button> <button class="btn-delete" onclick="deleteKey(${k.id}, '${escapeHtml(k.name)}')">${isVi() ? 'Xóa' : 'Delete'}</button>`
+            ? `<button class="btn-restore" onclick="unrevokeKey(${k.id})">${isVi() ? 'Khôi phục' : 'Restore'}</button> <button class="btn-delete" onclick="deleteKey(${k.id},'${escapeHtml(k.name)}')">${isVi() ? 'Xóa' : 'Delete'}</button>`
             : `<button class="btn-revoke" onclick="revokeKey(${k.id})">${isVi() ? 'Thu hồi' : 'Revoke'}</button>`;
-          return `<tr><td style="font-weight:600;">${escapeHtml(k.name)}</td><td><code class="prefix-code">${escapeHtml(k.key_prefix)}…</code></td><td>${date}</td><td>${statusBadge}</td><td><div class="actions-cell">${actions}</div></td></tr>`;
+          return `<tr><td style="font-weight:600;">${escapeHtml(k.name)}</td><td><code class="prefix-code">${escapeHtml(k.key_prefix)}</code></td><td>${date}</td><td>${badge}</td><td><div class="actions-cell">${actions}</div></td></tr>`;
         }).join('');
-        el.innerHTML = `<table class="key-table"><thead><tr><th>${isVi() ? 'Tên' : 'Name'}</th><th>${isVi() ? 'Tiền tố' : 'Key Prefix'}</th><th>${isVi() ? 'Ngày tạo' : 'Created'}</th><th>${isVi() ? 'Trạng thái' : 'Status'}</th><th style="text-align:right">${isVi() ? 'Hành động' : 'Actions'}</th></tr></thead><tbody>${rows}</tbody></table>`;
-      } catch (err) { el.innerHTML = `<p style="color:var(--red);font-size:13px;">${isVi() ? 'Tải thất bại' : 'Failed to load keys'}: ${escapeHtml(err.message)}</p>`; }
+        el.innerHTML = `<table class="key-table"><thead><tr><th>${isVi() ? 'Tên' : 'Name'}</th><th>${isVi() ? 'Khóa' : 'Key'}</th><th>${isVi() ? 'Ngày tạo' : 'Created'}</th><th>${isVi() ? 'Trạng thái' : 'Status'}</th><th style="text-align:right">${isVi() ? 'Hành động' : 'Actions'}</th></tr></thead><tbody>${rows}</tbody></table>`;
+      } catch (err) { el.innerHTML = `<p style="color:var(--red);font-size:13px;">${isVi() ? 'Tải thất bại' : 'Failed'}: ${escapeHtml(err.message)}</p>`; }
     }
 
-    async function revokeKey(id) { if (!confirm(isVi() ? 'Thu hồi khóa này? Người giữ sẽ mất quyền truy cập ngay.' : 'Revoke this key? The holder loses admin access immediately.')) return; try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'revoke' }); fetchKeys(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); } }
+    async function revokeKey(id) { if (!confirm(isVi() ? 'Thu hồi khóa này?' : 'Revoke this key?')) return; try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'revoke' }); fetchKeys(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); } }
     async function unrevokeKey(id) { try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'unrevoke' }); fetchKeys(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); } }
-    async function deleteKey(id, name) { if (!confirm(isVi() ? `Xóa vĩnh viễn "${name}"? Không thể hoàn tác.` : `Permanently delete "${name}"? This cannot be undone.`)) return; try { await apiCall('DELETE', '/api/admin/api-keys', { id }); fetchKeys(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); } }
+    async function deleteKey(id, name) { if (!confirm(isVi() ? `Xóa "${name}"?` : `Delete "${name}"?`)) return; try { await apiCall('DELETE', '/api/admin/api-keys', { id }); fetchKeys(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); } }
 
     function escapeHtml(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
   </script>
