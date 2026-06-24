@@ -3,48 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.github.com https://web.rstudio.live; base-uri 'self'; form-action 'self'; frame-ancestors 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://web.rstudio.live; base-uri 'self'; form-action 'self'; frame-ancestors 'none';">
   <title>Admin — R Studio</title>
-  <meta name="description" content="Lbby License Generator by R Studio. Generate and manage license keys.">
-  <link rel="icon" href="https://lbby.rstudio.live/assets/lbby-app-icon-square.png" type="image/png">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="https://lbby.rstudio.live/assets/favicon-32.png">
   <link rel="stylesheet" href="/css/design-system.css">
   <link rel="stylesheet" href="/css/style.css">
   <style>
-    .license-container { max-width: 900px; margin: 0 auto; padding: 100px 24px 60px; }
-    .license-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 20px; }
+    .container { max-width: 1000px; margin: 0 auto; padding: 100px 24px 60px; }
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 20px; }
+    .card h3 { font-size: 16px; font-weight: 800; margin-bottom: 12px; }
+    .table { width: 100%; font-size: 13px; border-collapse: collapse; }
+    .table th { text-align: left; padding: 10px 12px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+    .table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .table tr:hover { background: var(--bg-elevated); }
+    .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+    .badge-admin { color: var(--accent); background: rgba(91,157,255,0.12); border: 1px solid rgba(91,157,255,0.25); }
+    .badge-user { color: var(--text-muted); background: var(--bg-elevated); border: 1px solid var(--border); }
+    .btn-sm { padding: 4px 10px; font-size: 11px; background: transparent; border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+    .btn-sm:hover { border-color: var(--accent); color: var(--accent); background: rgba(91,157,255,0.08); }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
     .form-group { display: flex; flex-direction: column; gap: 4px; }
     .form-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
     .form-group input, .form-group select { padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; font-family: inherit; outline: none; }
     .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
-    .expiry-presets { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
-    .expiry-presets button { padding: 4px 10px; font-size: 11px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; }
-    .expiry-presets button:hover { border-color: var(--border-hover); color: var(--text); }
-    .output-area { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; word-break: break-all; min-height: 60px; color: var(--text-muted); margin-bottom: 12px; }
     .status-msg { font-size: 13px; padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 12px; display: none; }
     .status-msg.success { display: block; color: var(--green); background: var(--green-bg); border: 1px solid var(--green-border); }
     .status-msg.error { display: block; color: var(--red); background: var(--red-bg); border: 1px solid var(--red-border); }
-    .history-table { width: 100%; font-size: 13px; border-collapse: collapse; }
-    .history-table th { text-align: left; padding: 8px 12px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
-    .history-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
-    .btn-revoke { padding: 2px 8px; font-size: 11px; background: var(--red-bg, #2a1515); border: 1px solid var(--red-border, #5a2020); border-radius: 4px; color: var(--red, #ff6b6b); cursor: pointer; transition: all 0.2s; }
-    .btn-revoke:hover { background: var(--red, #ff6b6b); color: white; }
-    .revoked-row { opacity: 0.5; text-decoration: line-through; }
+    .output-area { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; word-break: break-all; min-height: 40px; color: var(--text-muted); margin-bottom: 12px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .stat-box { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; text-align: center; }
+    .stat-number { font-size: 28px; font-weight: 900; color: var(--text); }
+    .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
     @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
   </style>
-  <link rel="icon" href="https://lbby.rstudio.live/assets/favicon-32.png">
 </head>
 <body>
 
   <nav class="nav">
     <a href="index.html" class="nav-brand">
       <img src="https://lbby.rstudio.live/assets/lbby-r-studio.png" alt="R Studio">
-      <span>R Studio</span>
+      <span>R Studio Admin</span>
     </a>
     <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
     <div class="nav-links">
-      <a href="index.html" class="active" data-vi="Giấy phép">License</a>
-      <a href="users.html" data-vi="Người dùng">Users</a>
+      <a href="index.html" class="active" data-vi="Người dùng">Users</a>
       <a href="api-keys.html" data-vi="Khóa API">API Keys</a>
       <a href="https://lbby.rstudio.live">Lbby</a>
       <button onclick="toggleLang()" style="margin-left:auto;padding:4px 10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-size:12px;cursor:pointer;"><span id="langLabel">VI</span></button>
@@ -53,164 +56,79 @@
   </nav>
 
   <div id="mainContent">
-    <div class="license-container">
-      <h1 style="font-size: 28px; font-weight: 900; margin-bottom: 8px;">🔑 <span data-vi="Trình tạo giấy phép">License Generator</span></h1>
-      <p style="color: var(--text-muted); margin-bottom: 28px;" data-vi="Tạo khóa giấy phép JWT ký Ed25519 cho Lbby.">Generate Ed25519-signed JWT license keys for Lbby.</p>
+    <div class="container">
+      <h1 style="font-size: 28px; font-weight: 900; margin-bottom: 8px;">👥 <span data-vi="Người dùng">Users</span></h1>
+      <p style="color: var(--text-muted); margin-bottom: 28px;" data-vi="Xem người dùng đã đăng ký và quản lý giấy phép.">View registered users and manage their licenses.</p>
 
-      <div class="license-card">
-        <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;" data-vi="🔑 Cặp khóa">🔑 Key Pair</h3>
-        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;" data-vi="Tạo hoặc nhập cặp khóa Ed25519. Khóa riêng ở lại trong trình duyệt.">Generate or import your Ed25519 key pair. The private key stays in your browser.</p>
-        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-          <button class="btn btn-primary btn-sm" onclick="generateKeyPair()" data-vi="Tạo cặp khóa mới">Generate New Key Pair</button>
-          <button class="btn btn-secondary btn-sm" onclick="showImportKey()" data-vi="Nhập khóa riêng">Import Private Key</button>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-number" id="totalUsers">-</div>
+          <div class="stat-label" data-vi="Tổng người dùng">Total Users</div>
         </div>
-        <div id="importKeyArea" style="display: none; margin-bottom: 12px;">
-          <textarea id="importKeyInput" placeholder="Paste your PEM private key here..." style="
-            width: 100%; min-height: 80px; padding: 12px; background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: var(--radius-sm); color: var(--text); font-family: ui-monospace, monospace; font-size: 11px;
-            outline: none; resize: vertical; word-break: break-all;
-          "></textarea>
-          <button class="btn btn-sm btn-primary" onclick="importKey()" style="margin-top: 8px;" data-vi="Nhập">Import</button>
+        <div class="stat-box">
+          <div class="stat-number" id="adminCount">-</div>
+          <div class="stat-label" data-vi="Quản trị viên">Admins</div>
         </div>
-        <div id="keyStatus" class="status-msg"></div>
       </div>
 
-      <div class="license-card">
-        <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;" data-vi="📜 Tạo giấy phép">📜 Generate License</h3>
+      <!-- User List -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3 style="margin-bottom: 0;" data-vi="📋 Người dùng đã đăng ký">📋 Registered Users</h3>
+          <button onclick="fetchUsers()" style="
+            padding: 6px 12px; background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border);
+            border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.15s;
+          " data-vi="↻ Tải lại">↻ Refresh</button>
+        </div>
+        <div id="usersTable">
+          <p style="color: var(--text-muted); font-size: 13px;" data-vi="Đang tải...">Loading...</p>
+        </div>
+      </div>
+
+      <!-- Generate License -->
+      <div class="card">
+        <h3 data-vi="📜 Tạo giấy phép">📜 Generate License</h3>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;" data-vi="Chọn người dùng hoặc nhập email. Hỗ trợ promo — tạo tài khoản nếu email chưa tồn tại.">
+          Select a user or enter an email. Supports promo — creates account if email doesn't exist.
+        </p>
         <div class="form-row">
           <div class="form-group">
-            <label data-vi="ID người dùng">User ID</label>
-            <input type="text" id="userId" placeholder="Telegram user ID">
+            <label data-vi="Email người dùng">User Email</label>
+            <input type="email" id="genEmail" placeholder="user@example.com">
           </div>
           <div class="form-group">
             <label>Tier</label>
-            <select id="tier"><option value="novice">Novice</option><option value="master">Master</option></select>
+            <select id="genTier">
+              <option value="novice">Novice</option>
+              <option value="master">Master</option>
+            </select>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label data-vi="Thời hạn">Validity</label>
-            <div style="display: flex; gap: 8px;">
-              <input type="number" id="expiryValue" value="30" min="1" style="width: 100px;">
-              <select id="expiryUnit" style="flex: 1;">
-                <option value="minutes" data-vi="Phút">Minutes</option>
-                <option value="hours" data-vi="Giờ">Hours</option>
-                <option value="days" selected data-vi="Ngày">Days</option>
-                <option value="weeks" data-vi="Tuần">Weeks</option>
-                <option value="months" data-vi="Tháng">Months</option>
-                <option value="years" data-vi="Năm">Years</option>
-              </select>
-            </div>
+            <label data-vi="Chu kỳ thanh toán">Billing Cycle</label>
+            <select id="genCycle">
+              <option value="monthly" data-vi="Hàng tháng (30 ngày)">Monthly (30 days)</option>
+              <option value="yearly" data-vi="Hàng năm (365 ngày)">Yearly (365 days)</option>
+              <option value="lifetime" data-vi="Trọn đời (10 năm)">Lifetime (10 years)</option>
+            </select>
           </div>
           <div class="form-group">
-            <label data-vi="JWT ID (tùy chọn)">JWT ID (optional)</label>
-            <input type="text" id="jwtId" placeholder="Auto-generated">
+            <label>&nbsp;</label>
+            <button onclick="generateLicense()" id="genBtn" style="
+              width: 100%; padding: 10px 20px; background: var(--accent); color: white; border: none;
+              border-radius: var(--radius-sm); font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+            " data-vi="Tạo giấy phép">Generate License</button>
           </div>
         </div>
-        <div class="expiry-presets">
-          <button onclick="setQuickExpiry(30, 'minutes')">30m</button>
-          <button onclick="setQuickExpiry(1, 'hours')">1h</button>
-          <button onclick="setQuickExpiry(6, 'hours')">6h</button>
-          <button onclick="setQuickExpiry(24, 'hours')">24h</button>
-          <button onclick="setQuickExpiry(7, 'days')">7d</button>
-          <button onclick="setQuickExpiry(30, 'days')">30d</button>
-          <button onclick="setQuickExpiry(90, 'days')">90d</button>
-          <button onclick="setQuickExpiry(6, 'months')">6mo</button>
-          <button onclick="setQuickExpiry(1, 'years')">1y</button>
-          <button onclick="setQuickExpiry(10, 'years')">10y</button>
-          <button onclick="setQuickExpiry(100, 'years')">∞</button>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label data-vi="Email (tùy chọn)">Email (optional)</label>
-            <input type="text" id="email" placeholder="user@example.com">
-          </div>
-          <div class="form-group">
-            <label data-vi="Telegram (tùy chọn)">Telegram Username (optional)</label>
-            <input type="text" id="tgUsername" placeholder="@username">
-          </div>
-        </div>
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-          <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
-            <input type="checkbox" id="bindDevice"> <span data-vi="Gắn vào thiết bị">Bind to device</span>
-          </label>
-          <input type="text" id="deviceId" placeholder="Device fingerprint" style="flex: 1; padding: 8px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-family: inherit; outline: none;">
-        </div>
-        <button class="btn btn-primary" onclick="generateLicense()" style="width: 100%; justify-content: center;" data-vi="Tạo khóa giấy phép">Generate License Key</button>
-        <div id="licenseStatus" class="status-msg"></div>
-        <div id="licenseOutput" style="display: none;">
-          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block;" data-vi="GIẤY PHÉP ĐÃ TẠO">GENERATED LICENSE</label>
-          <div class="output-area" id="jwtOutput"></div>
+        <div id="genStatus" class="status-msg"></div>
+        <div id="genOutput" style="display: none;">
+          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block;" data-vi="KHÓA GIẤY PHÉP">LICENSE KEY</label>
+          <div class="output-area" id="genKey"></div>
           <div style="display: flex; gap: 8px;">
-            <button class="btn btn-secondary btn-sm" onclick="copyLicense()" data-vi="Sao chép">Copy</button>
-            <button class="btn btn-secondary btn-sm" onclick="copyActivationMessage()" data-vi="Sao chép tin nhắn kích hoạt">Copy Activation Message</button>
+            <button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText(lastGeneratedKey)" data-vi="Sao chép khóa">Copy Key</button>
+            <button class="btn btn-secondary btn-sm" onclick="copyActivationMsg()" data-vi="Sao chép tin nhắn">Copy Message</button>
           </div>
-        </div>
-      </div>
-
-      <div class="license-card">
-        <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;" data-vi="🔍 Giải mã JWT">🔍 Decode JWT</h3>
-        <textarea id="decodeInput" placeholder="Paste a JWT to decode..." style="
-          width: 100%; min-height: 60px; padding: 12px; background: var(--bg-card); border: 1px solid var(--border);
-          border-radius: var(--radius-sm); color: var(--text); font-family: ui-monospace, monospace; font-size: 11px;
-          outline: none; resize: vertical; word-break: break-all;
-        "></textarea>
-        <button class="btn btn-secondary btn-sm" onclick="decodeJwt()" style="margin-top: 8px;" data-vi="Giải mã">Decode</button>
-        <div id="decodeOutput" class="output-area" style="display: none; margin-top: 12px;"></div>
-      </div>
-
-      <div class="license-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <h3 style="font-size: 16px; font-weight: 800;">🎫 <span data-vi="Giấy phép Dashboard">Dashboard Licenses</span></h3>
-        </div>
-        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;" data-vi="Phát hành giấy phép qua dashboard API. Keys được ký phía máy chủ và lưu trong D1.">Issue licenses via the dashboard API. Keys are signed server-side and stored in D1.</p>
-        <div style="border-top: 1px solid var(--border); padding-top: 16px; margin-bottom: 16px;">
-          <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;" data-vi="Tạo qua Dashboard">Generate via Dashboard</h4>
-          <div class="form-row">
-            <div class="form-group">
-              <label data-vi="Email người dùng">User Email</label>
-              <input type="email" id="dashEmail" placeholder="user@example.com">
-            </div>
-            <div class="form-group">
-              <label>Tier</label>
-              <select id="dashTier"><option value="novice">Novice</option><option value="master">Master</option></select>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label data-vi="Chu kỳ thanh toán">Billing Cycle</label>
-              <select id="dashCycle">
-                <option value="monthly" data-vi="Hàng tháng (30 ngày)">Monthly (30 days)</option>
-                <option value="yearly" data-vi="Hàng năm (365 ngày)">Yearly (365 days)</option>
-                <option value="lifetime" data-vi="Trọn đời (10 năm)">Lifetime (10 years)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>&nbsp;</label>
-              <button class="btn btn-primary" onclick="generateDashLicense()" style="width: 100%; justify-content: center;" data-vi="Tạo giấy phép">Generate License</button>
-            </div>
-          </div>
-          <div id="dashGenStatus" class="status-msg"></div>
-          <div id="dashGenOutput" style="display: none;">
-            <div class="output-area" id="dashGenKey"></div>
-            <button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('dashGenKey').textContent)" data-vi="Sao chép">Copy</button>
-          </div>
-        </div>
-        <div style="margin-bottom: 12px;">
-          <button class="btn btn-secondary btn-sm" onclick="fetchDashLicenses()" data-vi="Tải giấy phép">Load Licenses</button>
-        </div>
-        <div id="dashLicensesArea" style="overflow-x: auto;">
-          <p class="text-muted" style="font-size: 13px;" data-vi="Nhấn Tải giấy phép để xem.">Click Load Licenses to view.</p>
-        </div>
-      </div>
-
-      <div class="license-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <h3 style="font-size: 16px; font-weight: 800;" data-vi="📋 Lịch sử cục bộ">📋 Local History</h3>
-          <button class="btn btn-secondary btn-sm" onclick="exportHistory()" data-vi="Xuất">Export</button>
-        </div>
-        <div id="historyArea" style="overflow-x: auto; margin-bottom: 12px;">
-          <p class="text-muted" style="font-size: 13px;" data-vi="Chưa tạo giấy phép nào.">No licenses generated yet.</p>
         </div>
       </div>
     </div>
@@ -221,164 +139,86 @@
   <script src="/auth.js"></script>
   <script>
     const { apiCall, isVi } = RStudioAuth;
+    let lastGeneratedKey = '';
 
-    // ── Init ─────────────────────────────────────────────────────
     (async function() {
       if (!await RStudioAuth.requireAuth()) return;
-      await initApp();
+      await fetchUsers();
     })();
 
-    // ── License Generator ────────────────────────────────────────
-    let privateKey = null; let privateKeyPem = null;
-    let history = JSON.parse(localStorage.getItem('lbby-license-history') || '[]');
-    let revoked = JSON.parse(localStorage.getItem('lbby-revoked') || '[]');
-    let lastGeneratedJwt = '';
+    async function fetchUsers() {
+      const el = document.getElementById('usersTable');
+      try {
+        const data = await apiCall('GET', '/api/admin/users');
+        const users = data.users || [];
+        const admins = users.filter(u => u.is_admin).length;
+        document.getElementById('totalUsers').textContent = users.length;
+        document.getElementById('adminCount').textContent = admins;
 
-    const DB_NAME = 'lbby-keys'; const STORE_NAME = 'keys';
-    function openKeyDB() { return new Promise((resolve, reject) => { const req = indexedDB.open(DB_NAME, 1); req.onupgradeneeded = () => req.result.createObjectStore(STORE_NAME); req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); }); }
-    async function saveKeyToIDB(keyData) { const db = await openKeyDB(); return new Promise((resolve, reject) => { const tx = db.transaction(STORE_NAME, 'readwrite'); tx.objectStore(STORE_NAME).put(keyData, 'private-key'); tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); }); }
-    async function loadKeyFromIDB() { const db = await openKeyDB(); return new Promise((resolve, reject) => { const tx = db.transaction(STORE_NAME, 'readonly'); const req = tx.objectStore(STORE_NAME).get('private-key'); req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); }); }
-    async function clearKeyFromIDB() { const db = await openKeyDB(); return new Promise((resolve, reject) => { const tx = db.transaction(STORE_NAME, 'readwrite'); tx.objectStore(STORE_NAME).delete('private-key'); tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); }); }
-    async function importPemAsNonExtractable(pem) { const stripped = pem.replace(/-----BEGIN [^-]+-----/, '').replace(/-----END [^-]+-----/, '').replace(/\s+/g, ''); const der = Uint8Array.from(atob(stripped), c => c.charCodeAt(0)); return crypto.subtle.importKey('pkcs8', der.buffer, { name: 'Ed25519' }, false, ['sign']); }
+        if (users.length === 0) { el.innerHTML = `<p style="color:var(--text-muted);font-size:13px;">${isVi() ? 'Chưa có người dùng.' : 'No users yet.'}</p>`; return; }
 
-    async function initApp() {
-      try { const stored = await loadKeyFromIDB(); if (stored && stored.pem) { try { privateKey = await importPemAsNonExtractable(stored.pem); privateKeyPem = stored.pem; showKeyStatus(isVi() ? 'Khóa riêng đã tải' : 'Private key loaded', 'success'); } catch (e) { showKeyStatus(isVi() ? 'Khóa không hợp lệ.' : 'Invalid key.', 'error'); await clearKeyFromIDB(); } }
-      } catch (e) { const legacy = localStorage.getItem('lbby-private-key'); if (legacy) { try { privateKey = await importPemAsNonExtractable(legacy); privateKeyPem = legacy; await saveKeyToIDB({ pem: legacy }); localStorage.removeItem('lbby-private-key'); showKeyStatus(isVi() ? 'Khóa đã di chuyển' : 'Key migrated', 'success'); } catch (e) { showKeyStatus(isVi() ? 'Khóa cũ không hợp lệ.' : 'Legacy key invalid.', 'error'); localStorage.removeItem('lbby-private-key'); } } }
-      renderHistory();
+        const rows = users.map(u => {
+          const date = new Date(u.created_at * 1000).toLocaleDateString();
+          const badge = u.is_admin ? `<span class="badge badge-admin">${isVi() ? 'Quản trị' : 'Admin'}</span>` : `<span class="badge badge-user">${isVi() ? 'Người dùng' : 'User'}</span>`;
+          return `<tr>
+            <td style="font-weight:600;">${escapeHtml(u.email || '—')}</td>
+            <td>${badge}</td>
+            <td style="color:var(--text-muted);font-size:12px;">${date}</td>
+            <td><button class="btn-sm" onclick="selectUser('${escapeHtml(u.email)}')">${isVi() ? 'Tạo giấy phép' : 'Generate License'}</button></td>
+          </tr>`;
+        }).join('');
+
+        el.innerHTML = `<table class="table"><thead><tr>
+          <th>Email</th>
+          <th>${isVi() ? 'Vai trò' : 'Role'}</th>
+          <th>${isVi() ? 'Ngày đăng ký' : 'Registered'}</th>
+          <th style="text-align:right">${isVi() ? 'Hành động' : 'Action'}</th>
+        </tr></thead><tbody>${rows}</tbody></table>`;
+      } catch (err) { el.innerHTML = `<p style="color:var(--red);font-size:13px;">${isVi() ? 'Tải thất bại' : 'Failed'}: ${escapeHtml(err.message)}</p>`; }
     }
 
-    function showKeyStatus(msg, type) { const el = document.getElementById('keyStatus'); el.textContent = msg; el.className = 'status-msg ' + type; }
-    function showLicenseStatus(msg, type) { const el = document.getElementById('licenseStatus'); el.textContent = msg; el.className = 'status-msg ' + type; }
-
-    async function generateKeyPair() {
-      try { const keyPair = await crypto.subtle.generateKey({ name: 'Ed25519' }, true, ['sign', 'verify']);
-        const privateJwk = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
-        const privatePem = '-----BEGIN PRIVATE KEY-----\n' + chunkString(btoa(String.fromCharCode(...new Uint8Array(privateJwk))), 64) + '\n-----END PRIVATE KEY-----';
-        privateKey = await importPemAsNonExtractable(privatePem); privateKeyPem = privatePem;
-        await saveKeyToIDB({ pem: privatePem }); localStorage.removeItem('lbby-private-key');
-        showKeyStatus(isVi() ? 'Cặp khóa mới đã tạo!' : 'New key pair generated!', 'success');
-      } catch (e) { showKeyStatus((isVi() ? 'Lỗi: ' : 'Error: ') + e.message, 'error'); }
+    function selectUser(email) {
+      document.getElementById('genEmail').value = email;
+      document.getElementById('genEmail').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.getElementById('genEmail').focus();
     }
-
-    function showImportKey() { const area = document.getElementById('importKeyArea'); area.style.display = area.style.display === 'none' ? 'block' : 'none'; }
-    async function importKey() {
-      const input = document.getElementById('importKeyInput').value.trim();
-      if (!input) { showKeyStatus(isVi() ? 'Vui lòng dán khóa riêng' : 'Please paste a private key', 'error'); return; }
-      try { privateKey = await importPemAsNonExtractable(input); privateKeyPem = input; await saveKeyToIDB({ pem: input }); localStorage.removeItem('lbby-private-key');
-        showKeyStatus(isVi() ? 'Khóa riêng đã nhập!' : 'Private key imported!', 'success'); document.getElementById('importKeyArea').style.display = 'none';
-      } catch (e) { showKeyStatus((isVi() ? 'Khóa không hợp lệ: ' : 'Invalid key: ') + e.message, 'error'); }
-    }
-
-    function chunkString(str, len) { const chunks = []; for (let i = 0; i < str.length; i += len) chunks.push(str.slice(i, i + len)); return chunks.join('\n'); }
-    function generateId() { return Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, '0')).join(''); }
-    function setQuickExpiry(value, unit) { document.getElementById('expiryValue').value = value; document.getElementById('expiryUnit').value = unit; }
 
     async function generateLicense() {
-      if (!privateKey) { showLicenseStatus(isVi() ? 'Vui lòng tạo hoặc nhập khóa riêng trước' : 'Please generate or import a private key first', 'error'); return; }
-      const userId = document.getElementById('userId').value.trim(); const tier = document.getElementById('tier').value;
-      const expiryValue = parseInt(document.getElementById('expiryValue').value); const expiryUnit = document.getElementById('expiryUnit').value;
-      const jwtId = document.getElementById('jwtId').value.trim() || generateId();
-      const email = document.getElementById('email').value.trim() || null; const tgUsername = document.getElementById('tgUsername').value.trim() || null;
-      const bindDevice = document.getElementById('bindDevice').checked; const deviceId = document.getElementById('deviceId').value.trim() || null;
-      if (!userId) { showLicenseStatus(isVi() ? 'Vui lòng nhập ID người dùng' : 'Please enter a User ID', 'error'); return; }
-      if (bindDevice && !deviceId) { showLicenseStatus(isVi() ? 'Vui lòng nhập dấu vân tay thiết bị' : 'Please enter a device fingerprint', 'error'); return; }
+      const email = document.getElementById('genEmail').value.trim();
+      const tier = document.getElementById('genTier').value;
+      const cycle = document.getElementById('genCycle').value;
+      const btn = document.getElementById('genBtn');
+      const status = document.getElementById('genStatus');
+      const output = document.getElementById('genOutput');
+
+      if (!email) { showStatus(isVi() ? 'Nhập email' : 'Enter an email', 'error'); return; }
+
+      btn.textContent = isVi() ? 'Đang tạo...' : 'Generating...'; btn.disabled = true;
+      status.className = 'status-msg'; status.style.display = 'none'; output.style.display = 'none';
+
       try {
-        const now = Math.floor(Date.now() / 1000);
-        let expirySeconds; switch (expiryUnit) { case 'minutes': expirySeconds = expiryValue * 60; break; case 'hours': expirySeconds = expiryValue * 3600; break; case 'days': expirySeconds = expiryValue * 86400; break; case 'weeks': expirySeconds = expiryValue * 604800; break; case 'months': expirySeconds = expiryValue * 2592000; break; case 'years': expirySeconds = expiryValue * 31536000; break; default: expirySeconds = expiryValue * 86400; }
-        const claims = { sub: userId, tier, iat: now, exp: now + expirySeconds, iss: 'lbby', jti: jwtId };
-        if (email) claims.email = email; if (tgUsername) claims.tg_username = tgUsername; if (bindDevice && deviceId) claims.dev = deviceId;
-        const jwt = await signJwt(claims); lastGeneratedJwt = jwt;
-        document.getElementById('jwtOutput').textContent = jwt; document.getElementById('licenseOutput').style.display = 'block';
-        showLicenseStatus(isVi() ? 'Giấy phép đã tạo!' : 'License key generated!', 'success');
-        addToHistory(userId, tier, jwtId, now + expirySeconds);
-      } catch (e) { showLicenseStatus((isVi() ? 'Lỗi: ' : 'Error: ') + e.message, 'error'); }
+        const data = await apiCall('POST', '/api/admin/licenses/generate', { email, tier, billing_cycle: cycle });
+        lastGeneratedKey = data.licenseKey;
+        document.getElementById('genKey').textContent = data.licenseKey;
+        output.style.display = 'block';
+        const promo = data.promo ? (isVi() ? ' (tài khoản promo đã tạo)' : ' (promo account created)') : '';
+        showStatus((isVi() ? `Đã tạo cho ${email}` : `Generated for ${email}`) + promo, 'success');
+        fetchUsers();
+      } catch (err) {
+        showStatus((isVi() ? 'Lỗi: ' : 'Error: ') + err.message, 'error');
+      } finally { btn.textContent = isVi() ? 'Tạo giấy phép' : 'Generate License'; btn.disabled = false; }
     }
 
-    async function signJwt(claims) {
-      if (!privateKey) throw new Error('No private key');
-      const header = { alg: 'EdDSA', typ: 'JWT' };
-      const h = btoa(JSON.stringify(header)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-      const p = btoa(JSON.stringify(claims)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-      const sig = await crypto.subtle.sign('Ed25519', privateKey, new TextEncoder().encode(`${h}.${p}`));
-      const s = btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-      return `${h}.${p}.${s}`;
-    }
+    function showStatus(msg, type) { const el = document.getElementById('genStatus'); el.textContent = msg; el.className = 'status-msg ' + type; }
 
-    function copyLicense() { if (lastGeneratedJwt) navigator.clipboard.writeText(lastGeneratedJwt); }
-    function copyActivationMessage() {
-      const v = document.getElementById('expiryValue').value; const u = document.getElementById('expiryUnit').value;
+    function copyActivationMsg() {
+      const email = document.getElementById('genEmail').value.trim();
       navigator.clipboard.writeText(isVi()
-        ? `🎉 Giấy phép Lbby!\n\nKhóa:\n${lastGeneratedJwt}\n\nThời hạn: ${v} ${u}\n\nKích hoạt:\n1. Mở Lbby\n2. Giấy phép → Nâng cao\n3. Dán khóa → Kích hoạt`
-        : `🎉 Your Lbby license is ready!\n\nKey:\n${lastGeneratedJwt}\n\nValidity: ${v} ${u}\n\nActivate:\n1. Open Lbby\n2. License → Advanced\n3. Paste key → Activate`);
-    }
-
-    function decodeJwt() {
-      const input = document.getElementById('decodeInput').value.trim(); if (!input) return;
-      try { const parts = input.split('.'); if (parts.length !== 3) throw new Error('Invalid JWT');
-        const output = document.getElementById('decodeOutput'); output.style.display = 'block';
-        output.textContent = JSON.stringify({ header: JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/'))), payload: JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))) }, null, 2);
-      } catch (e) { const output = document.getElementById('decodeOutput'); output.style.display = 'block'; output.textContent = (isVi() ? 'Lỗi: ' : 'Error: ') + e.message; }
-    }
-
-    function addToHistory(userId, tier, jwtId, exp) { history.unshift({ userId, tier, jwtId, exp, date: Date.now() }); if (history.length > 50) history = history.slice(0, 50); localStorage.setItem('lbby-license-history', JSON.stringify(history)); renderHistory(); }
-    function isRevokedFn(jwtId) { return revoked.some(r => r.jwtId === jwtId); }
-
-    function renderHistory() {
-      const area = document.getElementById('historyArea');
-      if (history.length === 0) { area.innerHTML = `<p class="text-muted" style="font-size:13px;">${isVi() ? 'Chưa tạo giấy phép nào.' : 'No licenses generated yet.'}</p>`; return; }
-      const rows = history.map(h => {
-        const expDate = new Date(h.exp * 1000).toLocaleDateString();
-        const cls = isRevokedFn(h.jwtId) ? ' class="revoked-row"' : '';
-        const btn = isRevokedFn(h.jwtId) ? `<span style="color:var(--red);font-size:11px;">${isVi() ? 'Đã thu hồi' : 'Revoked'}</span>` : `<button class="btn-revoke" onclick="revokeLicense('${escapeHtml(h.jwtId)}','${escapeHtml(h.userId)}')">${isVi() ? 'Thu hồi' : 'Revoke'}</button>`;
-        return `<tr${cls}><td>${escapeHtml(h.userId)}</td><td>${escapeHtml(h.tier)}</td><td>${expDate}</td><td style="font-size:11px;font-family:monospace;">${escapeHtml(h.jwtId)}</td><td>${btn}</td></tr>`;
-      }).join('');
-      area.innerHTML = `<table class="history-table"><thead><tr><th>${isVi() ? 'ID người dùng' : 'User ID'}</th><th>Tier</th><th>${isVi() ? 'Hết hạn' : 'Expires'}</th><th>JWT ID</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
-    }
-
-    async function revokeLicense(jwtId, userId) {
-      const reason = prompt(isVi() ? `Thu hồi giấy phép cho ${userId}?\nLý do (tùy chọn):` : `Revoke license for ${userId}?\nReason (optional):`);
-      if (reason === null) return;
-      revoked.push({ jwtId, reason: reason || (isVi() ? 'Không có lý do' : 'No reason'), revokedAt: Date.now(), revokedBy: 'admin' });
-      localStorage.setItem('lbby-revoked', JSON.stringify(revoked));
-      if (privateKey) { try { const payload = { version: 1, generatedAt: Date.now(), entries: revoked }; const data = new TextEncoder().encode(JSON.stringify(payload)); const sig = await crypto.subtle.sign('Ed25519', privateKey, data); localStorage.setItem('lbby-revoked-signed', JSON.stringify({ ...payload, signature: btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') })); } catch (e) {} }
-      renderHistory();
+        ? `🎉 Giấy phép Lbby!\n\nKhóa:\n${lastGeneratedKey}\n\nKích hoạt:\n1. Mở Lbby\n2. Giấy phép → Nâng cao\n3. Dán khóa → Kích hoạt`
+        : `🎉 Your Lbby license is ready!\n\nKey:\n${lastGeneratedKey}\n\nActivate:\n1. Open Lbby\n2. License → Advanced\n3. Paste key → Activate`);
     }
 
     function escapeHtml(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
-    function exportHistory() { const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'lbby-license-history.json'; a.click(); URL.revokeObjectURL(url); }
-
-    // ── Dashboard License API ────────────────────────────────────
-    function showDashGenStatus(msg, type) { const el = document.getElementById('dashGenStatus'); el.textContent = msg; el.className = 'status-msg ' + type; }
-
-    async function generateDashLicense() {
-      const email = document.getElementById('dashEmail').value.trim(); const tier = document.getElementById('dashTier').value; const cycle = document.getElementById('dashCycle').value;
-      if (!email) { showDashGenStatus(isVi() ? 'Email là bắt buộc' : 'Email is required', 'error'); return; }
-      try { const data = await apiCall('POST', '/api/admin/licenses/generate', { email, tier, billing_cycle: cycle });
-        document.getElementById('dashGenKey').textContent = data.licenseKey; document.getElementById('dashGenOutput').style.display = 'block';
-        const promo = data.promo ? (isVi() ? ' (promo)' : ' (promo)') : '';
-        showDashGenStatus((isVi() ? `Đã tạo! JTI: ${data.jti}` : `Generated! JTI: ${data.jti}`) + promo, 'success');
-      } catch (err) { showDashGenStatus((isVi() ? 'Lỗi: ' : 'Error: ') + err.message, 'error'); }
-    }
-
-    async function fetchDashLicenses() {
-      const area = document.getElementById('dashLicensesArea');
-      try { const data = await apiCall('GET', '/api/admin/licenses');
-        const licenses = data.licenses || [];
-        if (licenses.length === 0) { area.innerHTML = `<p style="color:var(--text-muted);font-size:13px;">${isVi() ? 'Chưa có giấy phép nào.' : 'No licenses issued yet.'}</p>`; return; }
-        const rows = licenses.map(lic => {
-          const rvk = lic.revoked_at !== null; const exp = Math.floor(Date.now() / 1000) > lic.expires_at;
-          const status = rvk ? (isVi() ? 'Đã thu hồi' : 'Revoked') : exp ? (isVi() ? 'Hết hạn' : 'Expired') : (isVi() ? 'Hoạt động' : 'Active');
-          const color = rvk ? 'var(--red)' : exp ? 'var(--yellow)' : 'var(--green)';
-          const style = rvk ? 'opacity:0.5;text-decoration:line-through;' : '';
-          const btn = rvk ? `<button class="btn btn-secondary btn-sm" onclick="dashReenable('${lic.jti}')" style="font-size:11px;padding:2px 8px;">${isVi() ? 'Bật lại' : 'Re-enable'}</button>` : `<button class="btn btn-sm" style="font-size:11px;padding:2px 8px;background:var(--red-bg,#2a1515);border:1px solid var(--red-border);color:var(--red);" onclick="dashRevoke('${lic.jti}')">${isVi() ? 'Thu hồi' : 'Revoke'}</button>`;
-          return `<tr style="${style}"><td>${escapeHtml(lic.email || 'User #' + lic.user_id)}</td><td><span style="color:${lic.tier === 'master' ? '#a855f7' : '#3b82f6'};font-size:11px;font-weight:600;">${escapeHtml(lic.tier)}</span></td><td style="font-size:11px;font-family:monospace;">${escapeHtml(lic.jti.slice(0, 24))}…</td><td>${new Date(lic.expires_at * 1000).toLocaleDateString()}</td><td><span style="color:${color};font-size:11px;">${status}</span></td><td>${btn}</td></tr>`;
-        }).join('');
-        area.innerHTML = `<table class="history-table"><thead><tr><th>${isVi() ? 'Người dùng' : 'User'}</th><th>Tier</th><th>JTI</th><th>${isVi() ? 'Hết hạn' : 'Expires'}</th><th>${isVi() ? 'Trạng thái' : 'Status'}</th><th>${isVi() ? 'Hành động' : 'Action'}</th></tr></thead><tbody>${rows}</tbody></table>`;
-      } catch (err) { area.innerHTML = `<p style="color:var(--red);font-size:13px;">${isVi() ? 'Thất bại' : 'Failed'}: ${escapeHtml(err.message)}</p>`; }
-    }
-
-    async function dashRevoke(jti) { if (!confirm(isVi() ? 'Thu hồi giấy phép này?' : 'Revoke this license?')) return; try { await apiCall('POST', '/api/admin/licenses/revoke', { jti, action: 'revoke' }); fetchDashLicenses(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); } }
-    async function dashReenable(jti) { try { await apiCall('POST', '/api/admin/licenses/revoke', { jti, action: 'reenable' }); fetchDashLicenses(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); } }
   </script>
 </body>
 </html>
