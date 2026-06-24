@@ -15,8 +15,8 @@
     .keys-card h3 { font-size: 16px; font-weight: 800; margin-bottom: 12px; }
     .form-group { display: flex; flex-direction: column; gap: 4px; }
     .form-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .form-group input { padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; font-family: inherit; outline: none; }
-    .form-group input:focus { border-color: var(--accent); }
+    .form-group input, .form-group select { padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; font-family: inherit; outline: none; }
+    .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
     .status-msg { font-size: 13px; padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 12px; display: none; }
     .status-msg.success { display: block; color: var(--green); background: var(--green-bg); border: 1px solid var(--green-border); }
     .status-msg.error { display: block; color: var(--red); background: var(--red-bg); border: 1px solid var(--red-border); }
@@ -28,6 +28,10 @@
     .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
     .badge-active { color: var(--green); background: var(--green-bg); border: 1px solid var(--green-border); }
     .badge-revoked { color: var(--red); background: var(--red-bg); border: 1px solid var(--red-border); }
+    .badge-viewer { color: #60a5fa; background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.25); }
+    .badge-editor { color: #a78bfa; background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.25); }
+    .badge-admin { color: #f59e0b; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25); }
+    .badge-super_admin { color: #ef4444; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25); }
     .btn-revoke { padding: 4px 10px; font-size: 11px; background: transparent; border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
     .btn-revoke:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
     .btn-restore { padding: 4px 10px; font-size: 11px; background: transparent; border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
@@ -38,7 +42,13 @@
     .new-key-box .key-value { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; word-break: break-all; color: var(--text); margin: 8px 0; user-select: all; }
     .actions-cell { display: flex; gap: 6px; justify-content: flex-end; }
     .prefix-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; background: var(--bg-elevated); padding: 2px 8px; border-radius: 4px; }
-    @media (max-width: 640px) { .actions-cell { flex-wrap: wrap; } }
+    .tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+    .tier-option { padding: 12px; background: var(--bg-elevated); border: 2px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s; text-align: center; }
+    .tier-option:hover { border-color: var(--accent); }
+    .tier-option.selected { border-color: var(--accent); background: rgba(91,157,255,0.08); }
+    .tier-option .tier-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .tier-option .tier-desc { font-size: 11px; color: var(--text-muted); }
+    @media (max-width: 640px) { .actions-cell { flex-wrap: wrap; } .tier-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -61,7 +71,9 @@
   <div id="mainContent">
     <div class="keys-container">
       <h1 style="font-size: 28px; font-weight: 900; margin-bottom: 8px;">🔑 <span data-vi="Khóa API">API Keys</span></h1>
-      <p style="color: var(--text-muted); margin-bottom: 28px;" data-vi="Quản lý khóa API cho thành viên nhóm.">Manage API keys for team members.</p>
+      <p style="color: var(--text-muted); margin-bottom: 28px;" data-vi="Quản lý khóa API cho thành viên nhóm với phân quyền chi tiết.">
+        Manage API keys for team members with fine-grained permissions.
+      </p>
 
       <div id="connectionStatus" class="info-box" style="border-color: var(--border);" data-vi="Đang kết nối...">
         Connecting...
@@ -70,21 +82,36 @@
       <!-- Create Key -->
       <div class="keys-card">
         <h3 data-vi="Tạo khóa mới">Create New Key</h3>
-        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;" data-vi="Đặt tên và khóa tùy chỉnh cho thành viên nhóm.">
-          Set a name and custom key for a team member.
-        </p>
 
         <div class="form-group" style="margin-bottom: 12px;">
           <label data-vi="Tên (hiển thị trong hệ thống)">Name (shown in system)</label>
           <input type="text" id="keyName" placeholder="e.g. Tien Anh, Hung, Phuc" maxlength="64">
         </div>
 
-        <div class="form-group" style="margin-bottom: 16px;">
+        <div class="form-group" style="margin-bottom: 12px;">
           <label data-vi="Khóa API">API Key</label>
           <input type="text" id="customKeyInput" placeholder="e.g. aindrew, hung1234, phucdz" maxlength="120" onkeydown="if(event.key==='Enter')createKey()">
           <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" data-vi="Tối thiểu 8 ký tự. Tự động thêm lbby_ak_ nếu chưa có.">
             Min 8 characters. Auto-prefixed with lbby_ak_ if missing.
           </p>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label data-vi="Phân quyền">Permission Tier</label>
+          <div class="tier-grid">
+            <div class="tier-option selected" data-tier="viewer" onclick="selectTier('viewer')">
+              <div class="tier-name">👁️ Viewer</div>
+              <div class="tier-desc" data-vi="Chỉ xem — danh sách người dùng, giấy phép">Read-only — list users, licenses</div>
+            </div>
+            <div class="tier-option" data-tier="editor" onclick="selectTier('editor')">
+              <div class="tier-name">✏️ Editor</div>
+              <div class="tier-desc" data-vi="Tạo giấy phép, cập nhật người dùng">Generate licenses, update users</div>
+            </div>
+            <div class="tier-option" data-tier="admin" onclick="selectTier('admin')">
+              <div class="tier-name">🛡️ Admin</div>
+              <div class="tier-desc" data-vi="Xóa người dùng, quản lý khóa API">Delete users, manage API keys</div>
+            </div>
+          </div>
         </div>
 
         <button onclick="createKey()" id="createBtn" style="
@@ -105,6 +132,30 @@
             border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
           " data-vi="Sao chép khóa">Copy Key</button>
         </div>
+      </div>
+
+      <!-- Tier Info -->
+      <div class="keys-card">
+        <h3>📊 <span data-vi="Phân quyền chi tiết">Permission Details</span></h3>
+        <table class="key-table" style="margin-top: 8px;">
+          <thead>
+            <tr>
+              <th data-vi="Chức năng">Feature</th>
+              <th>👁️ Viewer</th>
+              <th>✏️ Editor</th>
+              <th>🛡️ Admin</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td data-vi="Xem người dùng">List users</td><td>✅</td><td>✅</td><td>✅</td></tr>
+            <tr><td data-vi="Xem giấy phép">List licenses</td><td>✅</td><td>✅</td><td>✅</td></tr>
+            <tr><td data-vi="Tạo giấy phép">Generate license</td><td>❌</td><td>✅</td><td>✅</td></tr>
+            <tr><td data-vi="Thu hồi giấy phép">Revoke license</td><td>❌</td><td>✅</td><td>✅</td></tr>
+            <tr><td data-vi="Cập nhật người dùng">Update users</td><td>❌</td><td>✅</td><td>✅</td></tr>
+            <tr><td data-vi="Xóa người dùng">Delete users</td><td>❌</td><td>❌</td><td>✅</td></tr>
+            <tr><td data-vi="Quản lý khóa API">Manage API keys</td><td>❌</td><td>❌</td><td>✅</td></tr>
+          </tbody>
+        </table>
       </div>
 
       <!-- Key List -->
@@ -128,15 +179,25 @@
   <script src="/auth.js"></script>
   <script>
     const { apiCall, isVi, getApiKey } = RStudioAuth;
+    let selectedTier = "viewer";
 
     (async function() {
       if (!await RStudioAuth.requireAuth()) return;
       const el = document.getElementById('connectionStatus');
-      const keyName = (await RStudioAuth.validateKey(getApiKey()))?.keyName || 'Admin';
-      el.innerHTML = `✅ ${isVi() ? 'Đã kết nối — Xin chào' : 'Connected — Welcome'}, <strong>${escapeHtml(keyName)}</strong>`;
+      const info = await RStudioAuth.validateKey(getApiKey());
+      const keyName = info?.keyName || 'Admin';
+      const tier = info?.tier || 'viewer';
+      el.innerHTML = `✅ ${isVi() ? 'Đã kết nối' : 'Connected'} — <strong>${escapeHtml(keyName)}</strong> <span class="badge badge-${tier}" style="margin-left:8px">${tier}</span>`;
       el.style.borderColor = 'var(--green-border)';
       await fetchKeys();
     })();
+
+    function selectTier(tier) {
+      selectedTier = tier;
+      document.querySelectorAll('.tier-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.tier === tier);
+      });
+    }
 
     async function createKey() {
       const nameInput = document.getElementById('keyName');
@@ -154,10 +215,10 @@
       status.className = 'status-msg'; status.style.display = 'none'; newKeyBox.style.display = 'none';
 
       try {
-        const data = await apiCall('POST', '/api/admin/api-keys', { name, key });
+        const data = await apiCall('POST', '/api/admin/api-keys', { name, key, tier: selectedTier });
         document.getElementById('newKeyValue').textContent = data.key;
         newKeyBox.style.display = 'block';
-        status.textContent = isVi() ? `Khóa "${data.name}" đã tạo!` : `Key "${data.name}" created!`;
+        status.textContent = isVi() ? `Khóa "${data.name}" đã tạo! (${data.tier})` : `Key "${data.name}" created! (${data.tier})`;
         status.className = 'status-msg success';
         nameInput.value = ''; keyInput.value = '';
         fetchKeys();
@@ -185,15 +246,16 @@
         const rows = keys.map(k => {
           const isRevoked = k.revoked_at !== null;
           const date = new Date(k.created_at * 1000).toLocaleDateString();
-          const badge = isRevoked
+          const statusBadge = isRevoked
             ? `<span class="badge badge-revoked">${isVi() ? 'Đã thu hồi' : 'Revoked'}</span>`
             : `<span class="badge badge-active">${isVi() ? 'Hoạt động' : 'Active'}</span>`;
+          const tierBadge = `<span class="badge badge-${k.tier || 'admin'}">${k.tier || 'admin'}</span>`;
           const actions = isRevoked
             ? `<button class="btn-restore" onclick="unrevokeKey(${k.id})">${isVi() ? 'Khôi phục' : 'Restore'}</button> <button class="btn-delete" onclick="deleteKey(${k.id},'${escapeHtml(k.name)}')">${isVi() ? 'Xóa' : 'Delete'}</button>`
             : `<button class="btn-revoke" onclick="revokeKey(${k.id})">${isVi() ? 'Thu hồi' : 'Revoke'}</button>`;
-          return `<tr><td style="font-weight:600;">${escapeHtml(k.name)}</td><td><code class="prefix-code">${escapeHtml(k.key_prefix)}</code></td><td>${date}</td><td>${badge}</td><td><div class="actions-cell">${actions}</div></td></tr>`;
+          return `<tr><td style="font-weight:600;">${escapeHtml(k.name)}</td><td><code class="prefix-code">${escapeHtml(k.key_prefix)}</code></td><td>${tierBadge}</td><td>${date}</td><td>${statusBadge}</td><td><div class="actions-cell">${actions}</div></td></tr>`;
         }).join('');
-        el.innerHTML = `<table class="key-table"><thead><tr><th>${isVi() ? 'Tên' : 'Name'}</th><th>${isVi() ? 'Khóa' : 'Key'}</th><th>${isVi() ? 'Ngày tạo' : 'Created'}</th><th>${isVi() ? 'Trạng thái' : 'Status'}</th><th style="text-align:right">${isVi() ? 'Hành động' : 'Actions'}</th></tr></thead><tbody>${rows}</tbody></table>`;
+        el.innerHTML = `<table class="key-table"><thead><tr><th>${isVi() ? 'Tên' : 'Name'}</th><th>${isVi() ? 'Khóa' : 'Key'}</th><th>${isVi() ? 'Quyền' : 'Tier'}</th><th>${isVi() ? 'Ngày tạo' : 'Created'}</th><th>${isVi() ? 'Trạng thái' : 'Status'}</th><th style="text-align:right">${isVi() ? 'Hành động' : 'Actions'}</th></tr></thead><tbody>${rows}</tbody></table>`;
       } catch (err) { el.innerHTML = `<p style="color:var(--red);font-size:13px;">${isVi() ? 'Tải thất bại' : 'Failed'}: ${escapeHtml(err.message)}</p>`; }
     }
 
