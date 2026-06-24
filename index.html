@@ -22,6 +22,8 @@
     .badge-user { color: var(--text-muted); background: var(--bg-elevated); border: 1px solid var(--border); }
     .btn-sm { padding: 4px 10px; font-size: 11px; background: transparent; border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
     .btn-sm:hover { border-color: var(--accent); color: var(--accent); background: rgba(91,157,255,0.08); }
+    .btn-danger { padding: 4px 10px; font-size: 11px; background: transparent; border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+    .btn-danger:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
     .form-group { display: flex; flex-direction: column; gap: 4px; }
     .form-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -35,7 +37,8 @@
     .stat-box { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; text-align: center; }
     .stat-number { font-size: 28px; font-weight: 900; color: var(--text); }
     .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
-    @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
+    .actions-cell { display: flex; gap: 6px; justify-content: flex-end; }
+    @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } .actions-cell { flex-wrap: wrap; } }
   </style>
 </head>
 <body>
@@ -58,7 +61,7 @@
   <div id="mainContent">
     <div class="container">
       <h1 style="font-size: 28px; font-weight: 900; margin-bottom: 8px;">👥 <span data-vi="Người dùng">Users</span></h1>
-      <p style="color: var(--text-muted); margin-bottom: 28px;" data-vi="Xem người dùng đã đăng ký và quản lý giấy phép.">View registered users and manage their licenses.</p>
+      <p style="color: var(--text-muted); margin-bottom: 28px;" data-vi="Xem người dùng, quản lý giấy phép, xóa tài khoản.">View users, manage licenses, delete accounts.</p>
 
       <div class="stats-grid">
         <div class="stat-box">
@@ -164,7 +167,10 @@
             <td style="font-weight:600;">${escapeHtml(u.email || '—')}</td>
             <td>${badge}</td>
             <td style="color:var(--text-muted);font-size:12px;">${date}</td>
-            <td><button class="btn-sm" onclick="selectUser('${escapeHtml(u.email)}')">${isVi() ? 'Tạo giấy phép' : 'Generate License'}</button></td>
+            <td><div class="actions-cell">
+              <button class="btn-sm" onclick="selectUser('${escapeHtml(u.email)}')">${isVi() ? 'Giấy phép' : 'License'}</button>
+              <button class="btn-danger" onclick="deleteUser(${u.id},'${escapeHtml(u.email)}')">${isVi() ? 'Xóa' : 'Delete'}</button>
+            </div></td>
           </tr>`;
         }).join('');
 
@@ -172,7 +178,7 @@
           <th>Email</th>
           <th>${isVi() ? 'Vai trò' : 'Role'}</th>
           <th>${isVi() ? 'Ngày đăng ký' : 'Registered'}</th>
-          <th style="text-align:right">${isVi() ? 'Hành động' : 'Action'}</th>
+          <th style="text-align:right">${isVi() ? 'Hành động' : 'Actions'}</th>
         </tr></thead><tbody>${rows}</tbody></table>`;
       } catch (err) { el.innerHTML = `<p style="color:var(--red);font-size:13px;">${isVi() ? 'Tải thất bại' : 'Failed'}: ${escapeHtml(err.message)}</p>`; }
     }
@@ -181,6 +187,22 @@
       document.getElementById('genEmail').value = email;
       document.getElementById('genEmail').scrollIntoView({ behavior: 'smooth', block: 'center' });
       document.getElementById('genEmail').focus();
+    }
+
+    async function deleteUser(id, email) {
+      const confirmMsg = isVi()
+        ? `Xóa "${email}"?\n\nTất cả dữ liệu sẽ bị xóa vĩnh viễn:\n- Giấy phép\n- Đăng ký\n- Thanh toán\n- Máy chủ\n- Tác nhân\n\nKhông thể hoàn tác!`
+        : `Delete "${email}"?\n\nAll data will be permanently removed:\n- Licenses\n- Subscriptions\n- Payments\n- Servers\n- Agents\n\nThis cannot be undone!`;
+
+      if (!confirm(confirmMsg)) return;
+
+      try {
+        const data = await apiCall('DELETE', `/api/admin/users/${id}`);
+        alert(isVi() ? `Đã xóa ${data.deleted}` : `Deleted ${data.deleted}`);
+        fetchUsers();
+      } catch (err) {
+        alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message);
+      }
     }
 
     async function generateLicense() {
