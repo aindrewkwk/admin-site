@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.github.com; base-uri 'self'; form-action 'self'; frame-ancestors 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.github.com https://web.rstudio.live; base-uri 'self'; form-action 'self'; frame-ancestors 'none';">
   <title>Admin — R Studio</title>
   <meta name="description" content="Lbby License Generator by R Studio. Generate and manage license keys.">
   <link rel="icon" href="https://lbby.rstudio.live/assets/lbby-app-icon-square.png" type="image/png">
@@ -44,6 +44,8 @@
     </a>
     <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
     <div class="nav-links">
+      <a href="index.html" class="active">License</a>
+      <a href="api-keys.html">API Keys</a>
       <a href="https://lbby.rstudio.live">Lbby</a>
       <a href="#" onclick="logout()" style="margin-left:auto;opacity:0.6;font-size:13px;">Logout</a>
     </div>
@@ -511,7 +513,7 @@
         const privateJwk = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
         const privatePem = '-----BEGIN PRIVATE KEY-----\n' + chunkString(btoa(String.fromCharCode(...new Uint8Array(privateJwk))), 64) + '\n-----END PRIVATE KEY-----';
         const publicJwk = await crypto.subtle.exportKey('spki', keyPair.publicKey);
-        const publicPem = '-----BEGIN PUBLIC KEY-----\n' + chunkString(btoa(String.fromCharCode(...new Uint8Array(publicJwk))), 64) + '\n-----END PUBLIC KEY-----';
+        const publicPem = '-----BEGIN PUBLIC KEY-----\n' + chunkString(btoa(String.fromCharCode(...new Uint8Array(publicJwk))), 64) + '\n-----END PRIVATE KEY-----';
 
         // Re-import as non-extractable for daily use
         privateKey = await importPemAsNonExtractable(privatePem);
