@@ -105,12 +105,6 @@
         return;
       }
 
-      if (!key.startsWith('lbby_ak_')) {
-        error.textContent = isVi() ? 'Khóa API phải bắt đầu bằng lbby_ak_' : 'API key must start with lbby_ak_';
-        error.style.display = 'block';
-        return;
-      }
-
       btn.textContent = isVi() ? 'Đang xác minh...' : 'Verifying...';
       btn.disabled = true;
 
