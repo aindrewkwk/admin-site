@@ -208,8 +208,8 @@
       const status = document.getElementById('createStatus');
       const newKeyBox = document.getElementById('newKeyBox');
 
-      if (!name) { status.textContent = isVi() ? 'Nhập tên' : 'Enter a name'; status.className = 'status-msg error'; return; }
-      if (!key) { status.textContent = isVi() ? 'Nhập khóa' : 'Enter a key'; status.className = 'status-msg error'; return; }
+      if (!name) { status.textContent = isVi() ? 'Nhập tên' : 'Enter a name'; status.className = 'status-msg error'; status.style.display = ''; return; }
+      if (!key) { status.textContent = isVi() ? 'Nhập khóa' : 'Enter a key'; status.className = 'status-msg error'; status.style.display = ''; return; }
 
       btn.textContent = isVi() ? 'Đang tạo...' : 'Creating...'; btn.disabled = true;
       status.className = 'status-msg'; status.style.display = 'none'; newKeyBox.style.display = 'none';
@@ -220,11 +220,13 @@
         newKeyBox.style.display = 'block';
         status.textContent = isVi() ? `Khóa "${data.name}" đã tạo! (${data.tier})` : `Key "${data.name}" created! (${data.tier})`;
         status.className = 'status-msg success';
+        status.style.display = '';
         nameInput.value = ''; keyInput.value = '';
         fetchKeys();
       } catch (err) {
         status.textContent = (isVi() ? 'Lỗi: ' : 'Error: ') + err.message;
         status.className = 'status-msg error';
+        status.style.display = '';
       } finally {
         btn.textContent = isVi() ? 'Tạo khóa' : 'Create Key'; btn.disabled = false;
       }
