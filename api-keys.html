@@ -54,6 +54,7 @@
     <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
     <div class="nav-links">
       <a href="index.html" data-vi="Giấy phép">License</a>
+      <a href="users.html" data-vi="Người dùng">Users</a>
       <a href="api-keys.html" class="active" data-vi="Khóa API">API Keys</a>
       <a href="https://lbby.rstudio.live">Lbby</a>
       <button onclick="toggleLang()" style="margin-left:auto;padding:4px 10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-size:12px;cursor:pointer;"><span id="langLabel">VI</span></button>
@@ -91,7 +92,6 @@
         Connecting to dashboard API...
       </div>
 
-      <!-- Create Key -->
       <div class="keys-card">
         <h3 data-vi="Tạo khóa mới">Create New Key</h3>
         <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;" data-vi="Mỗi thành viên nhóm nhận một khóa riêng. Khóa chỉ hiển thị một lần — sao chép ngay.">
@@ -123,7 +123,6 @@
         </div>
       </div>
 
-      <!-- Dev/Tester API Info -->
       <div class="keys-card">
         <h3>🔧 <span data-vi="Tích hợp API (dành cho nhà phát triển / kiểm thử)">API Integration (for developers / testers)</span></h3>
         <div class="dev-warning">
@@ -143,18 +142,17 @@
           <table class="key-table" style="margin-top: 8px;">
             <thead><tr><th>Endpoint</th><th data-vi="Mô tả">Description</th></tr></thead>
             <tbody>
+              <tr><td><code>GET /api/admin/users</code></td><td data-vi="Danh sách người dùng">List users</td></tr>
               <tr><td><code>GET /api/admin/licenses</code></td><td data-vi="Danh sách giấy phép">List licenses</td></tr>
               <tr><td><code>POST /api/admin/licenses/generate</code></td><td data-vi="Tạo giấy phép">Generate license</td></tr>
               <tr><td><code>POST /api/admin/licenses/revoke</code></td><td data-vi="Thu hồi / bật lại giấy phép">Revoke / re-enable license</td></tr>
-              <tr><td><code>GET /api/admin/users</code></td><td data-vi="Danh sách người dùng">List users</td></tr>
-              <tr><td><code>PATCH /api/admin/users/:id</code></td><td data-vi="Cập nhật người dùng (admin)">Update user (toggle admin)</td></tr>
+              <tr><td><code>PATCH /api/admin/users/:id</code></td><td data-vi="Cập nhật người dùng">Update user</td></tr>
               <tr><td><code>DELETE /api/admin/users/:id</code></td><td data-vi="Xóa người dùng">Delete user</td></tr>
             </tbody>
           </table>
         </details>
       </div>
 
-      <!-- Key List -->
       <div class="keys-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
           <h3 style="margin-bottom: 0;">📋 <span data-vi="Khóa đang hoạt động">Active Keys</span></h3>
