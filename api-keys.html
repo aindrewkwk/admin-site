@@ -251,13 +251,24 @@
           const statusBadge = isRevoked
             ? `<span class="badge badge-revoked">${isVi() ? 'Đã thu hồi' : 'Revoked'}</span>`
             : `<span class="badge badge-active">${isVi() ? 'Hoạt động' : 'Active'}</span>`;
-          const tierBadge = `<span class="badge badge-${k.tier || 'admin'}">${k.tier || 'admin'}</span>`;
+          const tierBadge = `<span class="badge badge-${escapeHtml(k.tier || 'admin')}">${escapeHtml(k.tier || 'admin')}</span>`;
           const actions = isRevoked
-            ? `<button class="btn-restore" onclick="unrevokeKey(${k.id})">${isVi() ? 'Khôi phục' : 'Restore'}</button> <button class="btn-delete" onclick="deleteKey(${k.id},'${escapeHtml(k.name)}')">${isVi() ? 'Xóa' : 'Delete'}</button>`
-            : `<button class="btn-revoke" onclick="revokeKey(${k.id})">${isVi() ? 'Thu hồi' : 'Revoke'}</button>`;
+            ? `<button class="btn-restore" data-id="${k.id}">${isVi() ? 'Khôi phục' : 'Restore'}</button> <button class="btn-delete" data-id="${k.id}" data-name="${escapeHtml(k.name)}">${isVi() ? 'Xóa' : 'Delete'}</button>`
+            : `<button class="btn-revoke" data-id="${k.id}">${isVi() ? 'Thu hồi' : 'Revoke'}</button>`;
           return `<tr><td style="font-weight:600;">${escapeHtml(k.name)}</td><td><code class="prefix-code">${escapeHtml(k.key_prefix)}</code></td><td>${tierBadge}</td><td>${date}</td><td>${statusBadge}</td><td><div class="actions-cell">${actions}</div></td></tr>`;
         }).join('');
         el.innerHTML = `<table class="key-table"><thead><tr><th>${isVi() ? 'Tên' : 'Name'}</th><th>${isVi() ? 'Khóa' : 'Key'}</th><th>${isVi() ? 'Quyền' : 'Tier'}</th><th>${isVi() ? 'Ngày tạo' : 'Created'}</th><th>${isVi() ? 'Trạng thái' : 'Status'}</th><th style="text-align:right">${isVi() ? 'Hành động' : 'Actions'}</th></tr></thead><tbody>${rows}</tbody></table>`;
+
+        // Attach event listeners via delegation (XSS-safe — no inline onclick)
+        el.querySelectorAll('.btn-revoke').forEach(btn => {
+          btn.addEventListener('click', () => revokeKey(Number(btn.dataset.id)));
+        });
+        el.querySelectorAll('.btn-restore').forEach(btn => {
+          btn.addEventListener('click', () => unrevokeKey(Number(btn.dataset.id)));
+        });
+        el.querySelectorAll('.btn-delete').forEach(btn => {
+          btn.addEventListener('click', () => deleteKey(Number(btn.dataset.id), btn.dataset.name));
+        });
       } catch (err) { el.innerHTML = `<p style="color:var(--red);font-size:13px;">${isVi() ? 'Tải thất bại' : 'Failed'}: ${escapeHtml(err.message)}</p>`; }
     }
 

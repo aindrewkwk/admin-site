@@ -179,7 +179,7 @@
           const date = new Date(u.created_at * 1000).toLocaleDateString();
           const roleBadge = u.is_admin ? `<span class="badge badge-admin">${isVi() ? 'Quản trị' : 'Admin'}</span>` : `<span class="badge badge-user">${isVi() ? 'Người dùng' : 'User'}</span>`;
           const tierBadge = u.tier
-            ? `<span class="badge badge-${u.tier}">${u.tier}</span>`
+            ? `<span class="badge badge-${escapeHtml(u.tier)}">${escapeHtml(u.tier)}</span>`
             : `<span class="badge badge-free">${isVi() ? 'Miễn phí' : 'Free'}</span>`;
           return `<tr>
             <td style="font-weight:600;">${escapeHtml(u.email || '—')}</td>
@@ -187,8 +187,8 @@
             <td>${tierBadge}</td>
             <td style="color:var(--text-muted);font-size:12px;">${date}</td>
             <td><div class="actions-cell">
-              <button class="btn-sm" onclick="selectUser('${escapeHtml(u.email)}')">${isVi() ? 'Giấy phép' : 'License'}</button>
-              <button class="btn-danger" onclick="deleteUser(${u.id},'${escapeHtml(u.email)}')">${isVi() ? 'Xóa' : 'Delete'}</button>
+              <button class="btn-sm btn-license" data-email="${escapeHtml(u.email)}">${isVi() ? 'Giấy phép' : 'License'}</button>
+              <button class="btn-danger btn-delete" data-id="${u.id}" data-email="${escapeHtml(u.email)}">${isVi() ? 'Xóa' : 'Delete'}</button>
             </div></td>
           </tr>`;
         }).join('');
@@ -200,6 +200,14 @@
           <th>${isVi() ? 'Ngày đăng ký' : 'Registered'}</th>
           <th style="text-align:right">${isVi() ? 'Hành động' : 'Actions'}</th>
         </tr></thead><tbody>${rows}</tbody></table>`;
+
+        // Attach event listeners via delegation instead of inline onclick (XSS-safe)
+        el.querySelectorAll('.btn-license').forEach(btn => {
+          btn.addEventListener('click', () => selectUser(btn.dataset.email));
+        });
+        el.querySelectorAll('.btn-delete').forEach(btn => {
+          btn.addEventListener('click', () => deleteUser(Number(btn.dataset.id), btn.dataset.email));
+        });
       } catch (err) { el.innerHTML = `<p style="color:var(--red);font-size:13px;">${isVi() ? 'Tải thất bại' : 'Failed'}: ${escapeHtml(err.message)}</p>`; }
     }
 
@@ -259,6 +267,11 @@
         ? `🎉 Giấy phép Lbby!\n\nKhóa:\n${lastGeneratedKey}\n\nKích hoạt:\n1. Mở Lbby\n2. Giấy phép → Nâng cao\n3. Dán khóa → Kích hoạt`
         : `🎉 Your Lbby license is ready!\n\nKey:\n${lastGeneratedKey}\n\nActivate:\n1. Open Lbby\n2. License → Advanced\n3. Paste key → Activate`);
     }
+
+    // NOTE: Client-side rate limiting is insufficient — the server must enforce
+    // rate limits on all admin API endpoints (user creation, license generation,
+    // deletion, etc.) to prevent abuse. Use token-bucket or sliding-window
+    // limiting keyed to the authenticated admin's session/IP.
 
     function escapeHtml(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
   </script>
