@@ -4,6 +4,7 @@
 
 (function () {
   const STORAGE_KEY = 'rstudio-admin-key';
+  const SESSION_INFO_KEY = 'rstudio-admin-session';
   const DASHBOARD_API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3000'
     : 'https://web.rstudio.live';
@@ -23,6 +24,25 @@
 
   function clearApiKey() {
     sessionStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(SESSION_INFO_KEY);
+  }
+
+  function getSessionInfo() {
+    try {
+      return JSON.parse(sessionStorage.getItem(SESSION_INFO_KEY) || '{}');
+    } catch { return {}; }
+  }
+
+  function setSessionInfo(info) {
+    sessionStorage.setItem(SESSION_INFO_KEY, JSON.stringify(info));
+  }
+
+  function getTier() {
+    return getSessionInfo().tier || null;
+  }
+
+  function isSuperAdmin() {
+    return getTier() === 'super_admin';
   }
 
   // ── Rate Limiting ───────────────────────────────────────────────
@@ -77,6 +97,19 @@
     return data;
   }
 
+  // ── Login (API key + password) ──────────────────────────────────
+
+  async function login(key, password) {
+    const res = await fetch(`${DASHBOARD_API}/api/admin/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: key.trim(), password }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Login failed (${res.status})`);
+    return data; // { ok, keyId, keyName, tier, passwordChangeRequired }
+  }
+
   // ── Validate Key ────────────────────────────────────────────────
 
   async function validateKey(key) {
@@ -104,6 +137,8 @@
       return false;
     }
 
+    // Update session info with latest tier
+    setSessionInfo({ keyName: info.keyName, tier: info.tier });
     return true;
   }
 
@@ -126,7 +161,12 @@
     getApiKey,
     setApiKey,
     clearApiKey,
+    getSessionInfo,
+    setSessionInfo,
+    getTier,
+    isSuperAdmin,
     validateKey,
+    login,
     apiCall,
     requireAuth,
     logout,

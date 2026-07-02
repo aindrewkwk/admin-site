@@ -35,6 +35,8 @@
     .btn-revoke { padding: 4px 10px; font-size: 11px; background: transparent; border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
     .btn-revoke:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
     .btn-restore { padding: 4px 10px; font-size: 11px; background: transparent; border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+    .btn-reset-pw { padding: 4px 10px; font-size: 11px; background: transparent; border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+    .btn-reset-pw:hover { border-color: var(--accent); color: var(--accent); background: rgba(91,157,255,0.08); }
     .btn-restore:hover { border-color: var(--green); color: var(--green); background: var(--green-bg); }
     .btn-delete { padding: 4px 10px; font-size: 11px; background: transparent; border: 1px solid transparent; border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
     .btn-delete:hover { color: var(--red); }
@@ -111,6 +113,10 @@
               <div class="tier-name">🛡️ Admin</div>
               <div class="tier-desc" data-vi="Xóa người dùng, quản lý khóa API">Delete users, manage API keys</div>
             </div>
+            <div class="tier-option" data-tier="super_admin" id="superAdminTier" onclick="selectTier('super_admin')" style="display:none;">
+              <div class="tier-name">👑 Super Admin</div>
+              <div class="tier-desc" data-vi="Toàn quyền — đặt lại mật khẩu, xóa khóa">Full access — reset passwords, delete keys</div>
+            </div>
           </div>
         </div>
 
@@ -144,16 +150,19 @@
               <th>👁️ Viewer</th>
               <th>✏️ Editor</th>
               <th>🛡️ Admin</th>
+              <th>👑 Super Admin</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td data-vi="Xem người dùng">List users</td><td>✅</td><td>✅</td><td>✅</td></tr>
-            <tr><td data-vi="Xem giấy phép">List licenses</td><td>✅</td><td>✅</td><td>✅</td></tr>
-            <tr><td data-vi="Tạo giấy phép">Generate license</td><td>❌</td><td>✅</td><td>✅</td></tr>
-            <tr><td data-vi="Thu hồi giấy phép">Revoke license</td><td>❌</td><td>✅</td><td>✅</td></tr>
-            <tr><td data-vi="Cập nhật người dùng">Update users</td><td>❌</td><td>✅</td><td>✅</td></tr>
-            <tr><td data-vi="Xóa người dùng">Delete users</td><td>❌</td><td>❌</td><td>✅</td></tr>
-            <tr><td data-vi="Quản lý khóa API">Manage API keys</td><td>❌</td><td>❌</td><td>✅</td></tr>
+            <tr><td data-vi="Xem người dùng">List users</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+            <tr><td data-vi="Xem giấy phép">List licenses</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+            <tr><td data-vi="Tạo giấy phép">Generate license</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+            <tr><td data-vi="Thu hồi giấy phép">Revoke license</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+            <tr><td data-vi="Cập nhật người dùng">Update users</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+            <tr><td data-vi="Xóa người dùng">Delete users</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+            <tr><td data-vi="Quản lý khóa API">Manage API keys</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+            <tr><td data-vi="Đặt lại mật khẩu">Reset passwords</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+            <tr><td data-vi="Xóa khóa API vĩnh viễn">Delete API keys</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
           </tbody>
         </table>
       </div>
@@ -189,6 +198,12 @@
       const tier = info?.tier || 'viewer';
       el.innerHTML = `✅ ${isVi() ? 'Đã kết nối' : 'Connected'} — <strong>${escapeHtml(keyName)}</strong> <span class="badge badge-${tier}" style="margin-left:8px">${tier}</span>`;
       el.style.borderColor = 'var(--green-border)';
+
+      // Show super_admin tier option if current user is super_admin
+      if (tier === 'super_admin') {
+        document.getElementById('superAdminTier').style.display = '';
+      }
+
       await fetchKeys();
     })();
 
@@ -244,6 +259,7 @@
       try {
         const data = await apiCall('GET', '/api/admin/api-keys');
         const keys = data.keys || [];
+        const isSuper = RStudioAuth.isSuperAdmin();
         if (keys.length === 0) { el.innerHTML = `<p style="color:var(--text-muted);font-size:13px;">${isVi() ? 'Chưa có khóa nào.' : 'No keys yet.'}</p>`; return; }
         const rows = keys.map(k => {
           const isRevoked = k.revoked_at !== null;
@@ -252,9 +268,13 @@
             ? `<span class="badge badge-revoked">${isVi() ? 'Đã thu hồi' : 'Revoked'}</span>`
             : `<span class="badge badge-active">${isVi() ? 'Hoạt động' : 'Active'}</span>`;
           const tierBadge = `<span class="badge badge-${escapeHtml(k.tier || 'admin')}">${escapeHtml(k.tier || 'admin')}</span>`;
-          const actions = isRevoked
+          let actions = isRevoked
             ? `<button class="btn-restore" data-id="${k.id}">${isVi() ? 'Khôi phục' : 'Restore'}</button> <button class="btn-delete" data-id="${k.id}" data-name="${escapeHtml(k.name)}">${isVi() ? 'Xóa' : 'Delete'}</button>`
             : `<button class="btn-revoke" data-id="${k.id}">${isVi() ? 'Thu hồi' : 'Revoke'}</button>`;
+          // Super admin can reset any key's password
+          if (isSuper && !isRevoked) {
+            actions += ` <button class="btn-reset-pw" data-id="${k.id}" data-name="${escapeHtml(k.name)}">${isVi() ? 'Đặt lại MK' : 'Reset PW'}</button>`;
+          }
           return `<tr><td style="font-weight:600;">${escapeHtml(k.name)}</td><td><code class="prefix-code">${escapeHtml(k.key_prefix)}</code></td><td>${tierBadge}</td><td>${date}</td><td>${statusBadge}</td><td><div class="actions-cell">${actions}</div></td></tr>`;
         }).join('');
         el.innerHTML = `<table class="key-table"><thead><tr><th>${isVi() ? 'Tên' : 'Name'}</th><th>${isVi() ? 'Khóa' : 'Key'}</th><th>${isVi() ? 'Quyền' : 'Tier'}</th><th>${isVi() ? 'Ngày tạo' : 'Created'}</th><th>${isVi() ? 'Trạng thái' : 'Status'}</th><th style="text-align:right">${isVi() ? 'Hành động' : 'Actions'}</th></tr></thead><tbody>${rows}</tbody></table>`;
@@ -269,12 +289,24 @@
         el.querySelectorAll('.btn-delete').forEach(btn => {
           btn.addEventListener('click', () => deleteKey(Number(btn.dataset.id), btn.dataset.name));
         });
+        el.querySelectorAll('.btn-reset-pw').forEach(btn => {
+          btn.addEventListener('click', () => resetPassword(Number(btn.dataset.id), btn.dataset.name));
+        });
       } catch (err) { el.innerHTML = `<p style="color:var(--red);font-size:13px;">${isVi() ? 'Tải thất bại' : 'Failed'}: ${escapeHtml(err.message)}</p>`; }
     }
 
     async function revokeKey(id) { if (!confirm(isVi() ? 'Thu hồi khóa này?' : 'Revoke this key?')) return; try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'revoke' }); fetchKeys(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); } }
     async function unrevokeKey(id) { try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'unrevoke' }); fetchKeys(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); } }
     async function deleteKey(id, name) { if (!confirm(isVi() ? `Xóa "${name}"?` : `Delete "${name}"?`)) return; try { await apiCall('DELETE', '/api/admin/api-keys', { id }); fetchKeys(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); } }
+    async function resetPassword(id, name) {
+      if (!confirm(isVi() ? `Đặt lại mật khẩu cho "${name}"?\n\nMật khẩu mới sẽ được tạo ngẫu nhiên.` : `Reset password for "${name}"?\n\nA new random password will be generated.`)) return;
+      try {
+        const data = await apiCall('POST', `/api/admin/api-keys/${id}/reset-password`);
+        alert(isVi()
+          ? `Đặt lại thành công!\n\nMật khẩu mới: ${data.newPassword}\n\nHãy sao chép và gửi cho chủ khóa.`
+          : `Reset successful!\n\nNew password: ${data.newPassword}\n\nCopy and share with the key owner.`);
+      } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); }
+    }
 
     function escapeHtml(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
   </script>

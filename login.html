@@ -26,17 +26,30 @@
     <div style="max-width: 420px; width: 100%; text-align: center;">
       <div style="font-size: 48px; margin-bottom: 20px;">🔐</div>
       <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--text);" data-vi="Đăng nhập quản trị">Admin Login</h1>
-      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;" data-vi="Nhập khóa API của bạn để truy cập bảng điều khiển.">Enter your API key to access the admin panel.</p>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;" data-vi="Nhập khóa API và mật khẩu để truy cập bảng điều khiển.">Enter your API key and password to access the admin panel.</p>
 
       <div style="text-align: left; margin-bottom: 16px;">
         <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;" data-vi="Khóa API">API Key</label>
-        <input type="text" id="apiKeyInput" placeholder="lbby_ak_..." autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')doLogin()" style="
+        <input type="text" id="apiKeyInput" placeholder="lbby_ak_..." autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')document.getElementById('passwordInput').focus()" style="
           width: 100%; padding: 14px 18px;
           background: var(--bg-card);
           border: 1px solid var(--border);
           border-radius: var(--radius-sm);
           color: var(--text); font-size: 15px;
           font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+          outline: none; letter-spacing: 0.5px;
+        ">
+      </div>
+
+      <div style="text-align: left; margin-bottom: 16px;">
+        <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;" data-vi="Mật khẩu">Password</label>
+        <input type="password" id="passwordInput" placeholder="••••••••" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')doLogin()" style="
+          width: 100%; padding: 14px 18px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          color: var(--text); font-size: 15px;
+          font-family: inherit;
           outline: none; letter-spacing: 0.5px;
         ">
       </div>
@@ -64,7 +77,7 @@
   <script src="/lang.js"></script>
   <script src="/auth.js"></script>
   <script>
-    const { getApiKey, setApiKey, validateKey, getAttemptState, recordAttempt, resetAttempts, isVi, MAX_ATTEMPTS, LOCKOUT_MS } = RStudioAuth;
+    const { getApiKey, setApiKey, setSessionInfo, validateKey, login, getAttemptState, recordAttempt, resetAttempts, isVi, MAX_ATTEMPTS, LOCKOUT_MS } = RStudioAuth;
 
     // If already logged in, redirect
     (async function checkExisting() {
@@ -82,10 +95,12 @@
 
     async function doLogin() {
       const input = document.getElementById('apiKeyInput');
+      const pwInput = document.getElementById('passwordInput');
       const error = document.getElementById('loginError');
       const success = document.getElementById('loginSuccess');
       const btn = document.getElementById('loginBtn');
       const key = input.value.trim();
+      const password = pwInput.value;
 
       error.style.display = 'none';
       success.style.display = 'none';
@@ -105,33 +120,40 @@
         return;
       }
 
+      if (!password) {
+        error.textContent = isVi() ? 'Vui lòng nhập mật khẩu' : 'Please enter your password';
+        error.style.display = 'block';
+        pwInput.focus();
+        return;
+      }
+
       btn.textContent = isVi() ? 'Đang xác minh...' : 'Verifying...';
       btn.disabled = true;
 
       try {
-        const info = await validateKey(key);
-        if (info) {
-          recordAttempt(false);
-          setApiKey(key);
-          success.textContent = isVi() ? `Đăng nhập thành công! Xin chào, ${info.keyName}` : `Logged in! Welcome, ${info.keyName}`;
-          success.style.display = 'block';
+        const info = await login(key, password);
+        recordAttempt(false);
+        setApiKey(key);
+        setSessionInfo({ keyName: info.keyName, tier: info.tier, keyId: info.keyId });
 
-          // Redirect after brief delay
-          setTimeout(() => {
-            const params = new URLSearchParams(window.location.search);
-            const redirect = params.get('redirect') || 'index.html';
-            window.location.href = redirect;
-          }, 800);
-        } else {
-          recordAttempt(true);
-          error.textContent = isVi() ? 'Khóa API không hợp lệ hoặc đã bị thu hồi' : 'Invalid or revoked API key';
-          error.style.display = 'block';
-          input.value = '';
-          input.focus();
-        }
+        const tierLabel = info.tier === 'super_admin' ? 'Super Admin' : info.tier === 'admin' ? 'Admin' : info.tier === 'editor' ? 'Editor' : 'Viewer';
+        success.textContent = isVi()
+          ? `Đăng nhập thành công! Xin chào, ${info.keyName} (${tierLabel})`
+          : `Logged in! Welcome, ${info.keyName} (${tierLabel})`;
+        success.style.display = 'block';
+
+        // Redirect after brief delay
+        setTimeout(() => {
+          const params = new URLSearchParams(window.location.search);
+          const redirect = params.get('redirect') || 'index.html';
+          window.location.href = redirect;
+        }, 800);
       } catch (err) {
-        error.textContent = (isVi() ? 'Lỗi kết nối: ' : 'Connection error: ') + err.message;
+        recordAttempt(true);
+        error.textContent = err.message;
         error.style.display = 'block';
+        pwInput.value = '';
+        pwInput.focus();
       } finally {
         btn.textContent = isVi() ? 'Đăng nhập' : 'Log In';
         btn.disabled = false;
