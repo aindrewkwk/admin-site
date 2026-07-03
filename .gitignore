@@ -4,3 +4,7 @@
 !.dev.vars.example
 .env*
 !.env.example
+._
+.wrangler/
+wrangler.jsonc
+node_modules/
