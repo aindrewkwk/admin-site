@@ -99,7 +99,7 @@
 
   // ── Login (API key + password) ──────────────────────────────────
 
-  async function login(key, password) {
+  async function adminLogin(key, password) {
     const res = await fetch(`${DASHBOARD_API}/api/admin/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -166,7 +166,7 @@
     getTier,
     isSuperAdmin,
     validateKey,
-    login,
+    adminLogin,
     apiCall,
     requireAuth,
     logout,

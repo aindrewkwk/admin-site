@@ -77,7 +77,7 @@
   <script src="/lang.js"></script>
   <script src="/auth.js"></script>
   <script>
-    const { getApiKey, setApiKey, setSessionInfo, validateKey, login, getAttemptState, recordAttempt, resetAttempts, isVi, MAX_ATTEMPTS, LOCKOUT_MS } = RStudioAuth;
+    const { getApiKey, setApiKey, setSessionInfo, validateKey, adminLogin, getAttemptState, recordAttempt, resetAttempts, isVi, MAX_ATTEMPTS, LOCKOUT_MS } = RStudioAuth;
 
     // If already logged in, redirect
     (async function checkExisting() {
@@ -131,7 +131,7 @@
       btn.disabled = true;
 
       try {
-        const info = await login(key, password);
+        const info = await adminLogin(key, password);
         recordAttempt(false);
         setApiKey(key);
         setSessionInfo({ keyName: info.keyName, tier: info.tier, keyId: info.keyId });
