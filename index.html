@@ -14,15 +14,34 @@
     .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 20px; }
     .card h3 { font-size: 16px; font-weight: 800; margin-bottom: 12px; }
     .table { width: 100%; font-size: 13px; border-collapse: collapse; }
-    .table th { text-align: left; padding: 10px 12px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
-    .table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
-    .table tr:hover { background: var(--bg-elevated); }
+    .table th { text-align: left; padding: 10px 12px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg-card); z-index: 1; }
+    .table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .table tbody tr { transition: background 0.15s ease; }
+    .table tbody tr:nth-child(even) { background: rgba(255,255,255,0.015); }
+    .table tbody tr:hover { background: rgba(143,76,255,0.06); }
+    .table tbody tr:hover td { border-bottom-color: rgba(143,76,255,0.15); }
     .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
     .badge-admin { color: var(--accent); background: rgba(91,157,255,0.12); border: 1px solid rgba(91,157,255,0.25); }
     .badge-user { color: var(--text-muted); background: var(--bg-elevated); border: 1px solid var(--border); }
     .badge-novice { color: #60a5fa; background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.25); }
     .badge-master { color: #a78bfa; background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.25); }
     .badge-free { color: var(--text-muted); background: var(--bg-elevated); border: 1px solid var(--border); }
+    /* Tier select in table */
+    .tier-select { padding:4px 8px;font-size:11px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;transition:border-color 0.15s;appearance:auto; }
+    .tier-select:hover { border-color:var(--accent); }
+    .tier-select:focus { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-glow); outline:none; }
+    .tier-select:disabled { opacity:0.4; cursor:not-allowed; }
+    /* User row email styling */
+    .user-email { font-weight:600; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .dupe-badge { font-size:10px;color:#fbbf24;margin-top:2px; }
+    /* Admin checkbox */
+    .admin-cb { cursor:pointer; accent-color:var(--accent); }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+    ::selection { background: var(--accent); color: white; }
     .btn-sm { padding: 4px 10px; font-size: 11px; background: transparent; border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
     .btn-sm:hover { border-color: var(--accent); color: var(--accent); background: rgba(91,157,255,0.08); }
     .btn-danger { padding: 4px 10px; font-size: 11px; background: transparent; border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
@@ -30,14 +49,15 @@
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
     .form-group { display: flex; flex-direction: column; gap: 4px; }
     .form-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .form-group input, .form-group select { padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; font-family: inherit; outline: none; }
-    .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+    .form-group input, .form-group select { padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    .form-group input:focus, .form-group select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
     .status-msg { font-size: 13px; padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 12px; display: none; }
     .status-msg.success { display: block; color: var(--green); background: var(--green-bg); border: 1px solid var(--green-border); }
     .status-msg.error { display: block; color: var(--red); background: var(--red-bg); border: 1px solid var(--red-border); }
     .output-area { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; word-break: break-all; min-height: 40px; color: var(--text-muted); margin-bottom: 12px; }
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
-    .stat-box { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; text-align: center; }
+    .stat-box { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; text-align: center; transition: border-color 0.2s, box-shadow 0.2s; }
+    .stat-box:hover { border-color: rgba(143,76,255,0.3); box-shadow: 0 0 20px rgba(143,76,255,0.08); }
     .stat-number { font-size: 28px; font-weight: 900; color: var(--text); }
     .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
     .actions-cell { display: flex; gap: 6px; justify-content: flex-end; }
@@ -181,20 +201,20 @@
           const date = new Date(u.created_at * 1000).toLocaleDateString();
           const isBusy = busyUserId === u.id;
           const curTier = u.tier || 'free';
-          const tierSelect = `<select data-user-id="${u.id}" onchange="updateUserTier(${u.id}, this.value, '${curTier}')" ${isBusy ? 'disabled' : ''} style="padding:4px 8px;font-size:11px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;">
+          const tierSelect = `<select class="tier-select" data-user-id="${u.id}" onchange="updateUserTier(${u.id}, this.value, '${curTier}')" ${isBusy ? 'disabled' : ''}>
             <option value="free" ${(!u.tier || u.tier === 'free') ? 'selected' : ''}>free</option>
             <option value="novice" ${u.tier === 'novice' ? 'selected' : ''}>novice</option>
             <option value="master" ${u.tier === 'master' ? 'selected' : ''}>master</option>
           </select>`;
           const adminToggle = `<label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);cursor:pointer;">
-            <input type="checkbox" data-admin-id="${u.id}" ${u.is_admin ? 'checked' : ''} ${isBusy ? 'disabled' : ''} onchange="toggleAdmin(${u.id}, this.checked)" style="cursor:pointer;">
+            <input type="checkbox" class="admin-cb" data-admin-id="${u.id}" ${u.is_admin ? 'checked' : ''} ${isBusy ? 'disabled' : ''} onchange="toggleAdmin(${u.id}, this.checked)">
             ${isVi() ? 'Admin' : 'Admin'}
           </label>`;
           const dupeInfo = (u.duplicate_count ?? 0) > 1
-            ? `<div style="font-size:10px;color:#fbbf24;margin-top:2px;">${u.duplicate_count} merged</div>`
+            ? `<div class="dupe-badge">${u.duplicate_count} merged</div>`
             : '';
           return `<tr>
-            <td style="font-weight:600;">${escapeHtml(u.email || '—')}${dupeInfo}</td>
+            <td><span class="user-email">${escapeHtml(u.email || '—')}</span>${dupeInfo}</td>
             <td>${tierSelect}</td>
             <td>${adminToggle}</td>
             <td style="color:var(--text-muted);font-size:12px;">${date}</td>
