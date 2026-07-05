@@ -219,26 +219,26 @@
         success.style.display = 'none';
 
         if (!newPw || newPw.length < 8) {
-          error.textContent = isVi() ? 'Mật khẩu phải có ít nhất 8 ký tự' : 'Password must be at least 8 characters';
+          error.textContent = RStudioAuth.isVi() ? 'Mật khẩu phải có ít nhất 8 ký tự' : 'Password must be at least 8 characters';
           error.style.display = 'block';
           return;
         }
         if (newPw !== confirmPw) {
-          error.textContent = isVi() ? 'Mật khẩu không khớp' : 'Passwords do not match';
+          error.textContent = RStudioAuth.isVi() ? 'Mật khẩu không khớp' : 'Passwords do not match';
           error.style.display = 'block';
           return;
         }
 
-        btn.textContent = isVi() ? 'Đang đổi...' : 'Changing...';
+        btn.textContent = RStudioAuth.isVi() ? 'Đang đổi...' : 'Changing...';
         btn.disabled = true;
 
         try {
-          await apiCall('POST', `/api/admin/api-keys/${keyId}/change-password`, {
+          await RStudioAuth.apiCall('POST', `/api/admin/api-keys/${keyId}/change-password`, {
             key: apiKey,
             newPassword: newPw,
           });
 
-          success.textContent = isVi() ? 'Đã đổi mật khẩu! Đang chuyển hướng...' : 'Password changed! Redirecting...';
+          success.textContent = RStudioAuth.isVi() ? 'Đã đổi mật khẩu! Đang chuyển hướng...' : 'Password changed! Redirecting...';
           success.style.display = 'block';
 
           setTimeout(() => {
@@ -250,7 +250,7 @@
           error.textContent = err.message;
           error.style.display = 'block';
         } finally {
-          btn.textContent = isVi() ? 'Đổi mật khẩu' : 'Change password';
+          btn.textContent = RStudioAuth.isVi() ? 'Đổi mật khẩu' : 'Change password';
           btn.disabled = false;
         }
       };
