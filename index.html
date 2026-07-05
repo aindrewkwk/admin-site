@@ -160,6 +160,8 @@
       await fetchUsers();
     })();
 
+    let busyUserId = null;
+
     async function fetchUsers() {
       const el = document.getElementById('usersTable');
       try {
@@ -177,16 +179,26 @@
 
         const rows = users.map(u => {
           const date = new Date(u.created_at * 1000).toLocaleDateString();
-          const roleBadge = u.is_admin ? `<span class="badge badge-admin">${isVi() ? 'Quản trị' : 'Admin'}</span>` : `<span class="badge badge-user">${isVi() ? 'Người dùng' : 'User'}</span>`;
-          const tierBadge = u.tier
-            ? `<span class="badge badge-${escapeHtml(u.tier)}">${escapeHtml(u.tier)}</span>`
-            : `<span class="badge badge-free">${isVi() ? 'Miễn phí' : 'Free'}</span>`;
+          const isBusy = busyUserId === u.id;
+          const tierSelect = `<select onchange="updateUserTier(${u.id}, this.value)" ${isBusy ? 'disabled' : ''} style="padding:4px 8px;font-size:11px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;">
+            <option value="free" ${(!u.tier || u.tier === 'free') ? 'selected' : ''}>free</option>
+            <option value="novice" ${u.tier === 'novice' ? 'selected' : ''}>novice</option>
+            <option value="master" ${u.tier === 'master' ? 'selected' : ''}>master</option>
+          </select>`;
+          const adminToggle = `<label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);cursor:pointer;">
+            <input type="checkbox" ${u.is_admin ? 'checked' : ''} ${isBusy ? 'disabled' : ''} onchange="toggleAdmin(${u.id}, this.checked)" style="cursor:pointer;">
+            ${isVi() ? 'Admin' : 'Admin'}
+          </label>`;
+          const dupeInfo = (u.duplicate_count ?? 0) > 1
+            ? `<div style="font-size:10px;color:#fbbf24;margin-top:2px;">${u.duplicate_count} merged</div>`
+            : '';
           return `<tr>
-            <td style="font-weight:600;">${escapeHtml(u.email || '—')}</td>
-            <td>${roleBadge}</td>
-            <td>${tierBadge}</td>
+            <td style="font-weight:600;">${escapeHtml(u.email || '—')}${dupeInfo}</td>
+            <td>${tierSelect}</td>
+            <td>${adminToggle}</td>
             <td style="color:var(--text-muted);font-size:12px;">${date}</td>
             <td><div class="actions-cell">
+              <button class="btn-sm" onclick="sendReset(${u.id})" ${isBusy || !u.email ? 'disabled' : ''}>${isVi() ? 'Đặt lại MK' : 'Reset PW'}</button>
               <button class="btn-sm btn-license" data-email="${escapeHtml(u.email)}">${isVi() ? 'Giấy phép' : 'License'}</button>
               <button class="btn-danger btn-delete" data-id="${u.id}" data-email="${escapeHtml(u.email)}">${isVi() ? 'Xóa' : 'Delete'}</button>
             </div></td>
@@ -231,6 +243,36 @@
       } catch (err) {
         alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message);
       }
+    }
+
+    async function updateUserTier(userId, tier) {
+      busyUserId = userId;
+      try {
+        await apiCall('PATCH', `/api/admin/users/${userId}`, { tier, status: 'active', billing_cycle: 'monthly' });
+        fetchUsers();
+      } catch (err) {
+        alert((isVi() ? 'Lỗi: ' : 'Error: ') + err.message);
+      } finally { busyUserId = null; }
+    }
+
+    async function toggleAdmin(userId, isAdmin) {
+      busyUserId = userId;
+      try {
+        await apiCall('PATCH', `/api/admin/users/${userId}`, { is_admin: isAdmin ? 1 : 0 });
+        fetchUsers();
+      } catch (err) {
+        alert((isVi() ? 'Lỗi: ' : 'Error: ') + err.message);
+      } finally { busyUserId = null; }
+    }
+
+    async function sendReset(userId) {
+      busyUserId = userId;
+      try {
+        await apiCall('POST', `/api/admin/users/${userId}/reset-password`);
+        alert(isVi() ? 'Đã gửi email đặt lại mật khẩu' : 'Password reset email sent');
+      } catch (err) {
+        alert((isVi() ? 'Lỗi: ' : 'Error: ') + err.message);
+      } finally { busyUserId = null; }
     }
 
     async function generateLicense() {
