@@ -180,13 +180,14 @@
         const rows = users.map(u => {
           const date = new Date(u.created_at * 1000).toLocaleDateString();
           const isBusy = busyUserId === u.id;
-          const tierSelect = `<select onchange="updateUserTier(${u.id}, this.value)" ${isBusy ? 'disabled' : ''} style="padding:4px 8px;font-size:11px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;">
+          const curTier = u.tier || 'free';
+          const tierSelect = `<select data-user-id="${u.id}" onchange="updateUserTier(${u.id}, this.value, '${curTier}')" ${isBusy ? 'disabled' : ''} style="padding:4px 8px;font-size:11px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;">
             <option value="free" ${(!u.tier || u.tier === 'free') ? 'selected' : ''}>free</option>
             <option value="novice" ${u.tier === 'novice' ? 'selected' : ''}>novice</option>
             <option value="master" ${u.tier === 'master' ? 'selected' : ''}>master</option>
           </select>`;
           const adminToggle = `<label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);cursor:pointer;">
-            <input type="checkbox" ${u.is_admin ? 'checked' : ''} ${isBusy ? 'disabled' : ''} onchange="toggleAdmin(${u.id}, this.checked)" style="cursor:pointer;">
+            <input type="checkbox" data-admin-id="${u.id}" ${u.is_admin ? 'checked' : ''} ${isBusy ? 'disabled' : ''} onchange="toggleAdmin(${u.id}, this.checked)" style="cursor:pointer;">
             ${isVi() ? 'Admin' : 'Admin'}
           </label>`;
           const dupeInfo = (u.duplicate_count ?? 0) > 1
@@ -198,8 +199,8 @@
             <td>${adminToggle}</td>
             <td style="color:var(--text-muted);font-size:12px;">${date}</td>
             <td><div class="actions-cell">
-              <button class="btn-sm" onclick="sendReset(${u.id})" ${isBusy || !u.email ? 'disabled' : ''}>${isVi() ? 'Đặt lại MK' : 'Reset PW'}</button>
-              <button class="btn-danger" onclick="revokeLicenses(${u.id})" ${isBusy ? 'disabled' : ''}>${isVi() ? 'Thu hồi giấy phép' : 'Revoke'}</button>
+              <button class="btn-sm" data-reset-id="${u.id}" onclick="sendReset(${u.id})" ${isBusy || !u.email ? 'disabled' : ''}>${isVi() ? 'Đặt lại MK' : 'Reset PW'}</button>
+              <button class="btn-danger" data-revoke-id="${u.id}" onclick="revokeLicenses(${u.id})" ${isBusy ? 'disabled' : ''}>${isVi() ? 'Thu hồi giấy phép' : 'Revoke'}</button>
               <button class="btn-sm btn-license" data-email="${escapeHtml(u.email)}">${isVi() ? 'Giấy phép' : 'License'}</button>
               <button class="btn-danger btn-delete" data-id="${u.id}" data-email="${escapeHtml(u.email)}">${isVi() ? 'Xóa' : 'Delete'}</button>
             </div></td>
@@ -246,52 +247,117 @@
       }
     }
 
-    async function updateUserTier(userId, tier) {
-      busyUserId = userId;
-      try {
-        await apiCall('PATCH', `/api/admin/users/${userId}`, { tier, status: 'active', billing_cycle: 'monthly' });
-        fetchUsers();
-      } catch (err) {
-        alert((isVi() ? 'Lỗi: ' : 'Error: ') + err.message);
-      } finally { busyUserId = null; }
+    // ── Toast notifications ──────────────────────────────────────────────
+    function showToast(msg, type = 'success') {
+      const existing = document.getElementById('adminToast');
+      if (existing) existing.remove();
+      const colors = { success: 'var(--green)', error: 'var(--red)', info: 'var(--accent)' };
+      const toast = document.createElement('div');
+      toast.id = 'adminToast';
+      toast.textContent = msg;
+      toast.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;color:#fff;background:${colors[type] || colors.success};box-shadow:0 4px 20px rgba(0,0,0,0.4);transform:translateY(20px);opacity:0;transition:all 0.25s ease;max-width:360px;`;
+      document.body.appendChild(toast);
+      requestAnimationFrame(() => { toast.style.transform = 'translateY(0)'; toast.style.opacity = '1'; });
+      setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(20px)'; setTimeout(() => toast.remove(), 300); }, 3000);
+    }
+
+    // ── Confirmation modal ───────────────────────────────────────────────
+    function showConfirm(title, bodyHtml, confirmLabel, onConfirm) {
+      const existing = document.getElementById('confirmModal');
+      if (existing) existing.remove();
+      const overlay = document.createElement('div');
+      overlay.id = 'confirmModal';
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s ease;';
+      overlay.innerHTML = `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);transform:scale(0.95);transition:transform 0.2s ease;">
+        <h3 style="margin:0 0 12px;font-size:16px;font-weight:800;">${title}</h3>
+        <div style="color:var(--text-muted);font-size:13px;line-height:1.6;margin-bottom:20px;">${bodyHtml}</div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button id="confirmCancel" style="padding:8px 16px;font-size:12px;font-weight:700;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);cursor:pointer;">${isVi() ? 'Hủy' : 'Cancel'}</button>
+          <button id="confirmOk" style="padding:8px 16px;font-size:12px;font-weight:700;background:var(--accent);border:none;border-radius:8px;color:#000;cursor:pointer;">${confirmLabel}</button>
+        </div>
+      </div>`;
+      document.body.appendChild(overlay);
+      requestAnimationFrame(() => { overlay.style.opacity = '1'; overlay.querySelector('div').style.transform = 'scale(1)'; });
+      overlay.querySelector('#confirmCancel').onclick = () => { overlay.style.opacity = '0'; setTimeout(() => overlay.remove(), 200); };
+      overlay.querySelector('#confirmOk').onclick = () => { overlay.style.opacity = '0'; setTimeout(() => overlay.remove(), 200); onConfirm(); };
+      overlay.addEventListener('click', e => { if (e.target === overlay) { overlay.style.opacity = '0'; setTimeout(() => overlay.remove(), 200); } });
+    }
+
+    const TIER_LABELS = { free: 'Free', novice: 'Novice', master: 'Master' };
+    const TIER_EFFECTS = {
+      free:   { en: '• All active licenses will be <b>revoked</b><br>• App features will be <b>downgraded</b><br>• User reverts to free tier', vi: '• Tất cả giấy phép sẽ bị <b>thu hồi</b><br>• Tính năng ứng dụng sẽ bị <b>hạ cấp</b><br>• Người dùng trở về gói miễn phí' },
+      novice: { en: '• Active Master licenses will be <b>revoked</b><br>• Novice-level features unlocked<br>• Playit.gg tunnels enabled', vi: '• Giấy phép Master sẽ bị <b>thu hồi</b><br>• Mở khóa tính năng Novice<br>• Bật playit.gg tunnels' },
+      master: { en: '• Full access granted<br>• Cloudflare Quick Tunnel enabled<br>• All features unlocked', vi: '• Cấp quyền truy cập đầy đủ<br>• Bật Cloudflare Quick Tunnel<br>• Mở khóa tất cả tính năng' },
+    };
+
+    async function updateUserTier(userId, newTier, currentTier) {
+      if (newTier === currentTier) return;
+      const row = document.querySelector(`select[data-user-id="${userId}"]`)?.closest('tr');
+      const email = row?.querySelector('td')?.textContent?.trim() || `User #${userId}`;
+      const effects = TIER_EFFECTS[newTier] || TIER_EFFECTS.free;
+      const bodyHtml = isVi()
+        ? `<p style="margin:0 0 8px;">Thay đổi tier cho <b>${escapeHtml(email)}</b>:</p><p style="margin:0 0 4px;"><span style="color:var(--text-muted)">${TIER_LABELS[currentTier] || 'Free'}</span> → <b style="color:var(--accent)">${TIER_LABELS[newTier]}</b></p><hr style="border:none;border-top:1px solid var(--border);margin:10px 0;"><p style="margin:0;">${effects.vi}</p>`
+        : `<p style="margin:0 0 8px;">Changing tier for <b>${escapeHtml(email)}</b>:</p><p style="margin:0 0 4px;"><span style="color:var(--text-muted)">${TIER_LABELS[currentTier] || 'Free'}</span> → <b style="color:var(--accent)">${TIER_LABELS[newTier]}</b></p><hr style="border:none;border-top:1px solid var(--border);margin:10px 0;"><p style="margin:0;">${effects.en}</p>`;
+      showConfirm(isVi() ? 'Thay đổi Tier' : 'Change Tier', bodyHtml, isVi() ? `Đặt thành ${TIER_LABELS[newTier]}` : `Set to ${TIER_LABELS[newTier]}`, async () => {
+        const select = row?.querySelector(`select[data-user-id="${userId}"]`);
+        if (select) { select.disabled = true; select.style.opacity = '0.5'; }
+        try {
+          await apiCall('PATCH', `/api/admin/users/${userId}`, { tier: newTier, status: 'active', billing_cycle: 'monthly' });
+          showToast(isVi() ? `Đã đặt ${email} thành ${TIER_LABELS[newTier]}` : `${email} set to ${TIER_LABELS[newTier]}`, 'success');
+          fetchUsers();
+        } catch (err) {
+          showToast((isVi() ? 'Lỗi: ' : 'Error: ') + err.message, 'error');
+          if (select) { select.value = currentTier; select.disabled = false; select.style.opacity = '1'; }
+        }
+      });
     }
 
     async function toggleAdmin(userId, isAdmin) {
-      busyUserId = userId;
-      try {
-        await apiCall('PATCH', `/api/admin/users/${userId}`, { is_admin: isAdmin ? 1 : 0 });
-        fetchUsers();
-      } catch (err) {
-        alert((isVi() ? 'Lỗi: ' : 'Error: ') + err.message);
-      } finally { busyUserId = null; }
+      const row = document.querySelector(`input[data-admin-id="${userId}"]`)?.closest('tr');
+      const email = row?.querySelector('td')?.textContent?.trim() || `User #${userId}`;
+      const action = isAdmin ? (isVi() ? 'Cấp quyền quản trị' : 'Grant admin access') : (isVi() ? 'Thu hồi quyền quản trị' : 'Revoke admin access');
+      const effects = isAdmin
+        ? (isVi() ? '• Có thể quản lý người dùng<br>• Có thể thay đổi tier<br>• Có thể thu hồi giấy phép' : '• Can manage users<br>• Can change tiers<br>• Can revoke licenses')
+        : (isVi() ? '• Mất quyền quản lý người dùng<br>• Chỉ còn xem dữ liệu' : '• Loses user management access<br>• Read-only access');
+      showConfirm(action, `<p style="margin:0 0 8px;">${isVi() ? 'Thay đổi cho' : 'Changing'} <b>${escapeHtml(email)}</b>:</p><hr style="border:none;border-top:1px solid var(--border);margin:10px 0;"><p style="margin:0;">${effects}</p>`, isVi() ? 'Xác nhận' : 'Confirm', async () => {
+        const cb = row?.querySelector(`input[data-admin-id="${userId}"]`);
+        if (cb) cb.disabled = true;
+        try {
+          await apiCall('PATCH', `/api/admin/users/${userId}`, { is_admin: isAdmin ? 1 : 0 });
+          showToast(isVi() ? `Đã cập nhật quyền cho ${email}` : `Updated permissions for ${email}`, 'success');
+          fetchUsers();
+        } catch (err) {
+          showToast((isVi() ? 'Lỗi: ' : 'Error: ') + err.message, 'error');
+          if (cb) { cb.checked = !isAdmin; cb.disabled = false; }
+        }
+      });
     }
 
     async function sendReset(userId) {
-      busyUserId = userId;
-      try {
-        await apiCall('POST', `/api/admin/users/${userId}/reset-password`);
-        alert(isVi() ? 'Đã gửi email đặt lại mật khẩu' : 'Password reset email sent');
-      } catch (err) {
-        alert((isVi() ? 'Lỗi: ' : 'Error: ') + err.message);
-      } finally { busyUserId = null; }
+      const row = document.querySelector(`button[data-reset-id="${userId}"]`)?.closest('tr');
+      const email = row?.querySelector('td')?.textContent?.trim() || '';
+      showConfirm(isVi() ? 'Đặt lại mật khẩu' : 'Reset Password',
+        isVi() ? `<p>Gửi email đặt lại mật khẩu đến <b>${escapeHtml(email)}</b>?</p><p style="color:var(--text-muted);font-size:12px;">Liên kết sẽ hết hạn sau 15 phút.</p>`
+          : `<p>Send password reset email to <b>${escapeHtml(email)}</b>?</p><p style="color:var(--text-muted);font-size:12px;">The link will expire in 15 minutes.</p>`,
+        isVi() ? 'Gửi email' : 'Send Email', async () => {
+        try { await apiCall('POST', `/api/admin/users/${userId}/reset-password`); showToast(isVi() ? 'Đã gửi email đặt lại mật khẩu' : 'Password reset email sent', 'success'); }
+        catch (err) { showToast((isVi() ? 'Lỗi: ' : 'Error: ') + err.message, 'error'); }
+      });
     }
 
     async function revokeLicenses(userId) {
-      const confirmMsg = isVi()
-        ? 'Thu hồi tất cả giấy phép đang hoạt động cho người dùng này?'
-        : 'Revoke all active licenses for this user?';
-      if (!confirm(confirmMsg)) return;
-      busyUserId = userId;
-      try {
-        const data = await apiCall('POST', `/api/admin/users/${userId}/revoke-licenses`);
-        const msg = data.revoked > 0
-          ? (isVi() ? `Đã thu hồi ${data.revoked} giấy phép` : `Revoked ${data.revoked} license(s)`)
-          : (isVi() ? 'Không có giấy phép đang hoạt động' : 'No active licenses');
-        alert(msg);
-        fetchUsers();
-      } catch (err) {
-        alert((isVi() ? 'Lỗi: ' : 'Error: ') + err.message);
-      } finally { busyUserId = null; }
+      const row = document.querySelector(`button[data-revoke-id="${userId}"]`)?.closest('tr');
+      const email = row?.querySelector('td')?.textContent?.trim() || '';
+      showConfirm(isVi() ? 'Thu hồi giấy phép' : 'Revoke Licenses',
+        isVi() ? `<p>Thu hồi <b>tất cả</b> giấy phép cho <b>${escapeHtml(email)}</b>?</p><hr style="border:none;border-top:1px solid var(--border);margin:10px 0;"><p>• Ứng dụng sẽ mất quyền truy cập paid features<br>• Giấy phép có thể được cấp lại sau</p>`
+          : `<p>Revoke <b>all</b> active licenses for <b>${escapeHtml(email)}</b>?</p><hr style="border:none;border-top:1px solid var(--border);margin:10px 0;"><p>• App will lose access to paid features<br>• Licenses can be re-issued later</p>`,
+        isVi() ? 'Thu hồi tất cả' : 'Revoke All', async () => {
+        try {
+          const data = await apiCall('POST', `/api/admin/users/${userId}/revoke-licenses`);
+          showToast(data.revoked > 0 ? (isVi() ? `Đã thu hồi ${data.revoked} giấy phép` : `Revoked ${data.revoked} license(s)`) : (isVi() ? 'Không có giấy phép đang hoạt động' : 'No active licenses'), data.revoked > 0 ? 'success' : 'info');
+          fetchUsers();
+        } catch (err) { showToast((isVi() ? 'Lỗi: ' : 'Error: ') + err.message, 'error'); }
+      });
     }
 
     async function generateLicense() {
