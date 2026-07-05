@@ -199,6 +199,7 @@
             <td style="color:var(--text-muted);font-size:12px;">${date}</td>
             <td><div class="actions-cell">
               <button class="btn-sm" onclick="sendReset(${u.id})" ${isBusy || !u.email ? 'disabled' : ''}>${isVi() ? 'Đặt lại MK' : 'Reset PW'}</button>
+              <button class="btn-danger" onclick="revokeLicenses(${u.id})" ${isBusy ? 'disabled' : ''}>${isVi() ? 'Thu hồi giấy phép' : 'Revoke'}</button>
               <button class="btn-sm btn-license" data-email="${escapeHtml(u.email)}">${isVi() ? 'Giấy phép' : 'License'}</button>
               <button class="btn-danger btn-delete" data-id="${u.id}" data-email="${escapeHtml(u.email)}">${isVi() ? 'Xóa' : 'Delete'}</button>
             </div></td>
@@ -270,6 +271,24 @@
       try {
         await apiCall('POST', `/api/admin/users/${userId}/reset-password`);
         alert(isVi() ? 'Đã gửi email đặt lại mật khẩu' : 'Password reset email sent');
+      } catch (err) {
+        alert((isVi() ? 'Lỗi: ' : 'Error: ') + err.message);
+      } finally { busyUserId = null; }
+    }
+
+    async function revokeLicenses(userId) {
+      const confirmMsg = isVi()
+        ? 'Thu hồi tất cả giấy phép đang hoạt động cho người dùng này?'
+        : 'Revoke all active licenses for this user?';
+      if (!confirm(confirmMsg)) return;
+      busyUserId = userId;
+      try {
+        const data = await apiCall('POST', `/api/admin/users/${userId}/revoke-licenses`);
+        const msg = data.revoked > 0
+          ? (isVi() ? `Đã thu hồi ${data.revoked} giấy phép` : `Revoked ${data.revoked} license(s)`)
+          : (isVi() ? 'Không có giấy phép đang hoạt động' : 'No active licenses');
+        alert(msg);
+        fetchUsers();
       } catch (err) {
         alert((isVi() ? 'Lỗi: ' : 'Error: ') + err.message);
       } finally { busyUserId = null; }
