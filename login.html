@@ -136,6 +136,12 @@
         setApiKey(key);
         setSessionInfo({ keyName: info.keyName, tier: info.tier, keyId: info.keyId });
 
+        // If password change is required, show the change form instead of redirecting
+        if (info.passwordChangeRequired) {
+          showPasswordChangeForm(key, info.keyId);
+          return;
+        }
+
         const tierLabel = info.tier === 'super_admin' ? 'Super Admin' : info.tier === 'admin' ? 'Admin' : info.tier === 'editor' ? 'Editor' : 'Viewer';
         success.textContent = isVi()
           ? `Đăng nhập thành công! Xin chào, ${info.keyName} (${tierLabel})`
@@ -158,6 +164,96 @@
         btn.textContent = isVi() ? 'Đăng nhập' : 'Log In';
         btn.disabled = false;
       }
+    }
+
+    // ── Forced Password Change ────────────────────────────────────────
+
+    async function showPasswordChangeForm(apiKey, keyId) {
+      // Hide the login form
+      const loginContainer = document.querySelector('[style*="max-width: 420px"]');
+      loginContainer.innerHTML = `
+        <div style="font-size: 48px; margin-bottom: 20px;">🔑</div>
+        <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--text);">${isVi() ? 'Đổi mật khẩu bắt buộc' : 'Password change required'}</h1>
+        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">${isVi() ? 'Mật khẩu tạm thời của bạn cần được thay đổi.' : 'Your temporary password must be changed before continuing.'}</p>
+
+        <div style="text-align: left; margin-bottom: 16px;">
+          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${isVi() ? 'Mật khẩu mới' : 'New password'}</label>
+          <input type="password" id="newPwInput" placeholder="••••••••" autocomplete="new-password" style="
+            width: 100%; padding: 14px 18px;
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+            color: var(--text); font-size: 15px; font-family: inherit; outline: none; letter-spacing: 0.5px;
+          ">
+        </div>
+
+        <div style="text-align: left; margin-bottom: 16px;">
+          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${isVi() ? 'Xác nhận mật khẩu' : 'Confirm password'}</label>
+          <input type="password" id="confirmPwInput" placeholder="••••••••" autocomplete="new-password" onkeydown="if(event.key==='Enter')doPasswordChange()" style="
+            width: 100%; padding: 14px 18px;
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+            color: var(--text); font-size: 15px; font-family: inherit; outline: none; letter-spacing: 0.5px;
+          ">
+        </div>
+
+        <div id="pwChangeError" class="status-msg error" style="display:none; text-align:left;"></div>
+        <div id="pwChangeSuccess" class="status-msg success" style="display:none; text-align:left;"></div>
+
+        <button onclick="doPasswordChange()" id="pwChangeBtn" style="
+          width: 100%; padding: 14px 20px; margin-top: 8px;
+          background: var(--accent); color: white; border: none; border-radius: var(--radius-sm);
+          font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity 0.15s;
+        ">${isVi() ? 'Đổi mật khẩu' : 'Change password'}</button>
+
+        <p style="color: var(--text-muted); font-size: 12px; margin-top: 16px;">${isVi() ? 'Tối thiểu 8 ký tự.' : 'Minimum 8 characters.'}</p>
+      `;
+
+      document.getElementById('newPwInput').focus();
+
+      window.doPasswordChange = async function() {
+        const newPw = document.getElementById('newPwInput').value;
+        const confirmPw = document.getElementById('confirmPwInput').value;
+        const error = document.getElementById('pwChangeError');
+        const success = document.getElementById('pwChangeSuccess');
+        const btn = document.getElementById('pwChangeBtn');
+
+        error.style.display = 'none';
+        success.style.display = 'none';
+
+        if (!newPw || newPw.length < 8) {
+          error.textContent = isVi() ? 'Mật khẩu phải có ít nhất 8 ký tự' : 'Password must be at least 8 characters';
+          error.style.display = 'block';
+          return;
+        }
+        if (newPw !== confirmPw) {
+          error.textContent = isVi() ? 'Mật khẩu không khớp' : 'Passwords do not match';
+          error.style.display = 'block';
+          return;
+        }
+
+        btn.textContent = isVi() ? 'Đang đổi...' : 'Changing...';
+        btn.disabled = true;
+
+        try {
+          await apiCall('POST', `/api/admin/api-keys/${keyId}/change-password`, {
+            key: apiKey,
+            newPassword: newPw,
+          });
+
+          success.textContent = isVi() ? 'Đã đổi mật khẩu! Đang chuyển hướng...' : 'Password changed! Redirecting...';
+          success.style.display = 'block';
+
+          setTimeout(() => {
+            const params = new URLSearchParams(window.location.search);
+            const redirect = params.get('redirect') || 'index.html';
+            window.location.href = redirect;
+          }, 1000);
+        } catch (err) {
+          error.textContent = err.message;
+          error.style.display = 'block';
+        } finally {
+          btn.textContent = isVi() ? 'Đổi mật khẩu' : 'Change password';
+          btn.disabled = false;
+        }
+      };
     }
 
     // Focus input on load
