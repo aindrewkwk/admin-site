@@ -8,3 +8,5 @@
 .wrangler/
 wrangler.jsonc
 node_modules/
+._*
+.wrangler/
