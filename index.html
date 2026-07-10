@@ -7,173 +7,557 @@
   <title>Admin — R Studio</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="https://lbby.rstudio.live/assets/favicon-32.png">
-  <link rel="stylesheet" href="/css/design-system.css">
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    .container { max-width: 1000px; margin: 0 auto; padding: 100px 24px 60px; }
-    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 20px; }
-    .card h3 { font-size: 16px; font-weight: 800; margin-bottom: 12px; }
-    .table { width: 100%; font-size: 13px; border-collapse: collapse; }
-    .table th { text-align: left; padding: 10px 12px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg-card); z-index: 1; }
-    .table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); }
-    .table tbody tr { transition: background 0.15s ease; }
-    .table tbody tr:nth-child(even) { background: rgba(255,255,255,0.015); }
-    .table tbody tr:hover { background: rgba(143,76,255,0.06); }
-    .table tbody tr:hover td { border-bottom-color: rgba(143,76,255,0.15); }
-    .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
-    .badge-admin { color: var(--accent); background: rgba(91,157,255,0.12); border: 1px solid rgba(91,157,255,0.25); }
-    .badge-user { color: var(--text-muted); background: var(--bg-elevated); border: 1px solid var(--border); }
-    .badge-novice { color: #60a5fa; background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.25); }
-    .badge-master { color: #a78bfa; background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.25); }
-    .badge-free { color: var(--text-muted); background: var(--bg-elevated); border: 1px solid var(--border); }
-    /* Tier select in table */
-    .tier-select { padding:4px 8px;font-size:11px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;transition:border-color 0.15s;appearance:auto; }
-    .tier-select:hover { border-color:var(--accent); }
-    .tier-select:focus { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-glow); outline:none; }
-    .tier-select:disabled { opacity:0.4; cursor:not-allowed; }
-    /* User row email styling */
-    .user-email { font-weight:600; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .dupe-badge { font-size:10px;color:#fbbf24;margin-top:2px; }
-    /* Admin checkbox */
-    .admin-cb { cursor:pointer; accent-color:var(--accent); }
-    /* Scrollbar */
+    /* ── Reset ──────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #09090b;
+      color: #e4e4e7;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+    ::selection { background: #8b5cf6; color: white; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
-    ::selection { background: var(--accent); color: white; }
-    .btn-sm { padding: 4px 10px; font-size: 11px; background: transparent; border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
-    .btn-sm:hover { border-color: var(--accent); color: var(--accent); background: rgba(91,157,255,0.08); }
-    .btn-danger { padding: 4px 10px; font-size: 11px; background: transparent; border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
-    .btn-danger:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-    .form-group { display: flex; flex-direction: column; gap: 4px; }
-    .form-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .form-group input, .form-group select { padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
-    .form-group input:focus, .form-group select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-    .status-msg { font-size: 13px; padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 12px; display: none; }
-    .status-msg.success { display: block; color: var(--green); background: var(--green-bg); border: 1px solid var(--green-border); }
-    .status-msg.error { display: block; color: var(--red); background: var(--red-bg); border: 1px solid var(--red-border); }
-    .output-area { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; word-break: break-all; min-height: 40px; color: var(--text-muted); margin-bottom: 12px; }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
-    .stat-box { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; text-align: center; transition: border-color 0.2s, box-shadow 0.2s; }
-    .stat-box:hover { border-color: rgba(143,76,255,0.3); box-shadow: 0 0 20px rgba(143,76,255,0.08); }
-    .stat-number { font-size: 28px; font-weight: 900; color: var(--text); }
-    .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+    /* ── Layout ─────────────────────────────────────────────────── */
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ────────────────────────────────────────────────── */
+    .sidebar {
+      width: 240px;
+      background: #0c0c0e;
+      border-right: 1px solid #1a1a1e;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+      transition: transform 0.25s ease;
+    }
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 20px 20px;
+      border-bottom: 1px solid #1a1a1e;
+      margin-bottom: 8px;
+    }
+    .sidebar-brand img { width: 28px; height: 28px; border-radius: 6px; }
+    .sidebar-brand span { font-size: 14px; font-weight: 700; color: #fafafa; }
+    .sidebar-brand small { font-size: 10px; color: #71717a; font-weight: 500; margin-left: auto; background: #1a1a1e; padding: 2px 6px; border-radius: 4px; }
+    .sidebar-nav { flex: 1; padding: 4px 8px; }
+    .sidebar-section { padding: 12px 12px 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #52525b; }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #a1a1aa;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      margin-bottom: 2px;
+    }
+    .sidebar-link:hover { background: #18181b; color: #e4e4e7; }
+    .sidebar-link.active { background: #8b5cf6; color: white; }
+    .sidebar-link svg { width: 16px; height: 16px; opacity: 0.7; }
+    .sidebar-link.active svg { opacity: 1; }
+    .sidebar-footer {
+      padding: 12px 20px;
+      border-top: 1px solid #1a1a1e;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sidebar-footer .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #27272a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #a1a1aa;
+    }
+    .sidebar-footer .user-info { flex: 1; }
+    .sidebar-footer .user-name { font-size: 12px; font-weight: 600; color: #e4e4e7; }
+    .sidebar-footer .user-role { font-size: 10px; color: #71717a; }
+    .sidebar-footer .logout-btn {
+      padding: 4px 8px;
+      font-size: 11px;
+      color: #71717a;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .sidebar-footer .logout-btn:hover { color: #ef4444; border-color: #ef4444; background: rgba(239,68,68,0.1); }
+
+    /* ── Main Content ───────────────────────────────────────────── */
+    .main { flex: 1; margin-left: 240px; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(9,9,11,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #1a1a1e;
+      padding: 0 32px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topbar-title { font-size: 14px; font-weight: 600; color: #e4e4e7; }
+    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+    .topbar-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 6px;
+      border: 1px solid #27272a;
+      color: #a1a1aa;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .topbar-btn:hover { border-color: #3f3f46; color: #e4e4e7; }
+    .content { padding: 24px 32px; max-width: 1200px; }
+
+    /* ── Stats Cards ────────────────────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 20px;
+      transition: border-color 0.2s ease;
+    }
+    .stat-card:hover { border-color: #3f3f46; }
+    .stat-label { font-size: 12px; font-weight: 500; color: #71717a; margin-bottom: 8px; }
+    .stat-value { font-size: 28px; font-weight: 800; color: #fafafa; letter-spacing: -1px; }
+    .stat-change { font-size: 11px; color: #22c55e; margin-top: 4px; }
+
+    /* ── Section Card ───────────────────────────────────────────── */
+    .section-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid #27272a;
+    }
+    .section-title { font-size: 14px; font-weight: 600; color: #e4e4e7; }
+    .section-body { padding: 16px 20px; }
+
+    /* ── Search Input ───────────────────────────────────────────── */
+    .search-box {
+      position: relative;
+      width: 280px;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 7px 12px 7px 32px;
+      font-size: 13px;
+      background: #09090b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      color: #e4e4e7;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .search-box input:focus { border-color: #8b5cf6; }
+    .search-box input::placeholder { color: #52525b; }
+    .search-box svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      color: #52525b;
+    }
+
+    /* ── Table ──────────────────────────────────────────────────── */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+      text-align: left;
+      padding: 10px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #52525b;
+      border-bottom: 1px solid #27272a;
+      background: #18181b;
+    }
+    .data-table td {
+      padding: 12px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid #1a1a1e;
+    }
+    .data-table tbody tr { transition: background 0.1s ease; }
+    .data-table tbody tr:hover { background: rgba(139,92,246,0.05); }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+
+    /* ── Badges ─────────────────────────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 6px;
+    }
+    .badge-free { background: #27272a; color: #a1a1aa; }
+    .badge-novice { background: rgba(59,130,246,0.15); color: #60a5fa; }
+    .badge-master { background: rgba(139,92,246,0.15); color: #a78bfa; }
+    .badge-admin { background: rgba(139,92,246,0.15); color: #a78bfa; }
+    .badge-super_admin { background: rgba(234,179,8,0.15); color: #fbbf24; }
+    .badge-active { background: rgba(34,197,94,0.15); color: #4ade80; }
+    .badge-revoked { background: rgba(239,68,68,0.15); color: #f87171; }
+    .badge-viewer { background: #27272a; color: #a1a1aa; }
+    .badge-editor { background: rgba(59,130,246,0.15); color: #60a5fa; }
+
+    /* ── Select ─────────────────────────────────────────────────── */
+    .tier-select {
+      padding: 5px 8px;
+      font-size: 12px;
+      background: #09090b;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .tier-select:hover { border-color: #3f3f46; }
+    .tier-select:focus { border-color: #8b5cf6; }
+    .tier-select:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Buttons ────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 8px;
+      border: 1px solid #27272a;
+      background: transparent;
+      color: #a1a1aa;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn:hover { border-color: #3f3f46; color: #e4e4e7; }
+    .btn-primary { background: #8b5cf6; border-color: #8b5cf6; color: white; }
+    .btn-primary:hover { background: #7c3aed; border-color: #7c3aed; }
+    .btn-danger { color: #f87171; }
+    .btn-danger:hover { border-color: #ef4444; background: rgba(239,68,68,0.1); }
+    .btn-sm { padding: 4px 10px; font-size: 11px; }
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      border: 1px solid #27272a;
+      background: transparent;
+      color: #71717a;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-icon:hover { border-color: #3f3f46; color: #e4e4e7; }
+
+    /* ── Checkbox ───────────────────────────────────────────────── */
+    .admin-cb {
+      width: 14px;
+      height: 14px;
+      accent-color: #8b5cf6;
+      cursor: pointer;
+    }
+
+    /* ── Actions Cell ───────────────────────────────────────────── */
     .actions-cell { display: flex; gap: 6px; justify-content: flex-end; }
-    @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } .actions-cell { flex-wrap: wrap; } }
+
+    /* ── User Email ─────────────────────────────────────────────── */
+    .user-email { font-weight: 600; color: #e4e4e7; }
+    .dupe-badge { font-size: 10px; color: #fbbf24; margin-top: 2px; }
+
+    /* ── Form ───────────────────────────────────────────────────── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #71717a; }
+    .form-input, .form-select {
+      padding: 8px 12px;
+      font-size: 13px;
+      background: #09090b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      color: #e4e4e7;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .form-input:focus, .form-select:focus { border-color: #8b5cf6; }
+    .form-input::placeholder { color: #52525b; }
+
+    /* ── Status Message ─────────────────────────────────────────── */
+    .status-msg {
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-top: 12px;
+      display: none;
+    }
+    .status-msg.success { display: block; background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
+    .status-msg.error { display: block; background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+
+    /* ── Output ─────────────────────────────────────────────────── */
+    .output-area {
+      background: #09090b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      word-break: break-all;
+      color: #a1a1aa;
+      margin-top: 12px;
+      user-select: all;
+    }
+
+    /* ── Toast ──────────────────────────────────────────────────── */
+    #adminToast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.25s ease;
+      max-width: 360px;
+    }
+
+    /* ── Confirm Modal ──────────────────────────────────────────── */
+    #confirmModal {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #confirmModal > div {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 16px;
+      padding: 28px;
+      max-width: 420px;
+      width: 90%;
+    }
+
+    /* ── Empty State ────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 32px;
+      color: #52525b;
+      font-size: 13px;
+    }
+
+    /* ── Responsive ─────────────────────────────────────────────── */
+    .mobile-toggle {
+      display: none;
+      width: 36px;
+      height: 36px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      background: transparent;
+      color: #a1a1aa;
+      cursor: pointer;
+    }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .mobile-toggle { display: flex; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .form-grid { grid-template-columns: 1fr; }
+      .content { padding: 16px; }
+      .topbar { padding: 0 16px; }
+      .search-box { width: 100%; }
+    }
   </style>
 </head>
 <body>
-
-  <nav class="nav">
-    <a href="index.html" class="nav-brand">
-      <img src="https://lbby.rstudio.live/assets/lbby-r-studio.png" alt="R Studio">
-      <span>R Studio Admin</span>
-    </a>
-    <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
-    <div class="nav-links">
-      <a href="index.html" class="active" data-vi="Người dùng">Users</a>
-      <a href="/api-keys" data-vi="Khóa API">API Keys</a>
-      <a href="/audit-logs" data-vi="Nhật ký kiểm toán">Audit Logs</a>
-      <a href="https://lbby.rstudio.live">Lbby</a>
-      <button onclick="toggleLang()" style="margin-left:auto;padding:4px 10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-size:12px;cursor:pointer;"><span id="langLabel">VI</span></button>
-      <a href="#" onclick="RStudioAuth.logout()" style="opacity:0.6;font-size:13px;" data-vi="Đăng xuất">Logout</a>
-    </div>
-  </nav>
-
-  <div id="mainContent">
-    <div class="container">
-      <h1 style="font-size: 28px; font-weight: 900; margin-bottom: 8px;">👥 <span data-vi="Người dùng">Users</span></h1>
-      <p style="color: var(--text-muted); margin-bottom: 28px;" data-vi="Xem người dùng, giấy phép, quản lý tài khoản.">View users, licenses, manage accounts.</p>
-
-      <div class="stats-grid">
-        <div class="stat-box">
-          <div class="stat-number" id="totalUsers">-</div>
-          <div class="stat-label" data-vi="Tổng người dùng">Total Users</div>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <img src="https://lbby.rstudio.live/assets/lbby-r-studio.png" alt="R Studio">
+        <span>R Studio</span>
+        <small>Admin</small>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section">Management</div>
+        <a href="/" class="sidebar-link active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Users
+        </a>
+        <a href="/api-keys" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+          API Keys
+        </a>
+        <a href="/audit-logs" class="sidebar-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Audit Logs
+        </a>
+        <div class="sidebar-section">External</div>
+        <a href="https://lbby.rstudio.live" class="sidebar-link" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Lbby Dashboard
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="avatar" id="userAvatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">Loading...</div>
+          <div class="user-role" id="userRole">—</div>
         </div>
-        <div class="stat-box">
-          <div class="stat-number" id="freeCount">-</div>
-          <div class="stat-label">Free</div>
+        <button class="logout-btn" onclick="RStudioAuth.logout()">Logout</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <header class="topbar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <span class="topbar-title">Users</span>
         </div>
-        <div class="stat-box">
-          <div class="stat-number" id="noviceCount">-</div>
-          <div class="stat-label">Novice</div>
+        <div class="topbar-actions">
+          <button class="topbar-btn" onclick="fetchStats()">↻ Refresh</button>
         </div>
-        <div class="stat-box">
-          <div class="stat-number" id="masterCount">-</div>
-          <div class="stat-label">Master</div>
+      </header>
+
+      <div class="content">
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Users</div>
+            <div class="stat-value" id="totalUsers">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Free</div>
+            <div class="stat-value" id="freeCount">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Novice</div>
+            <div class="stat-value" id="noviceCount">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Master</div>
+            <div class="stat-value" id="masterCount">—</div>
+          </div>
+        </div>
+
+        <!-- User Search -->
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-title">Registered Users</span>
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input type="text" id="userSearch" placeholder="Search by email or ID..." oninput="debounceSearch()">
+            </div>
+          </div>
+          <div id="usersTable">
+            <div class="empty-state">Enter an email or ID to search</div>
+          </div>
+        </div>
+
+        <!-- Generate License -->
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-title">Generate License</span>
+          </div>
+          <div class="section-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">User Email</label>
+                <input type="email" id="genEmail" class="form-input" placeholder="user@example.com">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tier</label>
+                <select id="genTier" class="form-select">
+                  <option value="novice">Novice</option>
+                  <option value="master">Master</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Billing Cycle</label>
+                <select id="genCycle" class="form-select">
+                  <option value="monthly">Monthly (30 days)</option>
+                  <option value="yearly">Yearly (365 days)</option>
+                  <option value="lifetime">Lifetime (10 years)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">&nbsp;</label>
+                <button class="btn btn-primary" onclick="generateLicense()" id="genBtn">Generate</button>
+              </div>
+            </div>
+            <div id="genStatus" class="status-msg"></div>
+            <div id="genOutput" style="display:none;">
+              <div class="output-area" id="genKey"></div>
+              <div style="display:flex;gap:8px;margin-top:8px;">
+                <button class="btn btn-sm" onclick="navigator.clipboard.writeText(lastGeneratedKey)">Copy Key</button>
+                <button class="btn btn-sm" onclick="copyActivationMsg()">Copy Message</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      <!-- User List -->
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <h3 style="margin-bottom: 0;" data-vi="📋 Người dùng đã đăng ký">📋 Registered Users</h3>
-          <div style="display: flex; gap: 8px; align-items: center;">
-            <input type="text" id="userSearch" placeholder="Search by email or ID..." oninput="debounceSearch()" style="
-              padding: 6px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
-              color: var(--text); font-size: 13px; width: 220px; outline: none; transition: border-color 0.2s;
-            " onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
-            <button onclick="fetchUsers()" style="
-              padding: 6px 12px; background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border);
-              border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.15s;
-            " data-vi="↻ Tải lại">↻ Refresh</button>
-          </div>
-        </div>
-        <div id="usersTable">
-          <p style="color: var(--text-muted); font-size: 13px;" data-vi="Đang tải...">Loading...</p>
-        </div>
-      </div>
-
-      <!-- Generate License -->
-      <div class="card">
-        <h3 data-vi="📜 Tạo giấy phép">📜 Generate License</h3>
-        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;" data-vi="Chọn người dùng hoặc nhập email. Hỗ trợ promo — tạo tài khoản nếu email chưa tồn tại.">
-          Select a user or enter an email. Supports promo — creates account if email doesn't exist.
-        </p>
-        <div class="form-row">
-          <div class="form-group">
-            <label data-vi="Email người dùng">User Email</label>
-            <input type="email" id="genEmail" placeholder="user@example.com">
-          </div>
-          <div class="form-group">
-            <label>Tier</label>
-            <select id="genTier">
-              <option value="novice">Novice</option>
-              <option value="master">Master</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label data-vi="Chu kỳ thanh toán">Billing Cycle</label>
-            <select id="genCycle">
-              <option value="monthly" data-vi="Hàng tháng (30 ngày)">Monthly (30 days)</option>
-              <option value="yearly" data-vi="Hàng năm (365 ngày)">Yearly (365 days)</option>
-              <option value="lifetime" data-vi="Trọn đời (10 năm)">Lifetime (10 years)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>&nbsp;</label>
-            <button onclick="generateLicense()" id="genBtn" style="
-              width: 100%; padding: 10px 20px; background: var(--accent); color: white; border: none;
-              border-radius: var(--radius-sm); font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s;
-            " data-vi="Tạo giấy phép">Generate License</button>
-          </div>
-        </div>
-        <div id="genStatus" class="status-msg"></div>
-        <div id="genOutput" style="display: none;">
-          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block;" data-vi="KHÓA GIẤY PHÉP">LICENSE KEY</label>
-          <div class="output-area" id="genKey"></div>
-          <div style="display: flex; gap: 8px;">
-            <button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText(lastGeneratedKey)" data-vi="Sao chép khóa">Copy Key</button>
-            <button class="btn btn-secondary btn-sm" onclick="copyActivationMsg()" data-vi="Sao chép tin nhắn">Copy Message</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <footer class="footer"><p>&copy; 2026 R Studio. All rights reserved.</p></footer>
+    </main>
   </div>
 
   <script src="/lang.js"></script>
@@ -181,15 +565,21 @@
   <script>
     const { apiCall, isVi } = RStudioAuth;
     let lastGeneratedKey = '';
+    let searchTimeout = null;
 
+    // ── Init ────────────────────────────────────────────────────
     (async function() {
       if (!await RStudioAuth.requireAuth()) return;
+      const info = await RStudioAuth.validateKey(RStudioAuth.getApiKey());
+      if (info) {
+        document.getElementById('userName').textContent = info.keyName || 'Admin';
+        document.getElementById('userRole').textContent = info.tier || 'viewer';
+        document.getElementById('userAvatar').textContent = (info.keyName || 'A')[0].toUpperCase();
+      }
       await fetchStats();
     })();
 
-    let busyUserId = null;
-    let searchTimeout = null;
-
+    // ── Stats ───────────────────────────────────────────────────
     async function fetchStats() {
       try {
         const stats = await apiCall('GET', '/api/admin/stats');
@@ -198,10 +588,11 @@
         document.getElementById('noviceCount').textContent = stats.novice;
         document.getElementById('masterCount').textContent = stats.master;
       } catch (err) {
-        console.error('Failed to fetch stats:', err);
+        console.error('Stats error:', err);
       }
     }
 
+    // ── Search ──────────────────────────────────────────────────
     function debounceSearch() {
       clearTimeout(searchTimeout);
       searchTimeout = setTimeout(() => fetchUsers(), 300);
@@ -209,202 +600,123 @@
 
     async function fetchUsers() {
       const el = document.getElementById('usersTable');
-      const searchInput = document.getElementById('userSearch');
-      const query = searchInput ? searchInput.value.trim() : '';
-      if (!query) {
-        el.innerHTML = `<p style="color:var(--text-muted);font-size:13px;">${isVi() ? 'Nhập email hoặc ID để tìm kiếm.' : 'Enter an email or ID to search.'}</p>`;
-        return;
-      }
+      const query = document.getElementById('userSearch').value.trim();
+      if (!query) { el.innerHTML = '<div class="empty-state">Enter an email or ID to search</div>'; return; }
       try {
         const data = await apiCall('GET', `/api/admin/users?search=${encodeURIComponent(query)}`);
         const users = data.users || [];
-
-        if (users.length === 0) { el.innerHTML = `<p style="color:var(--text-muted);font-size:13px;">${isVi() ? 'Không tìm thấy người dùng.' : 'No users found.'}</p>`; return; }
-
+        if (users.length === 0) { el.innerHTML = '<div class="empty-state">No users found</div>'; return; }
         const rows = users.map(u => {
-          const date = new Date(u.created_at * 1000).toLocaleDateString();
-          const isBusy = busyUserId === u.id;
-          const curTier = u.tier || 'free';
-          const tierSelect = `<select class="tier-select" data-user-id="${u.id}" onchange="updateUserTier(${u.id}, this.value, '${curTier}')" ${isBusy ? 'disabled' : ''}>
-            <option value="free" ${(!u.tier || u.tier === 'free') ? 'selected' : ''}>free</option>
-            <option value="novice" ${u.tier === 'novice' ? 'selected' : ''}>novice</option>
-            <option value="master" ${u.tier === 'master' ? 'selected' : ''}>master</option>
-          </select>`;
-          const adminToggle = `<label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted);cursor:pointer;">
-            <input type="checkbox" class="admin-cb" data-admin-id="${u.id}" ${u.is_admin ? 'checked' : ''} ${isBusy ? 'disabled' : ''} onchange="toggleAdmin(${u.id}, this.checked)">
-            ${isVi() ? 'Admin' : 'Admin'}
-          </label>`;
-          const dupeInfo = (u.duplicate_count ?? 0) > 1
-            ? `<div class="dupe-badge">${u.duplicate_count} merged</div>`
-            : '';
+          const date = new Date(u.createdAt * 1000).toLocaleDateString();
+          const tier = u.tier || 'free';
           return `<tr>
-            <td><span class="user-email">${escapeHtml(u.email || '—')}</span>${dupeInfo}</td>
-            <td>${tierSelect}</td>
-            <td>${adminToggle}</td>
-            <td style="color:var(--text-muted);font-size:12px;">${date}</td>
+            <td><span class="user-email">${escapeHtml(u.emailMasked || '—')}</span>${(u.duplicateCount ?? 0) > 1 ? `<div class="dupe-badge">${u.duplicateCount} merged</div>` : ''}</td>
+            <td><select class="tier-select" data-user-id="${u.id}" onchange="updateUserTier(${u.id}, this.value, '${tier}')">
+              <option value="free" ${tier === 'free' ? 'selected' : ''}>free</option>
+              <option value="novice" ${tier === 'novice' ? 'selected' : ''}>novice</option>
+              <option value="master" ${tier === 'master' ? 'selected' : ''}>master</option>
+            </select></td>
+            <td><input type="checkbox" class="admin-cb" data-admin-id="${u.id}" ${u.isAdmin ? 'checked' : ''} onchange="toggleAdmin(${u.id}, this.checked)"></td>
+            <td style="color:#71717a;font-size:12px;">${date}</td>
             <td><div class="actions-cell">
-              <button class="btn-sm" data-reset-id="${u.id}" onclick="sendReset(${u.id})" ${isBusy || !u.email ? 'disabled' : ''}>${isVi() ? 'Đặt lại MK' : 'Reset PW'}</button>
-              <button class="btn-danger" data-revoke-id="${u.id}" onclick="revokeLicenses(${u.id})" ${isBusy ? 'disabled' : ''}>${isVi() ? 'Thu hồi giấy phép' : 'Revoke'}</button>
-              <button class="btn-sm btn-license" data-email="${escapeHtml(u.email)}">${isVi() ? 'Giấy phép' : 'License'}</button>
-              <button class="btn-danger btn-delete" data-id="${u.id}" data-email="${escapeHtml(u.email)}">${isVi() ? 'Xóa' : 'Delete'}</button>
+              <button class="btn btn-sm" onclick="sendReset(${u.id})" ${!u.emailMasked ? 'disabled' : ''}>Reset PW</button>
+              <button class="btn btn-sm btn-danger" onclick="revokeLicenses(${u.id})">Revoke</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteUser(${u.id}, '${escapeHtml(u.emailMasked)}')">Delete</button>
             </div></td>
           </tr>`;
         }).join('');
-
-        el.innerHTML = `<table class="table"><thead><tr>
-          <th>Email</th>
-          <th>${isVi() ? 'Vai trò' : 'Role'}</th>
-          <th>Tier</th>
-          <th>${isVi() ? 'Ngày đăng ký' : 'Registered'}</th>
-          <th style="text-align:right">${isVi() ? 'Hành động' : 'Actions'}</th>
-        </tr></thead><tbody>${rows}</tbody></table>`;
-
-        // Attach event listeners via delegation instead of inline onclick (XSS-safe)
-        el.querySelectorAll('.btn-license').forEach(btn => {
-          btn.addEventListener('click', () => selectUser(btn.dataset.email));
-        });
-        el.querySelectorAll('.btn-delete').forEach(btn => {
-          btn.addEventListener('click', () => deleteUser(Number(btn.dataset.id), btn.dataset.email));
-        });
-      } catch (err) { el.innerHTML = `<p style="color:var(--red);font-size:13px;">${isVi() ? 'Tải thất bại' : 'Failed'}: ${escapeHtml(err.message)}</p>`; }
+        el.innerHTML = `<table class="data-table"><thead><tr><th>Email</th><th>Tier</th><th>Admin</th><th>Created</th><th style="text-align:right">Actions</th></tr></thead><tbody>${rows}</tbody></table>`;
+      } catch (err) { el.innerHTML = `<div class="empty-state" style="color:#f87171;">${escapeHtml(err.message)}</div>`; }
     }
 
-    function selectUser(email) {
-      document.getElementById('genEmail').value = email;
-      document.getElementById('genEmail').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      document.getElementById('genEmail').focus();
-    }
-
-    async function deleteUser(id, email) {
-      const title = isVi() ? 'Xóa người dùng' : 'Delete User';
-      const body = isVi()
-        ? `Xóa "${email}"?<br><br>Tất cả dữ liệu sẽ bị xóa vĩnh viễn:<br>• Giấy phép<br>• Đăng ký<br>• Thanh toán<br>• Máy chủ<br>• Tác nhân<br><br><strong>Không thể hoàn tác!</strong>`
-        : `Delete "${email}"?<br><br>All data will be permanently removed:<br>• Licenses<br>• Subscriptions<br>• Payments<br>• Servers<br>• Agents<br><br><strong>This cannot be undone!</strong>`;
-
-      showConfirm(title, body, isVi() ? 'Xóa' : 'Delete', async () => {
-        try {
-          const data = await apiCall('DELETE', `/api/admin/users/${id}`);
-          showToast(isVi() ? `Đã xóa ${data.deleted}` : `Deleted ${data.deleted}`);
-          fetchUsers();
-        } catch (err) {
-          showToast(err.message, 'error');
-        }
-      });
-    }
-
-    // ── Toast notifications ──────────────────────────────────────────────
+    // ── Toast ───────────────────────────────────────────────────
     function showToast(msg, type = 'success') {
       const existing = document.getElementById('adminToast');
       if (existing) existing.remove();
-      const colors = { success: 'var(--green)', error: 'var(--red)', info: 'var(--accent)' };
+      const colors = { success: '#22c55e', error: '#ef4444', info: '#8b5cf6' };
       const toast = document.createElement('div');
       toast.id = 'adminToast';
       toast.textContent = msg;
-      toast.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;color:#fff;background:${colors[type] || colors.success};box-shadow:0 4px 20px rgba(0,0,0,0.4);transform:translateY(20px);opacity:0;transition:all 0.25s ease;max-width:360px;`;
+      toast.style.background = colors[type] || colors.success;
       document.body.appendChild(toast);
       requestAnimationFrame(() => { toast.style.transform = 'translateY(0)'; toast.style.opacity = '1'; });
       setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(20px)'; setTimeout(() => toast.remove(), 300); }, 3000);
     }
 
-    // ── Confirmation modal ───────────────────────────────────────────────
+    // ── Confirm Modal ───────────────────────────────────────────
     function showConfirm(title, bodyHtml, confirmLabel, onConfirm) {
       const existing = document.getElementById('confirmModal');
       if (existing) existing.remove();
       const overlay = document.createElement('div');
       overlay.id = 'confirmModal';
-      overlay.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s ease;';
-      overlay.innerHTML = `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);transform:scale(0.95);transition:transform 0.2s ease;">
-        <h3 style="margin:0 0 12px;font-size:16px;font-weight:800;">${title}</h3>
-        <div style="color:var(--text-muted);font-size:13px;line-height:1.6;margin-bottom:20px;">${bodyHtml}</div>
+      overlay.innerHTML = `<div>
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px;color:#e4e4e7;">${title}</h3>
+        <div style="color:#a1a1aa;font-size:13px;margin-bottom:20px;">${bodyHtml}</div>
         <div style="display:flex;gap:10px;justify-content:flex-end;">
-          <button id="confirmCancel" style="padding:8px 16px;font-size:12px;font-weight:700;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);cursor:pointer;">${isVi() ? 'Hủy' : 'Cancel'}</button>
-          <button id="confirmOk" style="padding:8px 16px;font-size:12px;font-weight:700;background:var(--accent);border:none;border-radius:8px;color:#000;cursor:pointer;">${confirmLabel}</button>
+          <button id="confirmCancel" style="padding:8px 16px;background:#27272a;border:1px solid #3f3f46;border-radius:8px;color:#a1a1aa;font-weight:600;cursor:pointer;font-size:13px;">Cancel</button>
+          <button id="confirmOk" style="padding:8px 16px;background:#8b5cf6;border:none;border-radius:8px;color:white;font-weight:600;cursor:pointer;font-size:13px;">${confirmLabel}</button>
         </div>
       </div>`;
       document.body.appendChild(overlay);
-      requestAnimationFrame(() => { overlay.style.opacity = '1'; overlay.querySelector('div').style.transform = 'scale(1)'; });
-      overlay.querySelector('#confirmCancel').onclick = () => { overlay.style.opacity = '0'; setTimeout(() => overlay.remove(), 200); };
-      overlay.querySelector('#confirmOk').onclick = () => { overlay.style.opacity = '0'; setTimeout(() => overlay.remove(), 200); onConfirm(); };
-      overlay.addEventListener('click', e => { if (e.target === overlay) { overlay.style.opacity = '0'; setTimeout(() => overlay.remove(), 200); } });
+      overlay.querySelector('#confirmCancel').onclick = () => overlay.remove();
+      overlay.querySelector('#confirmOk').onclick = () => { overlay.remove(); onConfirm(); };
     }
 
-    const TIER_LABELS = { free: 'Free', novice: 'Novice', master: 'Master' };
-    const TIER_EFFECTS = {
-      free:   { en: '• All active licenses will be <b>revoked</b><br>• App features will be <b>downgraded</b><br>• User reverts to free tier', vi: '• Tất cả giấy phép sẽ bị <b>thu hồi</b><br>• Tính năng ứng dụng sẽ bị <b>hạ cấp</b><br>• Người dùng trở về gói miễn phí' },
-      novice: { en: '• Active Master licenses will be <b>revoked</b><br>• Novice-level features unlocked<br>• Playit.gg tunnels enabled', vi: '• Giấy phép Master sẽ bị <b>thu hồi</b><br>• Mở khóa tính năng Novice<br>• Bật playit.gg tunnels' },
-      master: { en: '• Full access granted<br>• Cloudflare Quick Tunnel enabled<br>• All features unlocked', vi: '• Cấp quyền truy cập đầy đủ<br>• Bật Cloudflare Quick Tunnel<br>• Mở khóa tất cả tính năng' },
-    };
+    function escapeHtml(str) { if (!str) return ''; const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
 
+    // ── User Actions ────────────────────────────────────────────
     async function updateUserTier(userId, newTier, currentTier) {
       if (newTier === currentTier) return;
-      const row = document.querySelector(`select[data-user-id="${userId}"]`)?.closest('tr');
-      const email = row?.querySelector('td')?.textContent?.trim() || `User #${userId}`;
-      const effects = TIER_EFFECTS[newTier] || TIER_EFFECTS.free;
-      const bodyHtml = isVi()
-        ? `<p style="margin:0 0 8px;">Thay đổi tier cho <b>${escapeHtml(email)}</b>:</p><p style="margin:0 0 4px;"><span style="color:var(--text-muted)">${TIER_LABELS[currentTier] || 'Free'}</span> → <b style="color:var(--accent)">${TIER_LABELS[newTier]}</b></p><hr style="border:none;border-top:1px solid var(--border);margin:10px 0;"><p style="margin:0;">${effects.vi}</p>`
-        : `<p style="margin:0 0 8px;">Changing tier for <b>${escapeHtml(email)}</b>:</p><p style="margin:0 0 4px;"><span style="color:var(--text-muted)">${TIER_LABELS[currentTier] || 'Free'}</span> → <b style="color:var(--accent)">${TIER_LABELS[newTier]}</b></p><hr style="border:none;border-top:1px solid var(--border);margin:10px 0;"><p style="margin:0;">${effects.en}</p>`;
-      showConfirm(isVi() ? 'Thay đổi Tier' : 'Change Tier', bodyHtml, isVi() ? `Đặt thành ${TIER_LABELS[newTier]}` : `Set to ${TIER_LABELS[newTier]}`, async () => {
-        const select = row?.querySelector(`select[data-user-id="${userId}"]`);
-        if (select) { select.disabled = true; select.style.opacity = '0.5'; }
+      showConfirm('Change Tier', `Set tier to <b>${newTier}</b>?`, 'Confirm', async () => {
         try {
           await apiCall('PATCH', `/api/admin/users/${userId}`, { tier: newTier, status: 'active', billing_cycle: 'monthly' });
-          showToast(isVi() ? `Đã đặt ${email} thành ${TIER_LABELS[newTier]}` : `${email} set to ${TIER_LABELS[newTier]}`, 'success');
+          showToast(`Tier set to ${newTier}`);
           fetchUsers();
-        } catch (err) {
-          showToast((isVi() ? 'Lỗi: ' : 'Error: ') + err.message, 'error');
-          if (select) { select.value = currentTier; select.disabled = false; select.style.opacity = '1'; }
-        }
+        } catch (err) { showToast(err.message, 'error'); }
       });
     }
 
     async function toggleAdmin(userId, isAdmin) {
-      const row = document.querySelector(`input[data-admin-id="${userId}"]`)?.closest('tr');
-      const email = row?.querySelector('td')?.textContent?.trim() || `User #${userId}`;
-      const action = isAdmin ? (isVi() ? 'Cấp quyền quản trị' : 'Grant admin access') : (isVi() ? 'Thu hồi quyền quản trị' : 'Revoke admin access');
-      const effects = isAdmin
-        ? (isVi() ? '• Có thể quản lý người dùng<br>• Có thể thay đổi tier<br>• Có thể thu hồi giấy phép' : '• Can manage users<br>• Can change tiers<br>• Can revoke licenses')
-        : (isVi() ? '• Mất quyền quản lý người dùng<br>• Chỉ còn xem dữ liệu' : '• Loses user management access<br>• Read-only access');
-      showConfirm(action, `<p style="margin:0 0 8px;">${isVi() ? 'Thay đổi cho' : 'Changing'} <b>${escapeHtml(email)}</b>:</p><hr style="border:none;border-top:1px solid var(--border);margin:10px 0;"><p style="margin:0;">${effects}</p>`, isVi() ? 'Xác nhận' : 'Confirm', async () => {
-        const cb = row?.querySelector(`input[data-admin-id="${userId}"]`);
-        if (cb) cb.disabled = true;
+      showConfirm(isAdmin ? 'Grant Admin' : 'Revoke Admin', isAdmin ? 'Grant admin access?' : 'Revoke admin access?', 'Confirm', async () => {
         try {
           await apiCall('PATCH', `/api/admin/users/${userId}`, { is_admin: isAdmin ? 1 : 0 });
-          showToast(isVi() ? `Đã cập nhật quyền cho ${email}` : `Updated permissions for ${email}`, 'success');
+          showToast(isAdmin ? 'Admin granted' : 'Admin revoked');
           fetchUsers();
-        } catch (err) {
-          showToast((isVi() ? 'Lỗi: ' : 'Error: ') + err.message, 'error');
-          if (cb) { cb.checked = !isAdmin; cb.disabled = false; }
-        }
+        } catch (err) { showToast(err.message, 'error'); }
       });
     }
 
     async function sendReset(userId) {
-      const row = document.querySelector(`button[data-reset-id="${userId}"]`)?.closest('tr');
-      const email = row?.querySelector('td')?.textContent?.trim() || '';
-      showConfirm(isVi() ? 'Đặt lại mật khẩu' : 'Reset Password',
-        isVi() ? `<p>Gửi email đặt lại mật khẩu đến <b>${escapeHtml(email)}</b>?</p><p style="color:var(--text-muted);font-size:12px;">Liên kết sẽ hết hạn sau 15 phút.</p>`
-          : `<p>Send password reset email to <b>${escapeHtml(email)}</b>?</p><p style="color:var(--text-muted);font-size:12px;">The link will expire in 15 minutes.</p>`,
-        isVi() ? 'Gửi email' : 'Send Email', async () => {
-        try { await apiCall('POST', `/api/admin/users/${userId}/reset-password`); showToast(isVi() ? 'Đã gửi email đặt lại mật khẩu' : 'Password reset email sent', 'success'); }
-        catch (err) { showToast((isVi() ? 'Lỗi: ' : 'Error: ') + err.message, 'error'); }
+      showConfirm('Reset Password', 'Send password reset email?', 'Send', async () => {
+        try {
+          await apiCall('POST', `/api/admin/users/${userId}/reset-password`);
+          showToast('Password reset email sent');
+        } catch (err) { showToast(err.message, 'error'); }
       });
     }
 
     async function revokeLicenses(userId) {
-      const row = document.querySelector(`button[data-revoke-id="${userId}"]`)?.closest('tr');
-      const email = row?.querySelector('td')?.textContent?.trim() || '';
-      showConfirm(isVi() ? 'Thu hồi giấy phép' : 'Revoke Licenses',
-        isVi() ? `<p>Thu hồi <b>tất cả</b> giấy phép cho <b>${escapeHtml(email)}</b>?</p><hr style="border:none;border-top:1px solid var(--border);margin:10px 0;"><p>• Ứng dụng sẽ mất quyền truy cập paid features<br>• Giấy phép có thể được cấp lại sau</p>`
-          : `<p>Revoke <b>all</b> active licenses for <b>${escapeHtml(email)}</b>?</p><hr style="border:none;border-top:1px solid var(--border);margin:10px 0;"><p>• App will lose access to paid features<br>• Licenses can be re-issued later</p>`,
-        isVi() ? 'Thu hồi tất cả' : 'Revoke All', async () => {
+      showConfirm('Revoke Licenses', 'Revoke all active licenses for this user?', 'Revoke All', async () => {
         try {
           const data = await apiCall('POST', `/api/admin/users/${userId}/revoke-licenses`);
-          showToast(data.revoked > 0 ? (isVi() ? `Đã thu hồi ${data.revoked} giấy phép` : `Revoked ${data.revoked} license(s)`) : (isVi() ? 'Không có giấy phép đang hoạt động' : 'No active licenses'), data.revoked > 0 ? 'success' : 'info');
+          showToast(data.revoked > 0 ? `Revoked ${data.revoked} license(s)` : 'No active licenses', data.revoked > 0 ? 'success' : 'info');
           fetchUsers();
-        } catch (err) { showToast((isVi() ? 'Lỗi: ' : 'Error: ') + err.message, 'error'); }
+        } catch (err) { showToast(err.message, 'error'); }
       });
     }
 
+    async function deleteUser(id, email) {
+      showConfirm('Delete User', `Delete <b>${email}</b>?<br><br><span style="color:#f87171;">This cannot be undone.</span>`, 'Delete', async () => {
+        try {
+          const data = await apiCall('DELETE', `/api/admin/users/${id}`);
+          showToast(`Deleted ${data.deleted}`);
+          fetchUsers();
+          fetchStats();
+        } catch (err) { showToast(err.message, 'error'); }
+      });
+    }
+
+    // ── Generate License ────────────────────────────────────────
     async function generateLicense() {
       const email = document.getElementById('genEmail').value.trim();
       const tier = document.getElementById('genTier').value;
@@ -413,39 +725,31 @@
       const status = document.getElementById('genStatus');
       const output = document.getElementById('genOutput');
 
-      if (!email) { showStatus(isVi() ? 'Nhập email' : 'Enter an email', 'error'); return; }
-
-      btn.textContent = isVi() ? 'Đang tạo...' : 'Generating...'; btn.disabled = true;
+      if (!email) { showToast('Enter an email', 'error'); return; }
+      btn.disabled = true; btn.textContent = 'Generating...';
       status.className = 'status-msg'; status.style.display = 'none'; output.style.display = 'none';
 
       try {
         const data = await apiCall('POST', '/api/admin/licenses/generate', { email, tier, billing_cycle: cycle });
-        lastGeneratedKey = data.licenseKey;
-        document.getElementById('genKey').textContent = data.licenseKey;
+        lastGeneratedKey = data.key;
+        document.getElementById('genKey').textContent = data.key;
         output.style.display = 'block';
-        const promo = data.promo ? (isVi() ? ' (tài khoản promo đã tạo)' : ' (promo account created)') : '';
-        showStatus((isVi() ? `Đã tạo cho ${email}` : `Generated for ${email}`) + promo, 'success');
-        fetchUsers();
+        status.textContent = `License generated for ${email} (${tier})`;
+        status.className = 'status-msg success'; status.style.display = '';
+        document.getElementById('genEmail').value = '';
       } catch (err) {
-        showStatus((isVi() ? 'Lỗi: ' : 'Error: ') + err.message, 'error');
-      } finally { btn.textContent = isVi() ? 'Tạo giấy phép' : 'Generate License'; btn.disabled = false; }
+        status.textContent = err.message;
+        status.className = 'status-msg error'; status.style.display = '';
+      } finally { btn.disabled = false; btn.textContent = 'Generate'; }
     }
-
-    function showStatus(msg, type) { const el = document.getElementById('genStatus'); el.textContent = msg; el.className = 'status-msg ' + type; }
 
     function copyActivationMsg() {
-      const email = document.getElementById('genEmail').value.trim();
-      navigator.clipboard.writeText(isVi()
-        ? `🎉 Giấy phép Lbby!\n\nKhóa:\n${lastGeneratedKey}\n\nKích hoạt:\n1. Mở Lbby\n2. Giấy phép → Nâng cao\n3. Dán khóa → Kích hoạt`
-        : `🎉 Your Lbby license is ready!\n\nKey:\n${lastGeneratedKey}\n\nActivate:\n1. Open Lbby\n2. License → Advanced\n3. Paste key → Activate`);
+      const email = document.getElementById('genEmail').value.trim() || 'user@example.com';
+      const tier = document.getElementById('genTier').value;
+      const msg = `Welcome to Lbby!\n\nYour license key:\n${lastGeneratedKey}\n\nTier: ${tier}\n\nEnter this in the app to activate.`;
+      navigator.clipboard.writeText(msg);
+      showToast('Message copied');
     }
-
-    // NOTE: Client-side rate limiting is insufficient — the server must enforce
-    // rate limits on all admin API endpoints (user creation, license generation,
-    // deletion, etc.) to prevent abuse. Use token-bucket or sliding-window
-    // limiting keyed to the authenticated admin's session/IP.
-
-    function escapeHtml(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
   </script>
 </body>
 </html>
