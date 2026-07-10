@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://web.rstudio.live; base-uri 'self'; form-action 'self';">
+  <title>Audit Logs — R Studio Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="https://lbby.rstudio.live/assets/favicon-32.png">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .logs-container { max-width: 1100px; margin: 0 auto; padding: 100px 24px 60px; }
+    .log-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 20px; }
+    .log-card h3 { font-size: 16px; font-weight: 800; margin-bottom: 12px; }
+    .log-table { width: 100%; font-size: 13px; border-collapse: collapse; }
+    .log-table th { text-align: left; padding: 10px 12px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .log-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .log-table tr:hover { background: var(--bg-elevated); }
+    .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+    .badge-viewer { color: #60a5fa; background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.25); }
+    .badge-editor { color: #a78bfa; background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.25); }
+    .badge-admin { color: #f59e0b; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25); }
+    .badge-super_admin { color: #ef4444; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25); }
+    .action-badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+    .action-badge-login { color: #22c55e; background: rgba(34,197,94,0.12); }
+    .action-badge-list { color: #60a5fa; background: rgba(96,165,250,0.12); }
+    .action-badge-create { color: #a78bfa; background: rgba(167,139,250,0.12); }
+    .action-badge-update { color: #f59e0b; background: rgba(245,158,11,0.12); }
+    .action-badge-delete { color: #ef4444; background: rgba(239,68,68,0.12); }
+    .action-badge-revoke { color: #ef4444; background: rgba(239,68,68,0.12); }
+    .meta-json { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; background: var(--bg-elevated); padding: 4px 8px; border-radius: 4px; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+    .meta-json:hover { white-space: normal; word-break: break-all; }
+    .filter-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-bar select, .filter-bar input { padding: 8px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; }
+    .pagination { display: flex; gap: 8px; justify-content: center; margin-top: 16px; }
+    .pagination button { padding: 8px 16px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; font-size: 13px; }
+    .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .pagination button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-brand">
+      <img src="https://lbby.rstudio.live/assets/lbby-r-studio.png" alt="R Studio">
+      <span>R Studio Admin</span>
+    </a>
+    <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
+    <div class="nav-links">
+      <a href="index.html" data-vi="Người dùng">Users</a>
+      <a href="api-keys.html" data-vi="Khóa API">API Keys</a>
+      <a href="audit-logs.html" class="active" data-vi="Nhật ký kiểm toán">Audit Logs</a>
+      <a href="https://lbby.rstudio.live">Lbby</a>
+      <button onclick="toggleLang()" style="margin-left:auto;padding:4px 10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-size:12px;cursor:pointer;"><span id="langLabel">VI</span></button>
+      <a href="#" onclick="RStudioAuth.logout()" style="opacity:0.6;font-size:13px;" data-vi="Đăng xuất">Logout</a>
+    </div>
+  </nav>
+
+  <div id="mainContent">
+    <div class="logs-container">
+      <h1 style="font-size: 28px; font-weight: 900; margin-bottom: 8px;">📋 <span data-vi="Nhật ký kiểm toán">Audit Logs</span></h1>
+      <p style="color: var(--text-muted); margin-bottom: 28px;" data-vi="Xem tất cả hoạt động quản trị — ai đã làm gì và khi nào.">
+        View all admin activity — who did what and when.
+      </p>
+
+      <!-- Filters -->
+      <div class="filter-bar">
+        <select id="actionFilter" onchange="fetchLogs()">
+          <option value="" data-vi="Tất cả hành động">All Actions</option>
+          <option value="ADMIN_LOGIN">Login</option>
+          <option value="ADMIN_LIST_USERS">List Users</option>
+          <option value="ADMIN_LIST_LICENSES">List Licenses</option>
+          <option value="ADMIN_GENERATE_LICENSE">Generate License</option>
+          <option value="ADMIN_REVOKE_LICENSE">Revoke License</option>
+          <option value="ADMIN_UPDATE_USER">Update User</option>
+          <option value="ADMIN_DELETE_USER">Delete User</option>
+          <option value="ADMIN_LIST_API_KEYS">List API Keys</option>
+          <option value="ADMIN_CREATE_API_KEY">Create API Key</option>
+          <option value="ADMIN_REVOKE_API_KEY">Revoke API Key</option>
+        </select>
+        <button onclick="fetchLogs()" style="
+          padding: 8px 16px; background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border);
+          border-radius: 6px; font-size: 13px; cursor: pointer; transition: all 0.15s;
+        " data-vi="↻ Tải lại">↻ Refresh</button>
+      </div>
+
+      <!-- Logs Table -->
+      <div class="log-card">
+        <div id="logsTable">
+          <p style="color: var(--text-muted); font-size: 13px;" data-vi="Đang tải...">Loading...</p>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" id="pagination" style="display: none;">
+        <button id="prevBtn" onclick="prevPage()" disabled>← Previous</button>
+        <span id="pageInfo" style="display: flex; align-items: center; color: var(--text-muted); font-size: 13px;"></span>
+        <button id="nextBtn" onclick="nextPage()">Next →</button>
+      </div>
+    </div>
+    <footer class="footer"><p>&copy; 2026 R Studio. All rights reserved.</p></footer>
+  </div>
+
+  <script src="/lang.js"></script>
+  <script src="/auth.js"></script>
+  <script>
+    const { apiCall, isVi } = RStudioAuth;
+    let currentOffset = 0;
+    const PAGE_SIZE = 50;
+    let hasMore = true;
+
+    (async function() {
+      if (!await RStudioAuth.requireAuth()) return;
+      await fetchLogs();
+    })();
+
+    function getActionBadgeClass(action) {
+      if (action.includes('LOGIN')) return 'action-badge-login';
+      if (action.includes('LIST')) return 'action-badge-list';
+      if (action.includes('CREATE') || action.includes('GENERATE')) return 'action-badge-create';
+      if (action.includes('UPDATE')) return 'action-badge-update';
+      if (action.includes('DELETE') || action.includes('REVOKE')) return 'action-badge-delete';
+      return 'action-badge-list';
+    }
+
+    function formatAction(action) {
+      return action.replace('ADMIN_', '').replace(/_/g, ' ').toLowerCase()
+        .replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function formatTime(ts) {
+      if (!ts) return '-';
+      const date = new Date(ts * 1000);
+      return date.toLocaleString();
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    async function fetchLogs() {
+      const el = document.getElementById('logsTable');
+      const action = document.getElementById('actionFilter').value;
+      const pagination = document.getElementById('pagination');
+
+      try {
+        let url = `/api/admin/audit-logs?limit=${PAGE_SIZE}&offset=${currentOffset}`;
+        if (action) url += `&action=${encodeURIComponent(action)}`;
+
+        const data = await apiCall('GET', url);
+        const logs = data.logs || [];
+
+        hasMore = logs.length >= PAGE_SIZE;
+
+        if (logs.length === 0 && currentOffset === 0) {
+          el.innerHTML = `<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px;">${isVi() ? 'Không có nhật ký.' : 'No audit logs yet.'}</p>`;
+          pagination.style.display = 'none';
+          return;
+        }
+
+        const rows = logs.map(log => {
+          const actionClass = getActionBadgeClass(log.action);
+          const meta = log.metadata ? `<span class="meta-json" title="${escapeHtml(JSON.stringify(log.metadata))}">${escapeHtml(JSON.stringify(log.metadata))}</span>` : '-';
+          return `<tr>
+            <td style="white-space:nowrap;color:var(--text-muted);font-size:12px;">${formatTime(log.createdAt)}</td>
+            <td>
+              <div style="font-weight:600;">${escapeHtml(log.actorName)}</div>
+              <div style="font-size:11px;color:var(--text-muted);">${escapeHtml(log.actorEmailMasked)}</div>
+            </td>
+            <td><span class="badge badge-${log.actorTier || 'viewer'}">${log.actorTier || 'viewer'}</span></td>
+            <td><span class="action-badge ${actionClass}">${formatAction(log.action)}</span></td>
+            <td style="font-size:12px;">${escapeHtml(log.targetType)}${log.targetId ? ` #${log.targetId}` : ''}</td>
+            <td>${meta}</td>
+          </tr>`;
+        }).join('');
+
+        el.innerHTML = `<table class="log-table">
+          <thead>
+            <tr>
+              <th data-vi="Thời gian">Time</th>
+              <th data-vi="Người thực hiện">Actor</th>
+              <th data-vi="Quyền">Tier</th>
+              <th data-vi="Hành động">Action</th>
+              <th data-vi="Đối tượng">Target</th>
+              <th data-vi="Chi tiết">Details</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+
+        // Update pagination
+        pagination.style.display = 'flex';
+        document.getElementById('prevBtn').disabled = currentOffset === 0;
+        document.getElementById('nextBtn').disabled = !hasMore;
+        document.getElementById('pageInfo').textContent = `${isVi() ? 'Trang' : 'Page'} ${Math.floor(currentOffset / PAGE_SIZE) + 1}`;
+
+      } catch (err) {
+        el.innerHTML = `<p style="color:var(--red);font-size:13px;">${escapeHtml(err.message)}</p>`;
+      }
+    }
+
+    function prevPage() {
+      if (currentOffset >= PAGE_SIZE) {
+        currentOffset -= PAGE_SIZE;
+        fetchLogs();
+      }
+    }
+
+    function nextPage() {
+      if (hasMore) {
+        currentOffset += PAGE_SIZE;
+        fetchLogs();
+      }
+    }
+
+    function toggleLang() {
+      const current = localStorage.getItem('rstudio-lang');
+      localStorage.setItem('rstudio-lang', current === 'vi' ? 'en' : 'vi');
+      location.reload();
+    }
+  </script>
+</body>
+</html>
