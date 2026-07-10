@@ -302,17 +302,54 @@
       } catch (err) { el.innerHTML = `<p style="color:var(--red);font-size:13px;">${isVi() ? 'Tải thất bại' : 'Failed'}: ${escapeHtml(err.message)}</p>`; }
     }
 
-    async function revokeKey(id) { if (!confirm(isVi() ? 'Thu hồi khóa này?' : 'Revoke this key?')) return; try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'revoke' }); fetchKeys(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); } }
-    async function unrevokeKey(id) { try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'unrevoke' }); fetchKeys(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); } }
-    async function deleteKey(id, name) { if (!confirm(isVi() ? `Xóa "${name}"?` : `Delete "${name}"?`)) return; try { await apiCall('DELETE', '/api/admin/api-keys', { id }); fetchKeys(); } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); } }
+    async function revokeKey(id) {
+      showConfirm(isVi() ? 'Thu hồi khóa' : 'Revoke Key', isVi() ? 'Bạn có chắc muốn thu hồi khóa này?' : 'Are you sure you want to revoke this key?', isVi() ? 'Thu hồi' : 'Revoke', async () => {
+        try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'revoke' }); showToast(isVi() ? 'Đã thu hồi' : 'Key revoked'); fetchKeys(); } catch (err) { showToast(err.message, 'error'); }
+      });
+    }
+    async function unrevokeKey(id) {
+      try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'unrevoke' }); showToast(isVi() ? 'Đã khôi phục' : 'Key restored'); fetchKeys(); } catch (err) { showToast(err.message, 'error'); }
+    }
+    async function deleteKey(id, name) {
+      showConfirm(isVi() ? 'Xóa khóa' : 'Delete Key', isVi() ? `Xóa vĩnh viễn "${name}"?` : `Permanently delete "${name}"?`, isVi() ? 'Xóa' : 'Delete', async () => {
+        try { await apiCall('DELETE', '/api/admin/api-keys', { id }); showToast(isVi() ? 'Đã xóa' : 'Key deleted'); fetchKeys(); } catch (err) { showToast(err.message, 'error'); }
+      });
+    }
     async function resetPassword(id, name) {
-      if (!confirm(isVi() ? `Đặt lại mật khẩu cho "${name}"?\n\nMật khẩu mới sẽ được tạo ngẫu nhiên.` : `Reset password for "${name}"?\n\nA new random password will be generated.`)) return;
-      try {
-        const data = await apiCall('POST', `/api/admin/api-keys/${id}/reset-password`);
-        alert(isVi()
-          ? `Đặt lại thành công!\n\nMật khẩu mới: ${data.newPassword}\n\nHãy sao chép và gửi cho chủ khóa.`
-          : `Reset successful!\n\nNew password: ${data.newPassword}\n\nCopy and share with the key owner.`);
-      } catch (err) { alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message); }
+      showConfirm(isVi() ? 'Đặt lại mật khẩu' : 'Reset Password', isVi() ? `Tạo mật khẩu mới cho "${name}"?` : `Generate new password for "${name}"?`, isVi() ? 'Đặt lại' : 'Reset', async () => {
+        try {
+          const data = await apiCall('POST', `/api/admin/api-keys/${id}/reset-password`);
+          showToast(isVi() ? `Mật khẩu mới: ${data.newPassword}` : `New password: ${data.newPassword}`, 'info');
+        } catch (err) { showToast(err.message, 'error'); }
+      });
+    }
+
+    // ── Toast notifications ──────────────────────────────────────────────
+    function showToast(msg, type = 'success') {
+      const existing = document.getElementById('adminToast');
+      if (existing) existing.remove();
+      const colors = { success: 'var(--green)', error: 'var(--red)', info: 'var(--accent)' };
+      const toast = document.createElement('div');
+      toast.id = 'adminToast';
+      toast.textContent = msg;
+      toast.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;color:#fff;background:${colors[type] || colors.success};box-shadow:0 4px 20px rgba(0,0,0,0.4);transform:translateY(20px);opacity:0;transition:all 0.25s ease;max-width:360px;`;
+      document.body.appendChild(toast);
+      requestAnimationFrame(() => { toast.style.transform = 'translateY(0)'; toast.style.opacity = '1'; });
+      setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(20px)'; setTimeout(() => toast.remove(), 300); }, 3000);
+    }
+
+    // ── Confirmation modal ───────────────────────────────────────────────
+    function showConfirm(title, bodyHtml, confirmLabel, onConfirm) {
+      const existing = document.getElementById('confirmModal');
+      if (existing) existing.remove();
+      const overlay = document.createElement('div');
+      overlay.id = 'confirmModal';
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s ease;';
+      overlay.innerHTML = `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:420px;width:90%;transform:scale(0.95);transition:transform 0.2s ease;"><h3 style="margin-bottom:12px;">${title}</h3><div style="color:var(--text-muted);font-size:14px;margin-bottom:20px;">${bodyHtml}</div><div style="display:flex;gap:10px;justify-content:flex-end;"><button id="confirmCancel" style="padding:10px 20px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-weight:600;cursor:pointer;">Cancel</button><button id="confirmOk" style="padding:10px 20px;background:var(--accent);border:none;border-radius:8px;color:white;font-weight:700;cursor:pointer;">${confirmLabel}</button></div></div>`;
+      document.body.appendChild(overlay);
+      requestAnimationFrame(() => { overlay.style.opacity = '1'; overlay.querySelector('div').style.transform = 'scale(1)'; });
+      overlay.querySelector('#confirmCancel').onclick = () => { overlay.style.opacity = '0'; setTimeout(() => overlay.remove(), 200); };
+      overlay.querySelector('#confirmOk').onclick = () => { overlay.style.opacity = '0'; setTimeout(() => overlay.remove(), 200); onConfirm(); };
     }
 
     function escapeHtml(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
