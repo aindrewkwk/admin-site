@@ -284,6 +284,22 @@
     /* ── Actions Cell ───────────────────────────────────────────── */
     .actions-cell { display: flex; gap: 6px; justify-content: flex-end; }
 
+    /* ── Select ─────────────────────────────────────────────────── */
+    .tier-select {
+      padding: 5px 8px;
+      font-size: 12px;
+      background: #09090b;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .tier-select:hover { border-color: #3f3f46; }
+    .tier-select:focus { border-color: #8b5cf6; }
+    .tier-select:disabled { opacity: 0.4; cursor: not-allowed; }
+
     /* ── Prefix Code ────────────────────────────────────────────── */
     .prefix-code {
       font-family: 'SF Mono', 'Fira Code', monospace;
@@ -638,7 +654,12 @@
           const statusBadge = isRevoked
             ? `<span class="badge badge-revoked">Revoked</span>`
             : `<span class="badge badge-active">Active</span>`;
-          const tierBadge = `<span class="badge badge-${k.tier || 'admin'}">${k.tier || 'admin'}</span>`;
+          const tierBadge = `<select class="tier-select" data-key-id="${k.id}" onchange="changeKeyTier(${k.id}, this.value, '${k.tier}')">
+            <option value="viewer" ${k.tier === 'viewer' ? 'selected' : ''}>viewer</option>
+            <option value="editor" ${k.tier === 'editor' ? 'selected' : ''}>editor</option>
+            <option value="admin" ${k.tier === 'admin' ? 'selected' : ''}>admin</option>
+            ${isSuper ? `<option value="super_admin" ${k.tier === 'super_admin' ? 'selected' : ''}>super_admin</option>` : ''}
+          </select>`;
           let actions = isRevoked
             ? `<button class="btn btn-sm" onclick="unrevokeKey(${k.id})">Restore</button> <button class="btn btn-sm btn-danger" onclick="deleteKey(${k.id}, '${escapeHtml(k.name)}')">Delete</button>`
             : `<button class="btn btn-sm btn-danger" onclick="revokeKey(${k.id})">Revoke</button>`;
@@ -662,6 +683,21 @@
     }
 
     // ── Key Actions ─────────────────────────────────────────────
+    async function changeKeyTier(id, newTier, currentTier) {
+      if (newTier === currentTier) return;
+      showConfirm('Change Tier', `Set tier to <b>${newTier}</b>?`, 'Confirm', async () => {
+        const select = document.querySelector(`select[data-key-id="${id}"]`);
+        try {
+          await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'change_tier', tier: newTier });
+          showToast(`Tier set to ${newTier}`);
+          fetchKeys();
+        } catch (err) {
+          showToast(err.message, 'error');
+          if (select) select.value = currentTier;
+        }
+      });
+    }
+
     async function revokeKey(id) {
       showConfirm('Revoke Key', 'Revoke this key?', 'Revoke', async () => {
         try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'revoke' }); showToast('Key revoked'); fetchKeys(); } catch (err) { showToast(err.message, 'error'); }
