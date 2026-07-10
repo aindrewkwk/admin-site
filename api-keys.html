@@ -192,20 +192,26 @@
     let selectedTier = "viewer";
 
     (async function() {
-      if (!await RStudioAuth.requireAuth()) return;
-      const el = document.getElementById('connectionStatus');
-      const info = await RStudioAuth.validateKey(getApiKey());
-      const keyName = info?.keyName || 'Admin';
-      const tier = info?.tier || 'viewer';
-      el.innerHTML = `✅ ${isVi() ? 'Đã kết nối' : 'Connected'} — <strong>${escapeHtml(keyName)}</strong> <span class="badge badge-${tier}" style="margin-left:8px">${tier}</span>`;
-      el.style.borderColor = 'var(--green-border)';
+      try {
+        if (!await RStudioAuth.requireAuth()) return;
+        const el = document.getElementById('connectionStatus');
+        const info = await RStudioAuth.validateKey(getApiKey());
+        const keyName = info?.keyName || 'Admin';
+        const tier = info?.tier || 'viewer';
+        el.innerHTML = `✅ ${isVi() ? 'Đã kết nối' : 'Connected'} — <strong>${escapeHtml(keyName)}</strong> <span class="badge badge-${tier}" style="margin-left:8px">${tier}</span>`;
+        el.style.borderColor = 'var(--green-border)';
 
-      // Show super_admin tier option if current user is super_admin
-      if (tier === 'super_admin') {
-        document.getElementById('superAdminTier').style.display = '';
+        // Show super_admin tier option if current user is super_admin
+        if (tier === 'super_admin') {
+          document.getElementById('superAdminTier').style.display = '';
+        }
+
+        await fetchKeys();
+      } catch (err) {
+        console.error('Init error:', err);
+        document.getElementById('connectionStatus').innerHTML = `❌ Error: ${escapeHtml(err.message)}`;
+        document.getElementById('connectionStatus').style.borderColor = 'var(--red-border)';
       }
-
-      await fetchKeys();
     })();
 
     function selectTier(tier) {
