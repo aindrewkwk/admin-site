@@ -109,10 +109,16 @@
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
           <h3 style="margin-bottom: 0;" data-vi="📋 Người dùng đã đăng ký">📋 Registered Users</h3>
-          <button onclick="fetchUsers()" style="
-            padding: 6px 12px; background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border);
-            border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.15s;
-          " data-vi="↻ Tải lại">↻ Refresh</button>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="text" id="userSearch" placeholder="Search by email or ID..." oninput="debounceSearch()" style="
+              padding: 6px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
+              color: var(--text); font-size: 13px; width: 220px; outline: none; transition: border-color 0.2s;
+            " onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+            <button onclick="fetchUsers()" style="
+              padding: 6px 12px; background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border);
+              border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.15s;
+            " data-vi="↻ Tải lại">↻ Refresh</button>
+          </div>
         </div>
         <div id="usersTable">
           <p style="color: var(--text-muted); font-size: 13px;" data-vi="Đang tải...">Loading...</p>
@@ -181,11 +187,20 @@
     })();
 
     let busyUserId = null;
+    let searchTimeout = null;
+
+    function debounceSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => fetchUsers(), 300);
+    }
 
     async function fetchUsers() {
       const el = document.getElementById('usersTable');
+      const searchInput = document.getElementById('userSearch');
+      const query = searchInput ? searchInput.value.trim() : '';
       try {
-        const data = await apiCall('GET', '/api/admin/users');
+        const endpoint = query ? `/api/admin/users?search=${encodeURIComponent(query)}` : '/api/admin/users';
+        const data = await apiCall('GET', endpoint);
         const users = data.users || [];
         const admins = users.filter(u => u.is_admin).length;
         const novices = users.filter(u => u.tier === 'novice').length;
