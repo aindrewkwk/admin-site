@@ -92,8 +92,8 @@
           <div class="stat-label" data-vi="Tổng người dùng">Total Users</div>
         </div>
         <div class="stat-box">
-          <div class="stat-number" id="adminCount">-</div>
-          <div class="stat-label" data-vi="Quản trị viên">Admins</div>
+          <div class="stat-number" id="freeCount">-</div>
+          <div class="stat-label">Free</div>
         </div>
         <div class="stat-box">
           <div class="stat-number" id="noviceCount">-</div>
@@ -183,11 +183,23 @@
 
     (async function() {
       if (!await RStudioAuth.requireAuth()) return;
-      await fetchUsers();
+      await fetchStats();
     })();
 
     let busyUserId = null;
     let searchTimeout = null;
+
+    async function fetchStats() {
+      try {
+        const stats = await apiCall('GET', '/api/admin/stats');
+        document.getElementById('totalUsers').textContent = stats.total;
+        document.getElementById('freeCount').textContent = stats.free;
+        document.getElementById('noviceCount').textContent = stats.novice;
+        document.getElementById('masterCount').textContent = stats.master;
+      } catch (err) {
+        console.error('Failed to fetch stats:', err);
+      }
+    }
 
     function debounceSearch() {
       clearTimeout(searchTimeout);
@@ -198,19 +210,15 @@
       const el = document.getElementById('usersTable');
       const searchInput = document.getElementById('userSearch');
       const query = searchInput ? searchInput.value.trim() : '';
+      if (!query) {
+        el.innerHTML = `<p style="color:var(--text-muted);font-size:13px;">${isVi() ? 'Nhập email hoặc ID để tìm kiếm.' : 'Enter an email or ID to search.'}</p>`;
+        return;
+      }
       try {
-        const endpoint = query ? `/api/admin/users?search=${encodeURIComponent(query)}` : '/api/admin/users';
-        const data = await apiCall('GET', endpoint);
+        const data = await apiCall('GET', `/api/admin/users?search=${encodeURIComponent(query)}`);
         const users = data.users || [];
-        const admins = users.filter(u => u.is_admin).length;
-        const novices = users.filter(u => u.tier === 'novice').length;
-        const masters = users.filter(u => u.tier === 'master').length;
-        document.getElementById('totalUsers').textContent = users.length;
-        document.getElementById('adminCount').textContent = admins;
-        document.getElementById('noviceCount').textContent = novices;
-        document.getElementById('masterCount').textContent = masters;
 
-        if (users.length === 0) { el.innerHTML = `<p style="color:var(--text-muted);font-size:13px;">${isVi() ? 'Chưa có người dùng.' : 'No users yet.'}</p>`; return; }
+        if (users.length === 0) { el.innerHTML = `<p style="color:var(--text-muted);font-size:13px;">${isVi() ? 'Không tìm thấy người dùng.' : 'No users found.'}</p>`; return; }
 
         const rows = users.map(u => {
           const date = new Date(u.created_at * 1000).toLocaleDateString();
