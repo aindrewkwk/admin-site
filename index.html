@@ -276,19 +276,20 @@
     }
 
     async function deleteUser(id, email) {
-      const confirmMsg = isVi()
-        ? `Xóa "${email}"?\n\nTất cả dữ liệu sẽ bị xóa vĩnh viễn:\n- Giấy phép\n- Đăng ký\n- Thanh toán\n- Máy chủ\n- Tác nhân\n\nKhông thể hoàn tác!`
-        : `Delete "${email}"?\n\nAll data will be permanently removed:\n- Licenses\n- Subscriptions\n- Payments\n- Servers\n- Agents\n\nThis cannot be undone!`;
+      const title = isVi() ? 'Xóa người dùng' : 'Delete User';
+      const body = isVi()
+        ? `Xóa "${email}"?<br><br>Tất cả dữ liệu sẽ bị xóa vĩnh viễn:<br>• Giấy phép<br>• Đăng ký<br>• Thanh toán<br>• Máy chủ<br>• Tác nhân<br><br><strong>Không thể hoàn tác!</strong>`
+        : `Delete "${email}"?<br><br>All data will be permanently removed:<br>• Licenses<br>• Subscriptions<br>• Payments<br>• Servers<br>• Agents<br><br><strong>This cannot be undone!</strong>`;
 
-      if (!confirm(confirmMsg)) return;
-
-      try {
-        const data = await apiCall('DELETE', `/api/admin/users/${id}`);
-        alert(isVi() ? `Đã xóa ${data.deleted}` : `Deleted ${data.deleted}`);
-        fetchUsers();
-      } catch (err) {
-        alert((isVi() ? 'Thất bại: ' : 'Failed: ') + err.message);
-      }
+      showConfirm(title, body, isVi() ? 'Xóa' : 'Delete', async () => {
+        try {
+          const data = await apiCall('DELETE', `/api/admin/users/${id}`);
+          showToast(isVi() ? `Đã xóa ${data.deleted}` : `Deleted ${data.deleted}`);
+          fetchUsers();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
     }
 
     // ── Toast notifications ──────────────────────────────────────────────
