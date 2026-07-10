@@ -113,12 +113,17 @@
   // ── Validate Key ────────────────────────────────────────────────
 
   async function validateKey(key) {
-    const res = await fetch(`${DASHBOARD_API}/api/admin/validate-key`, {
-      headers: { 'Authorization': `Bearer ${key}` },
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.valid ? data : null;
+    try {
+      const res = await fetch(`${DASHBOARD_API}/api/admin/validate-key`, {
+        headers: { 'Authorization': `Bearer ${key}` },
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.valid ? data : null;
+    } catch (err) {
+      console.error('[auth] validateKey network error:', err);
+      return null;
+    }
   }
 
   // ── Auth Guard ──────────────────────────────────────────────────
@@ -130,16 +135,31 @@
       return false;
     }
 
-    const info = await validateKey(key);
-    if (!info) {
-      clearApiKey();
-      redirectToLogin();
+    try {
+      const info = await validateKey(key);
+      if (!info) {
+        clearApiKey();
+        redirectToLogin();
+        return false;
+      }
+
+      // Update session info with latest tier
+      setSessionInfo({ keyName: info.keyName, tier: info.tier });
+      return true;
+    } catch (err) {
+      console.error('[auth] requireAuth error:', err);
+      // Network error — show error instead of redirecting
+      const container = document.getElementById('mainContent');
+      if (container) {
+        container.innerHTML = `<div style="max-width:500px;margin:120px auto;padding:28px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;text-align:center;">
+          <h2 style="margin-bottom:12px;">⚠️ Connection Error</h2>
+          <p style="color:var(--text-muted);margin-bottom:16px;">Could not connect to the server. Please check your connection and try again.</p>
+          <p style="font-size:12px;color:var(--text-muted);">${err.message}</p>
+          <button onclick="location.reload()" style="margin-top:16px;padding:10px 24px;background:var(--accent);color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;">Retry</button>
+        </div>`;
+      }
       return false;
     }
-
-    // Update session info with latest tier
-    setSessionInfo({ keyName: info.keyName, tier: info.tier });
-    return true;
   }
 
   function redirectToLogin() {
