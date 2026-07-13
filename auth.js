@@ -7,7 +7,7 @@
   const SESSION_INFO_KEY = 'rstudio-admin-session';
   const DASHBOARD_API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3000'
-    : 'https://web.rstudio.live';
+    : 'https://web.lbby.net';
 
   const MAX_ATTEMPTS = 5;
   const LOCKOUT_MS = 300000; // 5 min
