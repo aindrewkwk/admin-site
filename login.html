@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,257 +7,391 @@
   <title>Login — R Studio Admin</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="https://lbby.net/assets/favicon-32.png">
-  <link rel="stylesheet" href="/css/design-system.css">
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* ── Design Tokens ─────────────────────────────────────────── */
+    :root {
+      --radius: 0px;
+      --radius-sm: 0px;
+      --radius-btn: 4px;
+      --max-w: 440px;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --dur-fast: 0.15s;
+      --dur-normal: 0.3s;
+      --rs-red: #e52227;
+      --mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+    }
+
+    [data-theme="dark"],
+    :root:not([data-theme]) {
+      --bg: #030303;
+      --bg-soft: #060606;
+      --surface: #080808;
+      --text: #f1f1ea;
+      --text-muted: #c9c6bb;
+      --text-faint: #77746b;
+      --border: rgba(241, 241, 234, 0.17);
+      --border-strong: rgba(241, 241, 234, 0.55);
+      --glow: rgba(229, 34, 39, 0.18);
+      --btn-primary-bg: #f1f1ea;
+      --btn-primary-text: #050505;
+    }
+
+    [data-theme="light"] {
+      --bg: #e9e3d3;
+      --bg-soft: #ded6c3;
+      --surface: rgba(255, 255, 247, 0.42);
+      --text: #0b0b09;
+      --text-muted: #24221e;
+      --text-faint: #706b5d;
+      --border: rgba(8, 8, 6, 0.22);
+      --border-strong: rgba(8, 8, 6, 0.56);
+      --glow: rgba(229, 34, 39, 0.16);
+      --btn-primary-bg: #0b0b09;
+      --btn-primary-text: #e9e3d3;
+    }
+
+    /* ── Reset ─────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+      background-color: var(--bg);
+      color: var(--text);
+      transition: background-color var(--dur-normal) var(--ease), color var(--dur-normal) var(--ease);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    ::selection { background: var(--rs-red); color: #ffffff; }
+    :focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+    /* ── Overlay Effects ────────────────────────────────────────── */
+    .site-noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9990;
+      opacity: 0.04;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    .scanline {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 4px;
+      background: rgba(241, 241, 234, 0.05);
+      pointer-events: none;
+      z-index: 9989;
+      animation: scanline-anim 6s linear infinite;
+    }
+
+    @keyframes scanline-anim {
+      0% { transform: translateY(-100vh); }
+      100% { transform: translateY(100vh); }
+    }
+
+    /* ── Login Card ─────────────────────────────────────────────── */
+    .login-card {
+      width: 100%;
+      max-width: var(--max-w);
+      background: var(--surface);
+      border: 2px solid var(--border-strong);
+      position: relative;
+    }
+
+    .login-header {
+      padding: 16px 20px;
+      border-bottom: 2px solid var(--border-strong);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .login-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text);
+    }
+
+    .chrome-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .chrome-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 1px solid var(--border-strong);
+    }
+
+    .login-body {
+      padding: 28px 24px;
+    }
+
+    .login-headline {
+      font-family: Inter, Arial Black, sans-serif;
+      font-size: clamp(32px, 8vw, 48px);
+      font-weight: 900;
+      text-transform: lowercase;
+      letter-spacing: -0.05em;
+      line-height: 0.95;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .login-sub {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    /* ── Form ────────────────────────────────────────────────────── */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-faint);
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      font-family: var(--mono);
+      font-size: 11px;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 0;
+      color: var(--text);
+      outline: none;
+      transition: all var(--dur-fast) var(--ease);
+    }
+
+    .form-input:focus {
+      border-color: var(--rs-red);
+      box-shadow: 4px 4px 0 var(--border-strong);
+    }
+
+    .form-input::placeholder { color: var(--text-faint); }
+
+    /* ── Checkbox ────────────────────────────────────────────────── */
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      margin-bottom: 24px;
+    }
+
+    .checkbox-container input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--rs-red);
+      cursor: pointer;
+    }
+
+    .checkbox-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ── Button ──────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px 24px;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: var(--radius-btn);
+      cursor: pointer;
+      position: relative;
+      transition: all var(--dur-fast) var(--ease);
+      min-height: 44px;
+    }
+
+    .btn--primary {
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      padding-left: 32px;
+    }
+
+    .btn--primary::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--rs-red);
+    }
+
+    .btn--primary:hover { filter: brightness(0.92); transform: translateY(-1px); }
+    [data-theme="light"] .btn--primary:hover { filter: brightness(1.08); }
+    .btn--primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* ── Status ──────────────────────────────────────────────────── */
+    .status-msg {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 12px 16px;
+      margin-top: 16px;
+      display: none;
+      border: 2px solid var(--border);
+    }
+
+    .status-msg.error { display: block; color: var(--rs-red); background: var(--surface); border-color: var(--rs-red); }
+
+    /* ── Theme Toggle ────────────────────────────────────────────── */
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--dur-fast) var(--ease);
+      z-index: 100;
+    }
+
+    .theme-toggle:hover { border-color: var(--text); color: var(--text); }
+    [data-theme="dark"] .icon-sun { display: none; }
+    [data-theme="dark"] .icon-moon { display: block; }
+    [data-theme="light"] .icon-sun { display: block; }
+    [data-theme="light"] .icon-moon { display: none; }
+
+    /* ── Responsive ──────────────────────────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      .scanline { display: none; }
+      * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
 </head>
 <body>
+  <div class="site-noise" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
 
-  <nav class="nav">
-    <a href="index.html" class="nav-brand">
-      <img src="https://lbby.net/assets/lbby-r-studio.png" alt="R Studio">
-      <span>R Studio Admin</span>
-    </a>
-    <div class="nav-links">
-      <button onclick="toggleLang()" style="margin-left:auto;padding:4px 10px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-size:12px;cursor:pointer;"><span id="langLabel">VI</span></button>
+  <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+    <svg class="icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+    <svg class="icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+
+  <div class="login-card">
+    <div class="login-header">
+      <span class="login-title">Secure System Portal</span>
+      <div class="chrome-dots"><span></span><span></span><span></span></div>
     </div>
-  </nav>
+    <div class="login-body">
+      <h1 class="login-headline">admin login</h1>
+      <p class="login-sub">Enter your API key and password to access the admin panel.</p>
 
-  <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px;">
-    <div style="max-width: 420px; width: 100%; text-align: center;">
-      <div style="font-size: 48px; margin-bottom: 20px;">🔐</div>
-      <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--text);" data-vi="Đăng nhập quản trị">Admin Login</h1>
-      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;" data-vi="Nhập khóa API và mật khẩu để truy cập bảng điều khiển.">Enter your API key and password to access the admin panel.</p>
+      <form id="loginForm" onsubmit="doLogin(); return false;">
+        <div class="form-group">
+          <label class="form-label" for="apiKeyInput">API Key</label>
+          <input type="text" id="apiKeyInput" class="form-input" placeholder="lbby_ak_..." autocomplete="off" spellcheck="false">
+        </div>
 
-      <div style="text-align: left; margin-bottom: 16px;">
-        <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;" data-vi="Khóa API">API Key</label>
-        <input type="text" id="apiKeyInput" placeholder="lbby_ak_..." autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')document.getElementById('passwordInput').focus()" style="
-          width: 100%; padding: 14px 18px;
-          background: var(--bg-card);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-sm);
-          color: var(--text); font-size: 15px;
-          font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-          outline: none; letter-spacing: 0.5px;
-        ">
-      </div>
+        <div class="form-group">
+          <label class="form-label" for="passwordInput">Password</label>
+          <input type="password" id="passwordInput" class="form-input" placeholder="••••••••" autocomplete="off" spellcheck="false">
+        </div>
 
-      <div style="text-align: left; margin-bottom: 16px;">
-        <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;" data-vi="Mật khẩu">Password</label>
-        <input type="password" id="passwordInput" placeholder="••••••••" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')doLogin()" style="
-          width: 100%; padding: 14px 18px;
-          background: var(--bg-card);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-sm);
-          color: var(--text); font-size: 15px;
-          font-family: inherit;
-          outline: none; letter-spacing: 0.5px;
-        ">
-      </div>
+        <label class="checkbox-container">
+          <input type="checkbox" id="rememberMe">
+          <span class="checkbox-label">Remember this device</span>
+        </label>
 
-      <button onclick="doLogin()" id="loginBtn" style="
-        width: 100%; padding: 14px 20px;
-        background: var(--accent); color: white;
-        border: none; border-radius: var(--radius-sm);
-        font-size: 16px; font-weight: 700;
-        cursor: pointer; transition: all 0.2s;
-      " data-vi="Đăng nhập">Log In</button>
+        <button type="submit" class="btn btn--primary" id="loginBtn">Authenticate</button>
+      </form>
 
-      <div id="loginError" style="display: none; margin-top: 16px; padding: 12px; border-radius: var(--radius-sm); color: var(--red); background: var(--red-bg); border: 1px solid var(--red-border); font-size: 13px;"></div>
-
-      <div id="loginSuccess" style="display: none; margin-top: 16px; padding: 12px; border-radius: var(--radius-sm); color: var(--green); background: var(--green-bg); border: 1px solid var(--green-border); font-size: 13px;"></div>
-
-      <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border);">
-        <p style="color: var(--text-muted); font-size: 12px; line-height: 1.6;" data-vi="Không có khóa API? Liên hệ quản trị viên nhóm của bạn để nhận khóa.">
-          Don't have an API key? Contact your team admin to get one.
-        </p>
-      </div>
+      <div id="loginStatus" class="status-msg"></div>
     </div>
   </div>
 
-  <script src="/lang.js"></script>
   <script src="/auth.js?v=2"></script>
   <script>
-    const { getApiKey, setApiKey, setSessionInfo, validateKey, adminLogin, getAttemptState, recordAttempt, resetAttempts, isVi, MAX_ATTEMPTS, LOCKOUT_MS } = RStudioAuth;
-
-    // If already logged in, redirect
-    (async function checkExisting() {
-      const key = getApiKey();
-      if (!key) return;
-      const info = await validateKey(key);
-      if (info) {
-        const params = new URLSearchParams(window.location.search);
-        const redirect = params.get('redirect') || 'index.html';
-        window.location.href = redirect;
-      } else {
-        RStudioAuth.clearApiKey();
-      }
+    // ── Theme Toggle ────────────────────────────────────────────
+    (function() {
+      var t = localStorage.getItem('rs-theme');
+      if (!t) t = 'dark';
+      document.documentElement.setAttribute('data-theme', t);
     })();
 
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      var current = document.documentElement.getAttribute('data-theme');
+      var next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('rs-theme', next);
+    });
+
+    // ── Login ───────────────────────────────────────────────────
     async function doLogin() {
-      const input = document.getElementById('apiKeyInput');
-      const pwInput = document.getElementById('passwordInput');
-      const error = document.getElementById('loginError');
-      const success = document.getElementById('loginSuccess');
+      const apiKey = document.getElementById('apiKeyInput').value.trim();
+      const password = document.getElementById('passwordInput').value;
       const btn = document.getElementById('loginBtn');
-      const key = input.value.trim();
-      const password = pwInput.value;
+      const status = document.getElementById('loginStatus');
 
-      error.style.display = 'none';
-      success.style.display = 'none';
-
-      // Rate limit check
-      const attempts = getAttemptState();
-      if (attempts.lockUntil && Date.now() < attempts.lockUntil) {
-        const secs = Math.ceil((attempts.lockUntil - Date.now()) / 1000);
-        error.textContent = isVi() ? `Quá nhiều lần thử. Thử lại sau ${secs}s.` : `Too many attempts. Try again in ${secs}s.`;
-        error.style.display = 'block';
+      if (!apiKey || !password) {
+        status.textContent = 'Enter both API key and password';
+        status.className = 'status-msg error';
         return;
       }
 
-      if (!key) {
-        error.textContent = isVi() ? 'Vui lòng nhập khóa API' : 'Please enter your API key';
-        error.style.display = 'block';
-        return;
-      }
-
-      if (!password) {
-        error.textContent = isVi() ? 'Vui lòng nhập mật khẩu' : 'Please enter your password';
-        error.style.display = 'block';
-        pwInput.focus();
-        return;
-      }
-
-      btn.textContent = isVi() ? 'Đang xác minh...' : 'Verifying...';
       btn.disabled = true;
+      btn.textContent = 'Authenticating...';
+      status.className = 'status-msg';
+      status.style.display = 'none';
 
       try {
-        const info = await adminLogin(key, password);
-        recordAttempt(false);
-        setApiKey(key);
-        setSessionInfo({ keyName: info.keyName, tier: info.tier, keyId: info.keyId });
-
-        // If password change is required, show the change form instead of redirecting
-        if (info.passwordChangeRequired) {
-          showPasswordChangeForm(key, info.keyId);
-          return;
-        }
-
-        const tierLabel = info.tier === 'super_admin' ? 'Super Admin' : info.tier === 'admin' ? 'Admin' : info.tier === 'editor' ? 'Editor' : 'Viewer';
-        success.textContent = isVi()
-          ? `Đăng nhập thành công! Xin chào, ${info.keyName} (${tierLabel})`
-          : `Logged in! Welcome, ${info.keyName} (${tierLabel})`;
-        success.style.display = 'block';
-
-        // Redirect after brief delay
-        setTimeout(() => {
-          const params = new URLSearchParams(window.location.search);
-          const redirect = params.get('redirect') || 'index.html';
-          window.location.href = redirect;
-        }, 800);
+        await RStudioAuth.login(apiKey, password);
+        window.location.href = '/';
       } catch (err) {
-        recordAttempt(true);
-        error.textContent = err.message;
-        error.style.display = 'block';
-        pwInput.value = '';
-        pwInput.focus();
+        status.textContent = err.message || 'Authentication failed';
+        status.className = 'status-msg error';
       } finally {
-        btn.textContent = isVi() ? 'Đăng nhập' : 'Log In';
         btn.disabled = false;
+        btn.textContent = 'Authenticate';
       }
     }
 
-    // ── Forced Password Change ────────────────────────────────────────
-
-    async function showPasswordChangeForm(apiKey, keyId) {
-      // Hide the login form
-      const loginContainer = document.querySelector('[style*="max-width: 420px"]');
-      loginContainer.innerHTML = `
-        <div style="font-size: 48px; margin-bottom: 20px;">🔑</div>
-        <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--text);">${isVi() ? 'Đổi mật khẩu bắt buộc' : 'Password change required'}</h1>
-        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">${isVi() ? 'Mật khẩu tạm thời của bạn cần được thay đổi.' : 'Your temporary password must be changed before continuing.'}</p>
-
-        <div style="text-align: left; margin-bottom: 16px;">
-          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${isVi() ? 'Mật khẩu mới' : 'New password'}</label>
-          <input type="password" id="newPwInput" placeholder="••••••••" autocomplete="new-password" style="
-            width: 100%; padding: 14px 18px;
-            background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
-            color: var(--text); font-size: 15px; font-family: inherit; outline: none; letter-spacing: 0.5px;
-          ">
-        </div>
-
-        <div style="text-align: left; margin-bottom: 16px;">
-          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">${isVi() ? 'Xác nhận mật khẩu' : 'Confirm password'}</label>
-          <input type="password" id="confirmPwInput" placeholder="••••••••" autocomplete="new-password" onkeydown="if(event.key==='Enter')doPasswordChange()" style="
-            width: 100%; padding: 14px 18px;
-            background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
-            color: var(--text); font-size: 15px; font-family: inherit; outline: none; letter-spacing: 0.5px;
-          ">
-        </div>
-
-        <div id="pwChangeError" class="status-msg error" style="display:none; text-align:left;"></div>
-        <div id="pwChangeSuccess" class="status-msg success" style="display:none; text-align:left;"></div>
-
-        <button onclick="doPasswordChange()" id="pwChangeBtn" style="
-          width: 100%; padding: 14px 20px; margin-top: 8px;
-          background: var(--accent); color: white; border: none; border-radius: var(--radius-sm);
-          font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity 0.15s;
-        ">${isVi() ? 'Đổi mật khẩu' : 'Change password'}</button>
-
-        <p style="color: var(--text-muted); font-size: 12px; margin-top: 16px;">${isVi() ? 'Tối thiểu 8 ký tự.' : 'Minimum 8 characters.'}</p>
-      `;
-
-      document.getElementById('newPwInput').focus();
-
-      window.doPasswordChange = async function() {
-        const newPw = document.getElementById('newPwInput').value;
-        const confirmPw = document.getElementById('confirmPwInput').value;
-        const error = document.getElementById('pwChangeError');
-        const success = document.getElementById('pwChangeSuccess');
-        const btn = document.getElementById('pwChangeBtn');
-
-        error.style.display = 'none';
-        success.style.display = 'none';
-
-        if (!newPw || newPw.length < 8) {
-          error.textContent = RStudioAuth.isVi() ? 'Mật khẩu phải có ít nhất 8 ký tự' : 'Password must be at least 8 characters';
-          error.style.display = 'block';
-          return;
-        }
-        if (newPw !== confirmPw) {
-          error.textContent = RStudioAuth.isVi() ? 'Mật khẩu không khớp' : 'Passwords do not match';
-          error.style.display = 'block';
-          return;
-        }
-
-        btn.textContent = RStudioAuth.isVi() ? 'Đang đổi...' : 'Changing...';
-        btn.disabled = true;
-
-        try {
-          await RStudioAuth.apiCall('POST', `/api/admin/api-keys/${keyId}/change-password`, {
-            key: apiKey,
-            newPassword: newPw,
-          });
-
-          success.textContent = RStudioAuth.isVi() ? 'Đã đổi mật khẩu! Đang chuyển hướng...' : 'Password changed! Redirecting...';
-          success.style.display = 'block';
-
-          setTimeout(() => {
-            const params = new URLSearchParams(window.location.search);
-            const redirect = params.get('redirect') || 'index.html';
-            window.location.href = redirect;
-          }, 1000);
-        } catch (err) {
-          error.textContent = err.message;
-          error.style.display = 'block';
-        } finally {
-          btn.textContent = RStudioAuth.isVi() ? 'Đổi mật khẩu' : 'Change password';
-          btn.disabled = false;
-        }
-      };
-    }
-
-    // Focus input on load
-    document.getElementById('apiKeyInput').focus();
+    // ── Auto-fill from stored key ───────────────────────────────
+    const storedKey = RStudioAuth.getApiKey();
+    if (storedKey) document.getElementById('apiKeyInput').value = storedKey;
   </script>
 </body>
 </html>

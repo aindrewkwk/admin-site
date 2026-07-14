@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,350 +9,480 @@
   <link rel="icon" href="https://lbby.net/assets/favicon-32.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    /* ── Reset ──────────────────────────────────────────────────── */
+    /* ── Design Tokens ─────────────────────────────────────────── */
+    :root {
+      --radius: 0px;
+      --radius-sm: 0px;
+      --radius-btn: 4px;
+      --radius-full: 100px;
+      --max-w: 920px;
+      --sidebar-w: 240px;
+      --nav-h: 56px;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --dur-fast: 0.15s;
+      --dur-normal: 0.3s;
+      --dur-slow: 0.6s;
+      --rs-red: #e52227;
+      --mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+    }
+
+    [data-theme="dark"],
+    :root:not([data-theme]) {
+      --bg: #030303;
+      --bg-soft: #060606;
+      --surface: #080808;
+      --surface-soft: #101010;
+      --text: #f1f1ea;
+      --text-muted: #c9c6bb;
+      --text-faint: #77746b;
+      --border: rgba(241, 241, 234, 0.17);
+      --border-strong: rgba(241, 241, 234, 0.55);
+      --accent-silver: #f1f1ea;
+      --accent-silver-soft: #aaa69a;
+      --glow: rgba(229, 34, 39, 0.18);
+      --btn-primary-bg: #f1f1ea;
+      --btn-primary-text: #050505;
+      --btn-secondary-border: rgba(241, 241, 234, 0.35);
+      --btn-secondary-text: #f1f1ea;
+    }
+
+    [data-theme="light"] {
+      --bg: #e9e3d3;
+      --bg-soft: #ded6c3;
+      --surface: rgba(255, 255, 247, 0.42);
+      --surface-soft: rgba(255, 255, 247, 0.58);
+      --text: #0b0b09;
+      --text-muted: #24221e;
+      --text-faint: #706b5d;
+      --border: rgba(8, 8, 6, 0.22);
+      --border-strong: rgba(8, 8, 6, 0.56);
+      --accent-silver: #0b0b09;
+      --accent-silver-soft: #575246;
+      --glow: rgba(229, 34, 39, 0.16);
+      --btn-primary-bg: #0b0b09;
+      --btn-primary-text: #e9e3d3;
+      --btn-secondary-border: rgba(8, 8, 6, 0.22);
+      --btn-secondary-text: #0b0b09;
+    }
+
+    /* ── Reset ─────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      background: #09090b;
-      color: #e4e4e7;
-      line-height: 1.5;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 1.45;
       -webkit-font-smoothing: antialiased;
-      min-height: 100vh;
+      background-color: var(--bg);
+      color: var(--text);
+      transition: background-color var(--dur-normal) var(--ease), color var(--dur-normal) var(--ease);
+      overflow-x: hidden;
     }
-    ::selection { background: #8b5cf6; color: white; }
+
+    ::selection { background: var(--rs-red); color: #ffffff; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-silver-soft); }
+
+    :focus-visible { outline: 2px solid var(--accent-silver); outline-offset: 2px; }
 
     /* ── Layout ─────────────────────────────────────────────────── */
     .layout { display: flex; min-height: 100vh; }
 
     /* ── Sidebar ────────────────────────────────────────────────── */
     .sidebar {
-      width: 240px;
-      background: #0c0c0e;
-      border-right: 1px solid #1a1a1e;
-      padding: 20px 0;
+      width: var(--sidebar-w);
+      background: var(--bg-soft);
+      border-right: 2px solid var(--border-strong);
       display: flex;
       flex-direction: column;
       position: fixed;
-      top: 0;
-      left: 0;
-      bottom: 0;
+      top: 0; left: 0; bottom: 0;
       z-index: 100;
-      transition: transform 0.25s ease;
+      transition: transform var(--dur-normal) var(--ease);
     }
-    .sidebar-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 0 20px 20px;
-      border-bottom: 1px solid #1a1a1e;
+
+    .sidebar-header {
+      padding: 24px 20px;
+      border-bottom: 2px solid var(--border-strong);
+    }
+
+    .sidebar-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-faint);
       margin-bottom: 8px;
     }
-    .sidebar-brand img { width: 28px; height: 28px; border-radius: 6px; }
-    .sidebar-brand span { font-size: 14px; font-weight: 700; color: #fafafa; }
-    .sidebar-brand small { font-size: 10px; color: #71717a; font-weight: 500; margin-left: auto; background: #1a1a1e; padding: 2px 6px; border-radius: 4px; }
-    .sidebar-nav { flex: 1; padding: 4px 8px; }
-    .sidebar-section { padding: 12px 12px 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #52525b; }
-    .sidebar-link {
+
+    .sidebar-brand {
+      font-family: Inter, Arial Black, sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      text-transform: lowercase;
+      letter-spacing: -0.05em;
+      color: var(--text);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 0;
+    }
+
+    .sidebar-btn {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      color: #a1a1aa;
-      text-decoration: none;
-      transition: all 0.15s ease;
-      margin-bottom: 2px;
-    }
-    .sidebar-link:hover { background: #18181b; color: #e4e4e7; }
-    .sidebar-link.active { background: #8b5cf6; color: white; }
-    .sidebar-link svg { width: 16px; height: 16px; opacity: 0.7; }
-    .sidebar-link.active svg { opacity: 1; }
-    .sidebar-footer {
+      width: 100%;
       padding: 12px 20px;
-      border-top: 1px solid #1a1a1e;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: all var(--dur-fast) var(--ease);
+      text-align: left;
+    }
+
+    .sidebar-btn:hover {
+      color: var(--text);
+      background: var(--glow);
+    }
+
+    .sidebar-btn[aria-selected="true"] {
+      color: var(--bg);
+      background: var(--text);
+    }
+
+    .sidebar-btn svg { width: 14px; height: 14px; opacity: 0.7; }
+    .sidebar-btn[aria-selected="true"] svg { opacity: 1; }
+
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 2px solid var(--border-strong);
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: space-between;
     }
-    .sidebar-footer .avatar {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: #27272a;
+
+    .sidebar-version {
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-faint);
+    }
+
+    .theme-toggle {
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
-      font-weight: 700;
-      color: #a1a1aa;
-    }
-    .sidebar-footer .user-info { flex: 1; }
-    .sidebar-footer .user-name { font-size: 12px; font-weight: 600; color: #e4e4e7; }
-    .sidebar-footer .user-role { font-size: 10px; color: #71717a; }
-    .sidebar-footer .logout-btn {
-      padding: 4px 8px;
-      font-size: 11px;
-      color: #71717a;
-      border: 1px solid #27272a;
-      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      background: transparent;
+      color: var(--text-muted);
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: all var(--dur-fast) var(--ease);
     }
-    .sidebar-footer .logout-btn:hover { color: #ef4444; border-color: #ef4444; background: rgba(239,68,68,0.1); }
+
+    .theme-toggle:hover { border-color: var(--text); color: var(--text); }
+    [data-theme="dark"] .icon-sun { display: none; }
+    [data-theme="dark"] .icon-moon { display: block; }
+    [data-theme="light"] .icon-sun { display: block; }
+    [data-theme="light"] .icon-moon { display: none; }
 
     /* ── Main Content ───────────────────────────────────────────── */
-    .main { flex: 1; margin-left: 240px; }
+    .main {
+      flex: 1;
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+    }
+
     .topbar {
       position: sticky;
       top: 0;
       z-index: 50;
-      background: rgba(9,9,11,0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid #1a1a1e;
+      background: var(--bg);
+      border-bottom: 2px solid var(--border-strong);
       padding: 0 32px;
-      height: 56px;
+      height: var(--nav-h);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-    .topbar-title { font-size: 14px; font-weight: 600; color: #e4e4e7; }
-    .topbar-actions { display: flex; align-items: center; gap: 12px; }
-    .topbar-btn {
-      padding: 6px 12px;
-      font-size: 12px;
-      font-weight: 500;
-      border-radius: 6px;
-      border: 1px solid #27272a;
-      color: #a1a1aa;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .topbar-btn:hover { border-color: #3f3f46; color: #e4e4e7; }
-    .content { padding: 24px 32px; max-width: 1200px; }
 
-    /* ── Stats Cards ────────────────────────────────────────────── */
+    .topbar-title {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text);
+    }
+
+    .content { padding: 32px; max-width: var(--max-w); }
+
+    /* ── Cards ──────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 2px solid var(--border-strong);
+      margin-bottom: 24px;
+      transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+    }
+
+    .card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0 var(--border-strong);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--border-strong);
+    }
+
+    .card-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text);
+    }
+
+    .card-body { padding: 16px; }
+
+    /* ── Stats Grid ─────────────────────────────────────────────── */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
+      gap: 0;
+      border-top: 2px solid var(--border-strong);
+      border-left: 2px solid var(--border-strong);
       margin-bottom: 24px;
     }
+
     .stat-card {
-      background: #18181b;
-      border: 1px solid #27272a;
-      border-radius: 12px;
-      padding: 20px;
-      transition: border-color 0.2s ease;
+      padding: 20px 16px;
+      border-right: 2px solid var(--border-strong);
+      border-bottom: 2px solid var(--border-strong);
+      background: transparent;
+      transition: background var(--dur-fast) var(--ease);
     }
-    .stat-card:hover { border-color: #3f3f46; }
-    .stat-label { font-size: 12px; font-weight: 500; color: #71717a; margin-bottom: 8px; }
-    .stat-value { font-size: 28px; font-weight: 800; color: #fafafa; letter-spacing: -1px; }
-    .stat-change { font-size: 11px; color: #22c55e; margin-top: 4px; }
 
-    /* ── Section Card ───────────────────────────────────────────── */
-    .section-card {
-      background: #18181b;
-      border: 1px solid #27272a;
-      border-radius: 12px;
-      margin-bottom: 24px;
-      overflow: hidden;
-    }
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      border-bottom: 1px solid #27272a;
-    }
-    .section-title { font-size: 14px; font-weight: 600; color: #e4e4e7; }
-    .section-body { padding: 16px 20px; }
+    .stat-card:hover { background: var(--glow); }
 
-    /* ── Search Input ───────────────────────────────────────────── */
-    .search-box {
-      position: relative;
-      width: 280px;
+    .stat-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-faint);
+      margin-bottom: 8px;
     }
-    .search-box input {
-      width: 100%;
-      padding: 7px 12px 7px 32px;
-      font-size: 13px;
-      background: #09090b;
-      border: 1px solid #27272a;
-      border-radius: 8px;
-      color: #e4e4e7;
-      outline: none;
-      transition: border-color 0.15s ease;
-    }
-    .search-box input:focus { border-color: #8b5cf6; }
-    .search-box input::placeholder { color: #52525b; }
-    .search-box svg {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 14px;
-      height: 14px;
-      color: #52525b;
+
+    .stat-value {
+      font-family: Inter, Arial Black, sans-serif;
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      color: var(--text);
     }
 
     /* ── Table ──────────────────────────────────────────────────── */
+    .table-container {
+      overflow-x: auto;
+      border: 2px solid var(--border-strong);
+    }
+
     .data-table { width: 100%; border-collapse: collapse; }
+
     .data-table th {
       text-align: left;
       padding: 10px 16px;
-      font-size: 11px;
-      font-weight: 600;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #52525b;
-      border-bottom: 1px solid #27272a;
-      background: #18181b;
+      letter-spacing: 0.1em;
+      color: var(--text-faint);
+      border-bottom: 2px solid var(--border-strong);
+      background: var(--surface);
     }
+
     .data-table td {
       padding: 12px 16px;
-      font-size: 13px;
-      border-bottom: 1px solid #1a1a1e;
+      font-family: var(--mono);
+      font-size: 11px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
     }
-    .data-table tbody tr { transition: background 0.1s ease; }
-    .data-table tbody tr:hover { background: rgba(139,92,246,0.05); }
+
+    .data-table tbody tr {
+      transition: background var(--dur-fast) var(--ease);
+    }
+
+    .data-table tbody tr:hover { background: var(--glow); }
     .data-table tbody tr:last-child td { border-bottom: none; }
 
-    /* ── Badges ─────────────────────────────────────────────────── */
+    /* ── Status Badges ──────────────────────────────────────────── */
     .badge {
       display: inline-flex;
       align-items: center;
       padding: 2px 8px;
-      font-size: 11px;
-      font-weight: 600;
-      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
-    .badge-free { background: #27272a; color: #a1a1aa; }
-    .badge-novice { background: rgba(59,130,246,0.15); color: #60a5fa; }
-    .badge-master { background: rgba(139,92,246,0.15); color: #a78bfa; }
-    .badge-admin { background: rgba(139,92,246,0.15); color: #a78bfa; }
-    .badge-super_admin { background: rgba(234,179,8,0.15); color: #fbbf24; }
-    .badge-active { background: rgba(34,197,94,0.15); color: #4ade80; }
-    .badge-revoked { background: rgba(239,68,68,0.15); color: #f87171; }
-    .badge-viewer { background: #27272a; color: #a1a1aa; }
-    .badge-editor { background: rgba(59,130,246,0.15); color: #60a5fa; }
 
-    /* ── Select ─────────────────────────────────────────────────── */
-    .tier-select {
-      padding: 5px 8px;
-      font-size: 12px;
-      background: #09090b;
-      border: 1px solid #27272a;
-      border-radius: 6px;
-      color: #e4e4e7;
-      cursor: pointer;
-      outline: none;
-      transition: border-color 0.15s ease;
-    }
-    .tier-select:hover { border-color: #3f3f46; }
-    .tier-select:focus { border-color: #8b5cf6; }
-    .tier-select:disabled { opacity: 0.4; cursor: not-allowed; }
+    .badge--active { border: 2px solid var(--rs-red); color: var(--rs-red); }
+    .badge--inactive { border: 1px dashed var(--text-muted); color: var(--text-muted); }
+    .badge--banned { border: 2px double var(--text); color: var(--text-muted); text-decoration: line-through; }
+    .badge--alert { border: 2px solid var(--text); color: var(--text); }
 
     /* ── Buttons ────────────────────────────────────────────────── */
     .btn {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 7px 14px;
-      font-size: 12px;
-      font-weight: 500;
-      border-radius: 8px;
-      border: 1px solid #27272a;
-      background: transparent;
-      color: #a1a1aa;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .btn:hover { border-color: #3f3f46; color: #e4e4e7; }
-    .btn-primary { background: #8b5cf6; border-color: #8b5cf6; color: white; }
-    .btn-primary:hover { background: #7c3aed; border-color: #7c3aed; }
-    .btn-danger { color: #f87171; }
-    .btn-danger:hover { border-color: #ef4444; background: rgba(239,68,68,0.1); }
-    .btn-sm { padding: 4px 10px; font-size: 11px; }
-    .btn-icon {
-      width: 32px;
-      height: 32px;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
       justify-content: center;
-      border-radius: 8px;
-      border: 1px solid #27272a;
+      gap: 8px;
+      padding: 8px 16px;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: var(--radius-btn);
+      cursor: pointer;
+      position: relative;
+      transition: all var(--dur-fast) var(--ease);
+      min-height: 36px;
+    }
+
+    .btn--primary {
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      padding-left: 24px;
+    }
+
+    .btn--primary::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--rs-red);
+    }
+
+    .btn--primary:hover { filter: brightness(0.92); transform: translateY(-1px); }
+    [data-theme="light"] .btn--primary:hover { filter: brightness(1.08); }
+
+    .btn--secondary {
       background: transparent;
-      color: #71717a;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .btn-icon:hover { border-color: #3f3f46; color: #e4e4e7; }
-
-    /* ── Checkbox ───────────────────────────────────────────────── */
-    .admin-cb {
-      width: 14px;
-      height: 14px;
-      accent-color: #8b5cf6;
-      cursor: pointer;
+      color: var(--btn-secondary-text);
+      border: 2px solid var(--btn-secondary-border);
     }
 
-    /* ── Actions Cell ───────────────────────────────────────────── */
-    .actions-cell { display: flex; gap: 6px; justify-content: flex-end; }
+    .btn--secondary:hover { border-color: var(--text); transform: translateY(-1px); }
 
-    /* ── User Email ─────────────────────────────────────────────── */
-    .user-email { font-weight: 600; color: #e4e4e7; }
-    .dupe-badge { font-size: 10px; color: #fbbf24; margin-top: 2px; }
+    .btn--danger {
+      background: transparent;
+      color: var(--rs-red);
+      border: 1px solid var(--border);
+    }
 
-    /* ── Form ───────────────────────────────────────────────────── */
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
-    .form-group { display: flex; flex-direction: column; gap: 4px; }
-    .form-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #71717a; }
+    .btn--danger:hover { border-color: var(--rs-red); background: var(--glow); }
+
+    .btn-sm { padding: 4px 12px; font-size: 10px; min-height: 28px; }
+
+    /* ── Form Inputs ────────────────────────────────────────────── */
     .form-input, .form-select {
-      padding: 8px 12px;
-      font-size: 13px;
-      background: #09090b;
-      border: 1px solid #27272a;
-      border-radius: 8px;
-      color: #e4e4e7;
-      outline: none;
-      transition: border-color 0.15s ease;
-    }
-    .form-input:focus, .form-select:focus { border-color: #8b5cf6; }
-    .form-input::placeholder { color: #52525b; }
-
-    /* ── Status Message ─────────────────────────────────────────── */
-    .status-msg {
-      font-size: 13px;
       padding: 10px 14px;
-      border-radius: 8px;
-      margin-top: 12px;
-      display: none;
+      font-family: var(--mono);
+      font-size: 11px;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 0;
+      color: var(--text);
+      outline: none;
+      transition: all var(--dur-fast) var(--ease);
     }
-    .status-msg.success { display: block; background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
-    .status-msg.error { display: block; background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
 
-    /* ── Output ─────────────────────────────────────────────────── */
+    .form-input:focus, .form-select:focus {
+      border-color: var(--rs-red);
+      box-shadow: 4px 4px 0 var(--border-strong);
+    }
+
+    .form-input::placeholder { color: var(--text-faint); }
+
+    .form-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-faint);
+      margin-bottom: 6px;
+    }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 16px; align-items: end; }
+
+    /* ── Status Messages ────────────────────────────────────────── */
+    .status-msg {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 12px 16px;
+      margin-top: 16px;
+      display: none;
+      border: 2px solid var(--border);
+    }
+
+    .status-msg.success { display: block; color: var(--text); background: var(--surface); border-color: var(--text); }
+    .status-msg.error { display: block; color: var(--rs-red); background: var(--surface); border-color: var(--rs-red); }
+
+    /* ── Output Area ────────────────────────────────────────────── */
     .output-area {
-      background: #09090b;
-      border: 1px solid #27272a;
-      border-radius: 8px;
+      background: var(--bg);
+      border: 2px solid var(--border-strong);
       padding: 12px;
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      font-size: 12px;
+      font-family: var(--mono);
+      font-size: 11px;
       word-break: break-all;
-      color: #a1a1aa;
+      color: var(--text-muted);
       margin-top: 12px;
       user-select: all;
+    }
+
+    /* ── Chrome Dots ────────────────────────────────────────────── */
+    .chrome-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .chrome-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 1px solid var(--border-strong);
     }
 
     /* ── Toast ──────────────────────────────────────────────────── */
@@ -362,32 +492,35 @@
       right: 24px;
       z-index: 9999;
       padding: 12px 20px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #fff;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--text);
+      color: var(--bg);
       transform: translateY(20px);
       opacity: 0;
-      transition: all 0.25s ease;
+      transition: all var(--dur-normal) var(--ease);
       max-width: 360px;
     }
+
+    #adminToast.error { background: var(--rs-red); color: #fff; }
 
     /* ── Confirm Modal ──────────────────────────────────────────── */
     #confirmModal {
       position: fixed;
       inset: 0;
       z-index: 9998;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(4px);
+      background: rgba(0,0,0,0.7);
       display: flex;
       align-items: center;
       justify-content: center;
     }
+
     #confirmModal > div {
-      background: #18181b;
-      border: 1px solid #27272a;
-      border-radius: 16px;
+      background: var(--bg);
+      border: 2px solid var(--border-strong);
       padding: 28px;
       max-width: 420px;
       width: 90%;
@@ -397,23 +530,49 @@
     .empty-state {
       text-align: center;
       padding: 32px;
-      color: #52525b;
-      font-size: 13px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-faint);
+    }
+
+    /* ── Overlay Effects ────────────────────────────────────────── */
+    .site-noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9990;
+      opacity: 0.04;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    .scanline {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 4px;
+      background: rgba(241, 241, 234, 0.05);
+      pointer-events: none;
+      z-index: 9989;
+      animation: scanline-anim 6s linear infinite;
+    }
+
+    @keyframes scanline-anim {
+      0% { transform: translateY(-100vh); }
+      100% { transform: translateY(100vh); }
     }
 
     /* ── Responsive ─────────────────────────────────────────────── */
     .mobile-toggle {
       display: none;
-      width: 36px;
-      height: 36px;
+      width: 36px; height: 36px;
       align-items: center;
       justify-content: center;
-      border: 1px solid #27272a;
-      border-radius: 8px;
+      border: 2px solid var(--border);
       background: transparent;
-      color: #a1a1aa;
+      color: var(--text);
       cursor: pointer;
     }
+
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
@@ -421,48 +580,179 @@
       .mobile-toggle { display: flex; }
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .form-grid { grid-template-columns: 1fr; }
-      .content { padding: 16px; }
-      .topbar { padding: 0 16px; }
-      .search-box { width: 100%; }
+      .content { padding: 20px; }
+      .topbar { padding: 0 20px; }
+    }
+
+    /* ── Tier Grid ──────────────────────────────────────────────── */
+    .tier-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-top: 2px solid var(--border-strong); border-left: 2px solid var(--border-strong); margin-bottom: 20px; }
+    .tier-option {
+      padding: 14px 12px;
+      border-right: 2px solid var(--border-strong);
+      border-bottom: 2px solid var(--border-strong);
+      cursor: pointer;
+      transition: all var(--dur-fast) var(--ease);
+      text-align: center;
+    }
+    .tier-option:hover { background: var(--glow); }
+    .tier-option.selected { background: var(--text); color: var(--bg); }
+    .tier-name { font-family: var(--mono); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .tier-desc { font-family: var(--mono); font-size: 9px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.1em; }
+    .tier-option.selected .tier-desc { color: var(--bg); opacity: 0.7; }
+
+    /* ── Permission Table ───────────────────────────────────────── */
+    .perm-table { width: 100%; border-collapse: collapse; }
+    .perm-table th {
+      text-align: left;
+      padding: 10px 16px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-faint);
+      border-bottom: 2px solid var(--border-strong);
+      background: var(--surface);
+    }
+    .perm-table td {
+      padding: 10px 16px;
+      font-family: var(--mono);
+      font-size: 11px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    .perm-table tbody tr:hover { background: var(--glow); }
+    .perm-table tbody tr:last-child td { border-bottom: none; }
+
+    /* ── New Key Box ────────────────────────────────────────────── */
+    .new-key-box {
+      margin-top: 16px;
+      padding: 16px;
+      border: 2px solid var(--text);
+      display: none;
+    }
+    .new-key-box .key-value {
+      background: var(--bg);
+      border: 2px solid var(--border-strong);
+      padding: 12px;
+      font-family: var(--mono);
+      font-size: 11px;
+      word-break: break-all;
+      color: var(--text);
+      margin: 10px 0;
+      user-select: all;
+    }
+
+    /* ── Filter Select ──────────────────────────────────────────── */
+    .filter-bar { display: flex; gap: 10px; align-items: center; }
+    .filter-select {
+      padding: 6px 10px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+      outline: none;
+    }
+    .filter-select:focus { border-color: var(--rs-red); }
+
+    /* ── Action Badges ──────────────────────────────────────────── */
+    .action-badge {
+      display: inline-flex;
+      padding: 2px 8px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .action-login { border: 1px solid var(--text); color: var(--text); }
+    .action-list { border: 1px dashed var(--text-muted); color: var(--text-muted); }
+    .action-create { border: 2px solid var(--rs-red); color: var(--rs-red); }
+    .action-update { border: 1px solid var(--text-muted); color: var(--text-muted); }
+    .action-delete { border: 2px double var(--text); color: var(--text-faint); text-decoration: line-through; }
+
+    /* ── Meta JSON ──────────────────────────────────────────────── */
+    .meta-json {
+      font-family: var(--mono);
+      font-size: 10px;
+      background: var(--bg);
+      padding: 2px 8px;
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: pointer;
+      color: var(--text-faint);
+      border: 1px solid var(--border);
+    }
+    .meta-json:hover { white-space: normal; word-break: break-all; color: var(--text); }
+
+    /* ── Pagination ─────────────────────────────────────────────── */
+    .pagination { display: flex; gap: 8px; justify-content: center; align-items: center; margin-top: 20px; }
+    .pagination button {
+      padding: 6px 14px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .pagination button:hover:not(:disabled) { border-color: var(--text); color: var(--text); }
+    .pagination button:disabled { opacity: 0.3; cursor: not-allowed; }
+    .pagination .page-info { font-family: var(--mono); font-size: 10px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.1em; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .scanline { display: none; }
+      * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
     }
   </style>
 </head>
 <body>
+  <div class="site-noise" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+
   <div class="layout">
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-brand">
-        <img src="https://lbby.net/assets/lbby-r-studio.png" alt="R Studio">
-        <span>R Studio</span>
-        <small>Admin</small>
+      <div class="sidebar-header">
+        <div class="sidebar-label">Control Panel</div>
+        <div class="sidebar-brand">lbby admin</div>
       </div>
-      <nav class="sidebar-nav">
-        <div class="sidebar-section">Management</div>
-        <a href="/" class="sidebar-link active">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <nav class="sidebar-nav" role="tablist" aria-label="Administration Views">
+        <button class="sidebar-btn" role="tab" aria-selected="true" aria-controls="view-users" id="tab-users">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
           Users
-        </a>
-        <a href="/api-keys" class="sidebar-link">
+        </button>
+        <button class="sidebar-btn" role="tab" aria-selected="false" aria-controls="view-apikeys" id="tab-apikeys" tabindex="-1">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
           API Keys
-        </a>
-        <a href="/audit-logs" class="sidebar-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </button>
+        <button class="sidebar-btn" role="tab" aria-selected="false" aria-controls="view-audit" id="tab-audit" tabindex="-1">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           Audit Logs
-        </a>
-        <div class="sidebar-section">External</div>
-        <a href="https://lbby.net" class="sidebar-link" target="_blank">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          Lbby Dashboard
-        </a>
+        </button>
       </nav>
       <div class="sidebar-footer">
-        <div class="avatar" id="userAvatar">?</div>
-        <div class="user-info">
-          <div class="user-name" id="userName">Loading...</div>
-          <div class="user-role" id="userRole">—</div>
+        <span class="sidebar-version">v1.4.0-adm</span>
+        <div style="display:flex;gap:6px;">
+          <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+          <svg class="icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+          <svg class="icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+          <button class="theme-toggle" onclick="RStudioAuth.logout()" aria-label="Logout" style="border-color:var(--rs-red);color:var(--rs-red);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </button>
         </div>
-        <button class="logout-btn" onclick="RStudioAuth.logout()">Logout</button>
       </div>
     </aside>
 
@@ -470,92 +760,231 @@
     <main class="main">
       <header class="topbar">
         <div style="display:flex;align-items:center;gap:12px;">
-          <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+          <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Toggle sidebar">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
-          <span class="topbar-title">Users</span>
+          <span class="topbar-title">users</span>
         </div>
-        <div class="topbar-actions">
-          <button class="topbar-btn" onclick="fetchStats()">↻ Refresh</button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn--secondary btn-sm" onclick="fetchStats()">↻ Refresh</button>
+          <a href="https://lbby.net" class="btn btn--secondary btn-sm" target="_blank">Lbby ↗</a>
         </div>
       </header>
 
       <div class="content">
-        <!-- Stats -->
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-label">Total Users</div>
-            <div class="stat-value" id="totalUsers">—</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Free</div>
-            <div class="stat-value" id="freeCount">—</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Novice</div>
-            <div class="stat-value" id="noviceCount">—</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Master</div>
-            <div class="stat-value" id="masterCount">—</div>
-          </div>
-        </div>
-
-        <!-- User Search -->
-        <div class="section-card">
-          <div class="section-header">
-            <span class="section-title">Registered Users</span>
-            <div class="search-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-              <input type="text" id="userSearch" placeholder="Search by email or ID..." oninput="debounceSearch()">
+        <!-- Users View -->
+        <section id="view-users" role="tabpanel" aria-labelledby="tab-users" class="view-pane">
+          <!-- Stats -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Total Users</div>
+              <div class="stat-value" id="totalUsers">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Free</div>
+              <div class="stat-value" id="freeCount">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Novice</div>
+              <div class="stat-value" id="noviceCount">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Master</div>
+              <div class="stat-value" id="masterCount">—</div>
             </div>
           </div>
-          <div id="usersTable">
-            <div class="empty-state">Enter an email or ID to search</div>
-          </div>
-        </div>
 
-        <!-- Generate License -->
-        <div class="section-card">
-          <div class="section-header">
-            <span class="section-title">Generate License</span>
-          </div>
-          <div class="section-body">
-            <div class="form-grid">
-              <div class="form-group">
-                <label class="form-label">User Email</label>
-                <input type="email" id="genEmail" class="form-input" placeholder="user@example.com">
+          <!-- User Search -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Registered Users</span>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="text" class="form-input" id="userSearch" placeholder="Search email or ID..." oninput="debounceSearch()" style="width:200px;padding:6px 10px;">
               </div>
-              <div class="form-group">
-                <label class="form-label">Tier</label>
-                <select id="genTier" class="form-select">
-                  <option value="novice">Novice</option>
-                  <option value="master">Master</option>
+            </div>
+            <div id="usersTable">
+              <div class="empty-state">Enter an email or ID to search</div>
+            </div>
+          </div>
+
+          <!-- Generate License -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Generate License</span>
+              <div class="chrome-dots"><span></span><span></span><span></span></div>
+            </div>
+            <div class="card-body">
+              <div class="form-grid">
+                <div>
+                  <div class="form-label">User Email</div>
+                  <input type="email" id="genEmail" class="form-input" placeholder="user@example.com" style="width:100%;">
+                </div>
+                <div>
+                  <div class="form-label">Tier</div>
+                  <select id="genTier" class="form-select" style="width:100%;">
+                    <option value="novice">Novice</option>
+                    <option value="master">Master</option>
+                  </select>
+                </div>
+                <div>
+                  <div class="form-label">Billing Cycle</div>
+                  <select id="genCycle" class="form-select" style="width:100%;">
+                    <option value="monthly">Monthly (30 days)</option>
+                    <option value="yearly">Yearly (365 days)</option>
+                    <option value="lifetime">Lifetime (10 years)</option>
+                  </select>
+                </div>
+                <div>
+                  <div class="form-label">&nbsp;</div>
+                  <button class="btn btn--primary" onclick="generateLicense()" id="genBtn">Generate</button>
+                </div>
+              </div>
+              <div id="genStatus" class="status-msg"></div>
+              <div id="genOutput" style="display:none;">
+                <div class="output-area" id="genKey"></div>
+                <div style="display:flex;gap:8px;margin-top:8px;">
+                  <button class="btn btn--secondary btn-sm" onclick="navigator.clipboard.writeText(lastGeneratedKey)">Copy Key</button>
+                  <button class="btn btn--secondary btn-sm" onclick="copyActivationMsg()">Copy Message</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- API Keys View -->
+        <section id="view-apikeys" role="tabpanel" aria-labelledby="tab-apikeys" class="view-pane" hidden>
+          <!-- Create Key -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Create New Key</span>
+              <div class="chrome-dots"><span></span><span></span><span></span></div>
+            </div>
+            <div class="card-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:16px;align-items:end;">
+                <div>
+                  <div class="form-label">Name</div>
+                  <input type="text" id="keyName" class="form-input" placeholder="e.g. Tien Anh, Hung, Phuc" maxlength="64" style="width:100%;">
+                </div>
+                <div>
+                  <div class="form-label">API Key</div>
+                  <input type="text" id="customKeyInput" class="form-input" placeholder="e.g. aindrew, hung1234" maxlength="120" onkeydown="if(event.key==='Enter')createKey()" style="width:100%;">
+                </div>
+                <div>
+                  <div class="form-label">&nbsp;</div>
+                  <button class="btn btn--primary" onclick="createKey()" id="createBtn">Create Key</button>
+                </div>
+              </div>
+              <p style="font-family:var(--mono);font-size:9px;color:var(--text-faint);margin-top:8px;text-transform:uppercase;letter-spacing:0.1em;">Min 8 characters. Auto-prefixed with lbby_ak_ if missing.</p>
+
+              <div style="margin-top:20px;">
+                <div class="form-label" style="margin-bottom:8px;">Permission Tier</div>
+                <div class="tier-grid">
+                  <div class="tier-option selected" data-tier="viewer" onclick="selectTier('viewer')">
+                    <div class="tier-name">👁 Viewer</div>
+                    <div class="tier-desc">Read-only</div>
+                  </div>
+                  <div class="tier-option" data-tier="editor" onclick="selectTier('editor')">
+                    <div class="tier-name">✏ Editor</div>
+                    <div class="tier-desc">Generate licenses</div>
+                  </div>
+                  <div class="tier-option" data-tier="admin" onclick="selectTier('admin')">
+                    <div class="tier-name">🛡 Admin</div>
+                    <div class="tier-desc">Manage users</div>
+                  </div>
+                  <div class="tier-option" data-tier="super_admin" id="superAdminTier" onclick="selectTier('super_admin')" style="display:none;">
+                    <div class="tier-name">👑 Super</div>
+                    <div class="tier-desc">Full access</div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="createStatus" class="status-msg"></div>
+              <div id="newKeyBox" class="new-key-box">
+                <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text);margin-bottom:8px;">KEY CREATED — SEND TO TEAM MEMBER</div>
+                <div class="key-value" id="newKeyValue"></div>
+                <button class="btn btn--secondary btn-sm" onclick="copyNewKey()" id="copyBtn">Copy Key</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Permission Details -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Permission Details</span>
+            </div>
+            <div style="padding:0;">
+              <table class="perm-table">
+                <thead>
+                  <tr>
+                    <th>Feature</th>
+                    <th>👁 Viewer</th>
+                    <th>✏ Editor</th>
+                    <th>🛡 Admin</th>
+                    <th>👑 Super</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>List users</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                  <tr><td>List licenses</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                  <tr><td>Generate license</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                  <tr><td>Revoke license</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                  <tr><td>Update users</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                  <tr><td>Delete users</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+                  <tr><td>Manage API keys</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+                  <tr><td>Reset passwords</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                  <tr><td>Delete API keys</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Active Keys -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Active Keys</span>
+              <button class="btn btn--secondary btn-sm" onclick="fetchKeys()">↻ Refresh</button>
+            </div>
+            <div id="keysTable">
+              <div class="empty-state">Loading...</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Audit Logs View -->
+        <section id="view-audit" role="tabpanel" aria-labelledby="tab-audit" class="view-pane" hidden>
+          <!-- Filters -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Activity Log</span>
+              <div class="filter-bar">
+                <select class="filter-select" id="actionFilter" onchange="auditOffset=0;fetchLogs()">
+                  <option value="">All Actions</option>
+                  <option value="ADMIN_LOGIN">Login</option>
+                  <option value="ADMIN_LIST_USERS">List Users</option>
+                  <option value="ADMIN_LIST_LICENSES">List Licenses</option>
+                  <option value="ADMIN_GENERATE_LICENSE">Generate License</option>
+                  <option value="ADMIN_REVOKE_LICENSE">Revoke License</option>
+                  <option value="ADMIN_UPDATE_USER">Update User</option>
+                  <option value="ADMIN_DELETE_USER">Delete User</option>
+                  <option value="ADMIN_LIST_API_KEYS">List API Keys</option>
+                  <option value="ADMIN_CREATE_API_KEY">Create API Key</option>
+                  <option value="ADMIN_UPDATE_API_KEY">Update API Key</option>
+                  <option value="ADMIN_REVOKE_API_KEY">Revoke API Key</option>
                 </select>
               </div>
-              <div class="form-group">
-                <label class="form-label">Billing Cycle</label>
-                <select id="genCycle" class="form-select">
-                  <option value="monthly">Monthly (30 days)</option>
-                  <option value="yearly">Yearly (365 days)</option>
-                  <option value="lifetime">Lifetime (10 years)</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">&nbsp;</label>
-                <button class="btn btn-primary" onclick="generateLicense()" id="genBtn">Generate</button>
-              </div>
             </div>
-            <div id="genStatus" class="status-msg"></div>
-            <div id="genOutput" style="display:none;">
-              <div class="output-area" id="genKey"></div>
-              <div style="display:flex;gap:8px;margin-top:8px;">
-                <button class="btn btn-sm" onclick="navigator.clipboard.writeText(lastGeneratedKey)">Copy Key</button>
-                <button class="btn btn-sm" onclick="copyActivationMsg()">Copy Message</button>
-              </div>
+            <div id="logsTable">
+              <div class="empty-state">Loading...</div>
             </div>
           </div>
-        </div>
+
+          <!-- Pagination -->
+          <div class="pagination" id="pagination" style="display:none;">
+            <button id="prevBtn" onclick="prevPage()" disabled>← Previous</button>
+            <span class="page-info" id="pageInfo">Page 1</span>
+            <button id="nextBtn" onclick="nextPage()">Next →</button>
+          </div>
+        </section>
       </div>
     </main>
   </div>
@@ -563,18 +992,79 @@
   <script src="/lang.js"></script>
   <script src="/auth.js?v=2"></script>
   <script>
-    const { apiCall, isVi } = RStudioAuth;
+    const { apiCall, isVi, getApiKey, isSuperAdmin } = RStudioAuth;
     let lastGeneratedKey = '';
     let searchTimeout = null;
+    let selectedTier = 'viewer';
+    let auditOffset = 0;
+    const AUDIT_PAGE_SIZE = 50;
+    let auditHasMore = true;
+
+    const TAB_TITLES = {
+      'tab-users': 'Users',
+      'tab-apikeys': 'API Keys',
+      'tab-audit': 'Audit Logs',
+    };
+
+    // ── Theme Toggle ────────────────────────────────────────────
+    (function() {
+      var t = localStorage.getItem('rs-theme');
+      if (!t) t = 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      var current = document.documentElement.getAttribute('data-theme');
+      var next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('rs-theme', next);
+    });
+
+    // ── Tab Navigation ──────────────────────────────────────────
+    const tabs = document.querySelectorAll('.sidebar-btn[role="tab"]');
+    const panels = document.querySelectorAll('.view-pane[role="tabpanel"]');
+
+    function switchTab(selectedTab) {
+      tabs.forEach(tab => {
+        const isSelected = tab === selectedTab;
+        tab.setAttribute('aria-selected', isSelected);
+        tab.setAttribute('tabindex', isSelected ? '0' : '-1');
+      });
+      panels.forEach(panel => {
+        panel.hidden = panel.id !== selectedTab.getAttribute('aria-controls');
+      });
+      // Update topbar title
+      document.querySelector('.topbar-title').textContent = TAB_TITLES[selectedTab.id] || 'Admin';
+      // Lazy-load data for tabs
+      if (selectedTab.id === 'tab-apikeys') fetchKeys();
+      if (selectedTab.id === 'tab-audit') fetchLogs();
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => switchTab(tab));
+      tab.addEventListener('keydown', (e) => {
+        const index = Array.from(tabs).indexOf(tab);
+        let newIndex;
+        if (e.key === 'ArrowDown') newIndex = (index + 1) % tabs.length;
+        else if (e.key === 'ArrowUp') newIndex = (index - 1 + tabs.length) % tabs.length;
+        else if (e.key === 'Home') newIndex = 0;
+        else if (e.key === 'End') newIndex = tabs.length - 1;
+        else return;
+        e.preventDefault();
+        tabs[newIndex].focus();
+        switchTab(tabs[newIndex]);
+      });
+    });
 
     // ── Init ────────────────────────────────────────────────────
     (async function() {
       if (!await RStudioAuth.requireAuth()) return;
-      const info = await RStudioAuth.validateKey(RStudioAuth.getApiKey());
+      const info = await RStudioAuth.validateKey(getApiKey());
       if (info) {
-        document.getElementById('userName').textContent = info.keyName || 'Admin';
-        document.getElementById('userRole').textContent = info.tier || 'viewer';
-        document.getElementById('userAvatar').textContent = (info.keyName || 'A')[0].toUpperCase();
+        if (isSuperAdmin()) {
+          const el = document.getElementById('superAdminTier');
+          if (el) el.style.display = '';
+        }
       }
       await fetchStats();
     })();
@@ -587,12 +1077,10 @@
         document.getElementById('freeCount').textContent = stats.free;
         document.getElementById('noviceCount').textContent = stats.novice;
         document.getElementById('masterCount').textContent = stats.master;
-      } catch (err) {
-        console.error('Stats error:', err);
-      }
+      } catch (err) { console.error('Stats error:', err); }
     }
 
-    // ── Search ──────────────────────────────────────────────────
+    // ── Users ───────────────────────────────────────────────────
     function debounceSearch() {
       clearTimeout(searchTimeout);
       searchTimeout = setTimeout(() => fetchUsers(), 300);
@@ -610,34 +1098,260 @@
           const date = new Date(u.createdAt * 1000).toLocaleDateString();
           const tier = u.tier || 'free';
           return `<tr>
-            <td><span class="user-email">${escapeHtml(u.emailMasked || '—')}</span>${(u.duplicateCount ?? 0) > 1 ? `<div class="dupe-badge">${u.duplicateCount} merged</div>` : ''}</td>
-            <td><select class="tier-select" data-user-id="${u.id}" onchange="updateUserTier(${u.id}, this.value, '${tier}')">
+            <td style="font-weight:600;color:var(--text);">${escapeHtml(u.emailMasked || '—')}</td>
+            <td><select class="form-select" style="padding:4px 8px;font-size:10px;" data-user-id="${u.id}" onchange="updateUserTier(${u.id}, this.value, '${tier}')">
               <option value="free" ${tier === 'free' ? 'selected' : ''}>free</option>
               <option value="novice" ${tier === 'novice' ? 'selected' : ''}>novice</option>
               <option value="master" ${tier === 'master' ? 'selected' : ''}>master</option>
             </select></td>
-            <td><input type="checkbox" class="admin-cb" data-admin-id="${u.id}" ${u.isAdmin ? 'checked' : ''} onchange="toggleAdmin(${u.id}, this.checked)"></td>
-            <td style="color:#71717a;font-size:12px;">${date}</td>
-            <td><div class="actions-cell">
-              <button class="btn btn-sm" onclick="sendReset(${u.id})" ${!u.emailMasked ? 'disabled' : ''}>Reset PW</button>
-              <button class="btn btn-sm btn-danger" onclick="revokeLicenses(${u.id})">Revoke</button>
-              <button class="btn btn-sm btn-danger" onclick="deleteUser(${u.id}, '${escapeHtml(u.emailMasked)}')">Delete</button>
-            </div></td>
+            <td><input type="checkbox" style="accent-color:var(--rs-red);" data-admin-id="${u.id}" ${u.isAdmin ? 'checked' : ''} onchange="toggleAdmin(${u.id}, this.checked)"></td>
+            <td>${date}</td>
+            <td style="text-align:right;">
+              <button class="btn btn--secondary btn-sm" onclick="sendReset(${u.id})" ${!u.emailMasked ? 'disabled' : ''}>Reset</button>
+              <button class="btn btn--danger btn-sm" onclick="revokeLicenses(${u.id})">Revoke</button>
+              <button class="btn btn--danger btn-sm" onclick="deleteUser(${u.id}, '${escapeHtml(u.emailMasked)}')">Delete</button>
+            </td>
           </tr>`;
         }).join('');
-        el.innerHTML = `<table class="data-table"><thead><tr><th>Email</th><th>Tier</th><th>Admin</th><th>Created</th><th style="text-align:right">Actions</th></tr></thead><tbody>${rows}</tbody></table>`;
-      } catch (err) { el.innerHTML = `<div class="empty-state" style="color:#f87171;">${escapeHtml(err.message)}</div>`; }
+        el.innerHTML = `<div class="table-container"><table class="data-table"><thead><tr><th>Email</th><th>Tier</th><th>Admin</th><th>Created</th><th style="text-align:right">Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+      } catch (err) { el.innerHTML = `<div class="empty-state" style="color:var(--rs-red);">${escapeHtml(err.message)}</div>`; }
+    }
+
+    // ── API Keys ────────────────────────────────────────────────
+    function selectTier(tier) {
+      selectedTier = tier;
+      document.querySelectorAll('.tier-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.tier === tier);
+      });
+    }
+
+    async function createKey() {
+      const name = document.getElementById('keyName').value.trim();
+      const key = document.getElementById('customKeyInput').value.trim();
+      const btn = document.getElementById('createBtn');
+      const status = document.getElementById('createStatus');
+      const newKeyBox = document.getElementById('newKeyBox');
+
+      if (!name) { showToast('Enter a name', 'error'); return; }
+      if (!key) { showToast('Enter a key', 'error'); return; }
+
+      btn.disabled = true; btn.textContent = 'Creating...';
+      status.style.display = 'none'; newKeyBox.style.display = 'none';
+
+      try {
+        const data = await apiCall('POST', '/api/admin/api-keys', { name, key, tier: selectedTier });
+        document.getElementById('newKeyValue').textContent = data.key;
+        newKeyBox.style.display = 'block';
+        showToast(`Key "${data.name}" created (${data.tier})`);
+        document.getElementById('keyName').value = '';
+        document.getElementById('customKeyInput').value = '';
+        fetchKeys();
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Create Key';
+      }
+    }
+
+    function copyNewKey() {
+      navigator.clipboard.writeText(document.getElementById('newKeyValue').textContent);
+      document.getElementById('copyBtn').textContent = '✓ Copied!';
+      setTimeout(() => { document.getElementById('copyBtn').textContent = 'Copy Key'; }, 2000);
+    }
+
+    async function fetchKeys() {
+      const el = document.getElementById('keysTable');
+      try {
+        const data = await apiCall('GET', '/api/admin/api-keys');
+        const keys = data.keys || [];
+        const isSuper = isSuperAdmin();
+
+        if (keys.length === 0) { el.innerHTML = '<div class="empty-state">No keys yet</div>'; return; }
+
+        const rows = keys.map(k => {
+          const isRevoked = k.revoked_at !== null;
+          const date = new Date(k.created_at * 1000).toLocaleDateString();
+          const statusBadge = isRevoked
+            ? `<span class="badge badge--inactive">Revoked</span>`
+            : `<span class="badge badge--active">Active</span>`;
+          const tierBadge = `<select class="form-select" style="padding:4px 8px;font-size:10px;" data-key-id="${k.id}" onchange="changeKeyTier(${k.id}, this.value, '${k.tier}')">
+            <option value="viewer" ${k.tier === 'viewer' ? 'selected' : ''}>viewer</option>
+            <option value="editor" ${k.tier === 'editor' ? 'selected' : ''}>editor</option>
+            <option value="admin" ${k.tier === 'admin' ? 'selected' : ''}>admin</option>
+            ${isSuper ? `<option value="super_admin" ${k.tier === 'super_admin' ? 'selected' : ''}>super_admin</option>` : ''}
+          </select>`;
+          let actions = isRevoked
+            ? `<button class="btn btn--secondary btn-sm" onclick="unrevokeKey(${k.id})">Restore</button> <button class="btn btn--danger btn-sm" onclick="deleteKey(${k.id}, '${escapeHtml(k.name)}')">Delete</button>`
+            : `<button class="btn btn--danger btn-sm" onclick="revokeKey(${k.id})">Revoke</button>`;
+          if (isSuper && !isRevoked) {
+            actions += ` <button class="btn btn--secondary btn-sm" onclick="resetPassword(${k.id}, '${escapeHtml(k.name)}')">Reset PW</button>`;
+          }
+          return `<tr>
+            <td style="font-weight:600;color:var(--text);">${escapeHtml(k.name)}</td>
+            <td><code style="font-family:var(--mono);font-size:10px;background:var(--bg);padding:2px 8px;border:1px solid var(--border);">${escapeHtml(k.key_prefix)}</code></td>
+            <td>${tierBadge}</td>
+            <td style="color:var(--text-faint);font-size:10px;">${date}</td>
+            <td>${statusBadge}</td>
+            <td style="text-align:right;">${actions}</td>
+          </tr>`;
+        }).join('');
+
+        el.innerHTML = `<div class="table-container"><table class="data-table"><thead><tr><th>Name</th><th>Key</th><th>Tier</th><th>Created</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+      } catch (err) {
+        el.innerHTML = `<div class="empty-state" style="color:var(--rs-red);">${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    async function changeKeyTier(id, newTier, currentTier) {
+      if (newTier === currentTier) return;
+      showConfirm('Change Tier', `Set tier to <b>${newTier}</b>?`, 'Confirm', async () => {
+        const select = document.querySelector(`select[data-key-id="${id}"]`);
+        try {
+          await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'change_tier', tier: newTier });
+          showToast(`Tier set to ${newTier}`);
+          fetchKeys();
+        } catch (err) {
+          showToast(err.message, 'error');
+          if (select) select.value = currentTier;
+        }
+      });
+    }
+
+    async function revokeKey(id) {
+      showConfirm('Revoke Key', 'Revoke this key?', 'Revoke', async () => {
+        try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'revoke' }); showToast('Key revoked'); fetchKeys(); } catch (err) { showToast(err.message, 'error'); }
+      });
+    }
+
+    async function unrevokeKey(id) {
+      try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'unrevoke' }); showToast('Key restored'); fetchKeys(); } catch (err) { showToast(err.message, 'error'); }
+    }
+
+    async function deleteKey(id, name) {
+      showConfirm('Delete Key', `Permanently delete <b>${name}</b>?<br><br><span style="color:var(--rs-red);">This cannot be undone.</span>`, 'Delete', async () => {
+        try { await apiCall('DELETE', '/api/admin/api-keys', { id }); showToast('Key deleted'); fetchKeys(); } catch (err) { showToast(err.message, 'error'); }
+      });
+    }
+
+    async function resetPassword(id, name) {
+      showConfirm('Reset Password', `Generate new password for <b>${name}</b>?`, 'Reset', async () => {
+        try {
+          const data = await apiCall('POST', `/api/admin/api-keys/${id}/reset-password`);
+          showResult('Password Reset', `New password for <b>${name}</b>:`, data.newPassword);
+        } catch (err) { showToast(err.message, 'error'); }
+      });
+    }
+
+    // ── Result Modal ────────────────────────────────────────────
+    function showResult(title, bodyHtml, copyText) {
+      const existing = document.getElementById('resultModal');
+      if (existing) existing.remove();
+      const overlay = document.createElement('div');
+      overlay.id = 'resultModal';
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;';
+      overlay.innerHTML = `<div style="background:var(--bg);border:2px solid var(--border-strong);padding:28px;max-width:480px;width:90%;">
+        <h3 style="font-family:var(--mono);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;color:var(--text);">${title}</h3>
+        <div style="color:var(--text-muted);font-size:11px;margin-bottom:16px;">${bodyHtml}</div>
+        ${copyText ? `<div style="background:var(--bg);border:2px solid var(--border-strong);padding:12px;font-family:var(--mono);font-size:11px;word-break:break-all;user-select:all;margin-bottom:16px;color:var(--text);">${escapeHtml(copyText)}</div>` : ''}
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          ${copyText ? `<button id="resultCopyBtn" class="btn btn--primary btn-sm">Copy</button>` : ''}
+          <button id="resultClose" class="btn btn--secondary btn-sm">Close</button>
+        </div>
+      </div>`;
+      document.body.appendChild(overlay);
+      overlay.querySelector('#resultClose').onclick = () => overlay.remove();
+      if (copyText) {
+        overlay.querySelector('#resultCopyBtn').onclick = () => {
+          navigator.clipboard.writeText(copyText);
+          overlay.querySelector('#resultCopyBtn').textContent = '✓ Copied!';
+        };
+      }
+    }
+
+    // ── Audit Logs ──────────────────────────────────────────────
+    async function fetchLogs() {
+      const el = document.getElementById('logsTable');
+      const action = document.getElementById('actionFilter').value;
+      const pagination = document.getElementById('pagination');
+
+      try {
+        let url = `/api/admin/audit-logs?limit=${AUDIT_PAGE_SIZE}&offset=${auditOffset}`;
+        if (action) url += `&action=${encodeURIComponent(action)}`;
+
+        const data = await apiCall('GET', url);
+        const logs = data.logs || [];
+        auditHasMore = logs.length >= AUDIT_PAGE_SIZE;
+
+        if (logs.length === 0 && auditOffset === 0) {
+          el.innerHTML = '<div class="empty-state">No audit logs yet</div>';
+          pagination.style.display = 'none';
+          return;
+        }
+
+        const rows = logs.map(log => {
+          const actionClass = getActionClass(log.action);
+          const meta = log.metadata ? `<span class="meta-json" title="${escapeHtml(JSON.stringify(log.metadata))}">${escapeHtml(JSON.stringify(log.metadata))}</span>` : '—';
+          return `<tr>
+            <td style="white-space:nowrap;color:var(--text-faint);font-size:10px;">${formatTime(log.createdAt)}</td>
+            <td>
+              <div style="font-weight:600;color:var(--text);">${escapeHtml(log.actorName)}</div>
+              <div style="font-size:9px;color:var(--text-faint);">${escapeHtml(log.actorEmailMasked)}</div>
+            </td>
+            <td><span class="badge badge--${log.actorTier === 'super_admin' ? 'alert' : (log.actorTier === 'admin' ? 'active' : 'inactive')}">${log.actorTier || 'viewer'}</span></td>
+            <td><span class="action-badge ${actionClass}">${formatAction(log.action)}</span></td>
+            <td style="font-size:10px;">${escapeHtml(log.targetType)}${log.targetId ? ` #${log.targetId}` : ''}</td>
+            <td>${meta}</td>
+          </tr>`;
+        }).join('');
+
+        el.innerHTML = `<div class="table-container"><table class="data-table">
+          <thead><tr><th>Time</th><th>Actor</th><th>Tier</th><th>Action</th><th>Target</th><th>Details</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table></div>`;
+
+        pagination.style.display = 'flex';
+        document.getElementById('prevBtn').disabled = auditOffset === 0;
+        document.getElementById('nextBtn').disabled = !auditHasMore;
+        document.getElementById('pageInfo').textContent = `Page ${Math.floor(auditOffset / AUDIT_PAGE_SIZE) + 1}`;
+      } catch (err) {
+        el.innerHTML = `<div class="empty-state" style="color:var(--rs-red);">${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    function getActionClass(action) {
+      if (action.includes('LOGIN')) return 'action-login';
+      if (action.includes('LIST')) return 'action-list';
+      if (action.includes('CREATE') || action.includes('GENERATE')) return 'action-create';
+      if (action.includes('UPDATE')) return 'action-update';
+      if (action.includes('DELETE') || action.includes('REVOKE')) return 'action-delete';
+      return 'action-list';
+    }
+
+    function formatAction(action) {
+      return action.replace('ADMIN_', '').replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function formatTime(ts) {
+      if (!ts) return '—';
+      return new Date(ts * 1000).toLocaleString();
+    }
+
+    function prevPage() {
+      if (auditOffset >= AUDIT_PAGE_SIZE) { auditOffset -= AUDIT_PAGE_SIZE; fetchLogs(); }
+    }
+
+    function nextPage() {
+      if (auditHasMore) { auditOffset += AUDIT_PAGE_SIZE; fetchLogs(); }
     }
 
     // ── Toast ───────────────────────────────────────────────────
     function showToast(msg, type = 'success') {
       const existing = document.getElementById('adminToast');
       if (existing) existing.remove();
-      const colors = { success: '#22c55e', error: '#ef4444', info: '#8b5cf6' };
       const toast = document.createElement('div');
       toast.id = 'adminToast';
+      toast.className = type === 'error' ? 'error' : '';
       toast.textContent = msg;
-      toast.style.background = colors[type] || colors.success;
       document.body.appendChild(toast);
       requestAnimationFrame(() => { toast.style.transform = 'translateY(0)'; toast.style.opacity = '1'; });
       setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(20px)'; setTimeout(() => toast.remove(), 300); }, 3000);
@@ -650,11 +1364,11 @@
       const overlay = document.createElement('div');
       overlay.id = 'confirmModal';
       overlay.innerHTML = `<div>
-        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px;color:#e4e4e7;">${title}</h3>
-        <div style="color:#a1a1aa;font-size:13px;margin-bottom:20px;">${bodyHtml}</div>
+        <h3 style="font-family:var(--mono);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;color:var(--text);">${title}</h3>
+        <div style="color:var(--text-muted);font-size:11px;margin-bottom:20px;">${bodyHtml}</div>
         <div style="display:flex;gap:10px;justify-content:flex-end;">
-          <button id="confirmCancel" style="padding:8px 16px;background:#27272a;border:1px solid #3f3f46;border-radius:8px;color:#a1a1aa;font-weight:600;cursor:pointer;font-size:13px;">Cancel</button>
-          <button id="confirmOk" style="padding:8px 16px;background:#8b5cf6;border:none;border-radius:8px;color:white;font-weight:600;cursor:pointer;font-size:13px;">${confirmLabel}</button>
+          <button id="confirmCancel" class="btn btn--secondary btn-sm">Cancel</button>
+          <button id="confirmOk" class="btn btn--primary btn-sm">${confirmLabel}</button>
         </div>
       </div>`;
       document.body.appendChild(overlay);
@@ -699,14 +1413,14 @@
       showConfirm('Revoke Licenses', 'Revoke all active licenses for this user?', 'Revoke All', async () => {
         try {
           const data = await apiCall('POST', `/api/admin/users/${userId}/revoke-licenses`);
-          showToast(data.revoked > 0 ? `Revoked ${data.revoked} license(s)` : 'No active licenses', data.revoked > 0 ? 'success' : 'info');
+          showToast(data.revoked > 0 ? `Revoked ${data.revoked} license(s)` : 'No active licenses');
           fetchUsers();
         } catch (err) { showToast(err.message, 'error'); }
       });
     }
 
     async function deleteUser(id, email) {
-      showConfirm('Delete User', `Delete <b>${email}</b>?<br><br><span style="color:#f87171;">This cannot be undone.</span>`, 'Delete', async () => {
+      showConfirm('Delete User', `Delete <b>${email}</b>?<br><br><span style="color:var(--rs-red);">This cannot be undone.</span>`, 'Delete', async () => {
         try {
           const data = await apiCall('DELETE', `/api/admin/users/${id}`);
           showToast(`Deleted ${data.deleted}`);
@@ -735,11 +1449,11 @@
         document.getElementById('genKey').textContent = data.key;
         output.style.display = 'block';
         status.textContent = `License generated for ${email} (${tier})`;
-        status.className = 'status-msg success'; status.style.display = '';
+        status.className = 'status-msg success';
         document.getElementById('genEmail').value = '';
       } catch (err) {
         status.textContent = err.message;
-        status.className = 'status-msg error'; status.style.display = '';
+        status.className = 'status-msg error';
       } finally { btn.disabled = false; btn.textContent = 'Generate'; }
     }
 
