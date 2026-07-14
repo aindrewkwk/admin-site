@@ -378,9 +378,13 @@
       status.style.display = 'none';
 
       try {
-        await RStudioAuth.login(apiKey, password);
+        const data = await RStudioAuth.adminLogin(apiKey, password);
+        RStudioAuth.setApiKey(apiKey);
+        RStudioAuth.setSessionInfo({ keyName: data.keyName, tier: data.tier });
+        RStudioAuth.resetAttempts();
         window.location.href = '/';
       } catch (err) {
+        RStudioAuth.recordAttempt(true);
         status.textContent = err.message || 'Authentication failed';
         status.className = 'status-msg error';
       } finally {
