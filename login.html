@@ -306,6 +306,10 @@
   <div class="site-noise" aria-hidden="true"></div>
   <div class="scanline" aria-hidden="true"></div>
 
+  <button class="theme-toggle" id="lang-toggle" onclick="toggleLang()" aria-label="Toggle language" style="top:20px;right:60px;">
+    <span id="langLabel" style="font-family:var(--mono);font-size:10px;font-weight:700;">VI</span>
+  </button>
+
   <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
     <svg class="icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
     <svg class="icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -313,36 +317,37 @@
 
   <div class="login-card">
     <div class="login-header">
-      <span class="login-title">Secure System Portal</span>
+      <span class="login-title" data-vi="Cổng Hệ Thống Bảo Mật">Secure System Portal</span>
       <div class="chrome-dots"><span></span><span></span><span></span></div>
     </div>
     <div class="login-body">
-      <h1 class="login-headline">admin login</h1>
-      <p class="login-sub">Enter your API key and password to access the admin panel.</p>
+      <h1 class="login-headline" data-vi="đăng nhập quản trị">admin login</h1>
+      <p class="login-sub" data-vi="Nhập khóa API và mật khẩu để truy cập bảng quản trị.">Enter your API key and password to access the admin panel.</p>
 
       <form id="loginForm" onsubmit="doLogin(); return false;">
         <div class="form-group">
-          <label class="form-label" for="apiKeyInput">API Key</label>
+          <label class="form-label" for="apiKeyInput" data-vi="Khóa API">API Key</label>
           <input type="text" id="apiKeyInput" class="form-input" placeholder="lbby_ak_..." autocomplete="off" spellcheck="false">
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="passwordInput">Password</label>
+          <label class="form-label" for="passwordInput" data-vi="Mật khẩu">Password</label>
           <input type="password" id="passwordInput" class="form-input" placeholder="••••••••" autocomplete="off" spellcheck="false">
         </div>
 
         <label class="checkbox-container">
           <input type="checkbox" id="rememberMe">
-          <span class="checkbox-label">Remember this device</span>
+          <span class="checkbox-label" data-vi="Ghi nhớ thiết bị này">Remember this device</span>
         </label>
 
-        <button type="submit" class="btn btn--primary" id="loginBtn">Authenticate</button>
+        <button type="submit" class="btn btn--primary" id="loginBtn" data-vi="Xác thực">Authenticate</button>
       </form>
 
       <div id="loginStatus" class="status-msg"></div>
     </div>
   </div>
 
+  <script src="/lang.js"></script>
   <script src="/auth.js?v=2"></script>
   <script>
     // ── Theme Toggle ────────────────────────────────────────────

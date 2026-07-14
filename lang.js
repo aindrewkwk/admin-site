@@ -25,6 +25,16 @@
       }
     });
 
+    // Handle placeholders
+    document.querySelectorAll('[data-vi-placeholder]').forEach(el => {
+      if (lang === 'vi') {
+        el.placeholder = el.getAttribute('data-vi-placeholder');
+      } else {
+        const en = el.getAttribute('data-en-placeholder');
+        if (en) el.placeholder = en;
+      }
+    });
+
     // Update toggle button label
     const label = document.getElementById('langLabel');
     if (label) label.textContent = lang === 'vi' ? 'EN' : 'VI';
@@ -38,6 +48,11 @@
     document.querySelectorAll('[data-vi]').forEach(el => {
       if (!el.getAttribute('data-en')) {
         el.setAttribute('data-en', el.textContent);
+      }
+    });
+    document.querySelectorAll('[data-vi-placeholder]').forEach(el => {
+      if (!el.getAttribute('data-en-placeholder')) {
+        el.setAttribute('data-en-placeholder', el.placeholder);
       }
     });
     applyLang(getLang());

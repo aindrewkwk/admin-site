@@ -725,21 +725,21 @@
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
-        <div class="sidebar-label">Control Panel</div>
+        <div class="sidebar-label" data-vi="Bảng Điều Khiển">Control Panel</div>
         <div class="sidebar-brand">lbby admin</div>
       </div>
       <nav class="sidebar-nav" role="tablist" aria-label="Administration Views">
         <button class="sidebar-btn" role="tab" aria-selected="true" aria-controls="view-users" id="tab-users">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-          Users
+          <span data-vi="Người Dùng">Users</span>
         </button>
         <button class="sidebar-btn" role="tab" aria-selected="false" aria-controls="view-apikeys" id="tab-apikeys" tabindex="-1">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-          API Keys
+          <span data-vi="Khóa API">API Keys</span>
         </button>
         <button class="sidebar-btn" role="tab" aria-selected="false" aria-controls="view-audit" id="tab-audit" tabindex="-1">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Audit Logs
+          <span data-vi="Nhật Ký Kiểm Toán">Audit Logs</span>
         </button>
       </nav>
       <div class="sidebar-footer">
@@ -749,6 +749,9 @@
           <svg class="icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
           <svg class="icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
+          <button class="theme-toggle" id="lang-toggle" onclick="toggleLang()" aria-label="Toggle language">
+            <span id="langLabel" style="font-family:var(--mono);font-size:9px;font-weight:700;">VI</span>
+          </button>
           <button class="theme-toggle" onclick="RStudioAuth.logout()" aria-label="Logout" style="border-color:var(--rs-red);color:var(--rs-red);">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           </button>
@@ -766,7 +769,7 @@
           <span class="topbar-title">users</span>
         </div>
         <div style="display:flex;gap:8px;">
-          <button class="btn btn--secondary btn-sm" onclick="fetchStats()">↻ Refresh</button>
+          <button class="btn btn--secondary btn-sm" onclick="fetchStats()" data-vi="↻ Tải lại">↻ Refresh</button>
           <a href="https://lbby.net" class="btn btn--secondary btn-sm" target="_blank">Lbby ↗</a>
         </div>
       </header>
@@ -777,7 +780,7 @@
           <!-- Stats -->
           <div class="stats-grid">
             <div class="stat-card">
-              <div class="stat-label">Total Users</div>
+              <div class="stat-label" data-vi="Tổng Người Dùng">Total Users</div>
               <div class="stat-value" id="totalUsers">—</div>
             </div>
             <div class="stat-card">
@@ -797,26 +800,26 @@
           <!-- User Search -->
           <div class="card">
             <div class="card-header">
-              <span class="card-title">Registered Users</span>
+              <span class="card-title" data-vi="Người Dùng Đã Đăng Ký">Registered Users</span>
               <div style="display:flex;gap:8px;align-items:center;">
-                <input type="text" class="form-input" id="userSearch" placeholder="Search email or ID..." oninput="debounceSearch()" style="width:200px;padding:6px 10px;">
+                <input type="text" class="form-input" id="userSearch" placeholder="Search email or ID..." data-vi-placeholder="Tìm email hoặc ID..." oninput="debounceSearch()" style="width:200px;padding:6px 10px;">
               </div>
             </div>
             <div id="usersTable">
-              <div class="empty-state">Enter an email or ID to search</div>
+              <div class="empty-state" data-vi="Nhập email hoặc ID để tìm kiếm">Enter an email or ID to search</div>
             </div>
           </div>
 
           <!-- Generate License -->
           <div class="card">
             <div class="card-header">
-              <span class="card-title">Generate License</span>
+              <span class="card-title" data-vi="Tạo Giấy Phép">Generate License</span>
               <div class="chrome-dots"><span></span><span></span><span></span></div>
             </div>
             <div class="card-body">
               <div class="form-grid">
                 <div>
-                  <div class="form-label">User Email</div>
+                  <div class="form-label" data-vi="Email Người Dùng">User Email</div>
                   <input type="email" id="genEmail" class="form-input" placeholder="user@example.com" style="width:100%;">
                 </div>
                 <div>
@@ -827,24 +830,24 @@
                   </select>
                 </div>
                 <div>
-                  <div class="form-label">Billing Cycle</div>
+                  <div class="form-label" data-vi="Chu Kỳ Thanh Toán">Billing Cycle</div>
                   <select id="genCycle" class="form-select" style="width:100%;">
-                    <option value="monthly">Monthly (30 days)</option>
-                    <option value="yearly">Yearly (365 days)</option>
-                    <option value="lifetime">Lifetime (10 years)</option>
+                    <option value="monthly" data-vi="Hàng tháng (30 ngày)">Monthly (30 days)</option>
+                    <option value="yearly" data-vi="Hàng năm (365 ngày)">Yearly (365 days)</option>
+                    <option value="lifetime" data-vi="Trọn đời (10 năm)">Lifetime (10 years)</option>
                   </select>
                 </div>
                 <div>
                   <div class="form-label">&nbsp;</div>
-                  <button class="btn btn--primary" onclick="generateLicense()" id="genBtn">Generate</button>
+                  <button class="btn btn--primary" onclick="generateLicense()" id="genBtn" data-vi="Tạo">Generate</button>
                 </div>
               </div>
               <div id="genStatus" class="status-msg"></div>
               <div id="genOutput" style="display:none;">
                 <div class="output-area" id="genKey"></div>
                 <div style="display:flex;gap:8px;margin-top:8px;">
-                  <button class="btn btn--secondary btn-sm" onclick="navigator.clipboard.writeText(lastGeneratedKey)">Copy Key</button>
-                  <button class="btn btn--secondary btn-sm" onclick="copyActivationMsg()">Copy Message</button>
+                  <button class="btn btn--secondary btn-sm" onclick="navigator.clipboard.writeText(lastGeneratedKey)" data-vi="Sao Chép Khóa">Copy Key</button>
+                  <button class="btn btn--secondary btn-sm" onclick="copyActivationMsg()" data-vi="Sao Chép Tin Nhắn">Copy Message</button>
                 </div>
               </div>
             </div>
@@ -856,13 +859,13 @@
           <!-- Create Key -->
           <div class="card">
             <div class="card-header">
-              <span class="card-title">Create New Key</span>
+              <span class="card-title" data-vi="Tạo Khóa Mới">Create New Key</span>
               <div class="chrome-dots"><span></span><span></span><span></span></div>
             </div>
             <div class="card-body">
               <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:16px;align-items:end;">
                 <div>
-                  <div class="form-label">Name</div>
+                  <div class="form-label" data-vi="Tên">Name</div>
                   <input type="text" id="keyName" class="form-input" placeholder="e.g. Tien Anh, Hung, Phuc" maxlength="64" style="width:100%;">
                 </div>
                 <div>
@@ -871,38 +874,38 @@
                 </div>
                 <div>
                   <div class="form-label">&nbsp;</div>
-                  <button class="btn btn--primary" onclick="createKey()" id="createBtn">Create Key</button>
+                  <button class="btn btn--primary" onclick="createKey()" id="createBtn" data-vi="Tạo Khóa">Create Key</button>
                 </div>
               </div>
-              <p style="font-family:var(--mono);font-size:9px;color:var(--text-faint);margin-top:8px;text-transform:uppercase;letter-spacing:0.1em;">Min 8 characters. Auto-prefixed with lbby_ak_ if missing.</p>
+              <p style="font-family:var(--mono);font-size:9px;color:var(--text-faint);margin-top:8px;text-transform:uppercase;letter-spacing:0.1em;" data-vi="Tối thiểu 8 ký tự. Tự động thêm tiền tố lbby_ak_ nếu thiếu.">Min 8 characters. Auto-prefixed with lbby_ak_ if missing.</p>
 
               <div style="margin-top:20px;">
-                <div class="form-label" style="margin-bottom:8px;">Permission Tier</div>
+                <div class="form-label" style="margin-bottom:8px;" data-vi="Cấp Độ Quyền">Permission Tier</div>
                 <div class="tier-grid">
                   <div class="tier-option selected" data-tier="viewer" onclick="selectTier('viewer')">
                     <div class="tier-name">👁 Viewer</div>
-                    <div class="tier-desc">Read-only</div>
+                    <div class="tier-desc" data-vi="Chỉ đọc">Read-only</div>
                   </div>
                   <div class="tier-option" data-tier="editor" onclick="selectTier('editor')">
                     <div class="tier-name">✏ Editor</div>
-                    <div class="tier-desc">Generate licenses</div>
+                    <div class="tier-desc" data-vi="Tạo giấy phép">Generate licenses</div>
                   </div>
                   <div class="tier-option" data-tier="admin" onclick="selectTier('admin')">
                     <div class="tier-name">🛡 Admin</div>
-                    <div class="tier-desc">Manage users</div>
+                    <div class="tier-desc" data-vi="Quản lý người dùng">Manage users</div>
                   </div>
                   <div class="tier-option" data-tier="super_admin" id="superAdminTier" onclick="selectTier('super_admin')" style="display:none;">
                     <div class="tier-name">👑 Super</div>
-                    <div class="tier-desc">Full access</div>
+                    <div class="tier-desc" data-vi="Toàn quyền">Full access</div>
                   </div>
                 </div>
               </div>
 
               <div id="createStatus" class="status-msg"></div>
               <div id="newKeyBox" class="new-key-box">
-                <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text);margin-bottom:8px;">KEY CREATED — SEND TO TEAM MEMBER</div>
+                <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text);margin-bottom:8px;" data-vi="KHÓA ĐÃ TẠO — GỬI CHO THÀNH VIÊN NHÓM">KEY CREATED — SEND TO TEAM MEMBER</div>
                 <div class="key-value" id="newKeyValue"></div>
-                <button class="btn btn--secondary btn-sm" onclick="copyNewKey()" id="copyBtn">Copy Key</button>
+                <button class="btn btn--secondary btn-sm" onclick="copyNewKey()" id="copyBtn" data-vi="Sao Chép Khóa">Copy Key</button>
               </div>
             </div>
           </div>
@@ -910,13 +913,13 @@
           <!-- Permission Details -->
           <div class="card">
             <div class="card-header">
-              <span class="card-title">Permission Details</span>
+              <span class="card-title" data-vi="Chi Tiết Quyền">Permission Details</span>
             </div>
             <div style="padding:0;">
               <table class="perm-table">
                 <thead>
                   <tr>
-                    <th>Feature</th>
+                    <th data-vi="Tính Năng">Feature</th>
                     <th>👁 Viewer</th>
                     <th>✏ Editor</th>
                     <th>🛡 Admin</th>
@@ -924,15 +927,15 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr><td>List users</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
-                  <tr><td>List licenses</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
-                  <tr><td>Generate license</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
-                  <tr><td>Revoke license</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
-                  <tr><td>Update users</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
-                  <tr><td>Delete users</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
-                  <tr><td>Manage API keys</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
-                  <tr><td>Reset passwords</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
-                  <tr><td>Delete API keys</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                  <tr><td data-vi="Xem người dùng">List users</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                  <tr><td data-vi="Xem giấy phép">List licenses</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                  <tr><td data-vi="Tạo giấy phép">Generate license</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                  <tr><td data-vi="Thu hồi giấy phép">Revoke license</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                  <tr><td data-vi="Cập nhật người dùng">Update users</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                  <tr><td data-vi="Xóa người dùng">Delete users</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+                  <tr><td data-vi="Quản lý khóa API">Manage API keys</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+                  <tr><td data-vi="Đặt lại mật khẩu">Reset passwords</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                  <tr><td data-vi="Xóa khóa API">Delete API keys</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
                 </tbody>
               </table>
             </div>
@@ -941,11 +944,11 @@
           <!-- Active Keys -->
           <div class="card">
             <div class="card-header">
-              <span class="card-title">Active Keys</span>
-              <button class="btn btn--secondary btn-sm" onclick="fetchKeys()">↻ Refresh</button>
+              <span class="card-title" data-vi="Khóa Đang Hoạt Động">Active Keys</span>
+              <button class="btn btn--secondary btn-sm" onclick="fetchKeys()" data-vi="↻ Tải lại">↻ Refresh</button>
             </div>
             <div id="keysTable">
-              <div class="empty-state">Loading...</div>
+              <div class="empty-state" data-vi="Đang tải...">Loading...</div>
             </div>
           </div>
         </section>
@@ -955,34 +958,34 @@
           <!-- Filters -->
           <div class="card">
             <div class="card-header">
-              <span class="card-title">Activity Log</span>
+              <span class="card-title" data-vi="Nhật Ký Hoạt Động">Activity Log</span>
               <div class="filter-bar">
                 <select class="filter-select" id="actionFilter" onchange="auditOffset=0;fetchLogs()">
-                  <option value="">All Actions</option>
-                  <option value="ADMIN_LOGIN">Login</option>
-                  <option value="ADMIN_LIST_USERS">List Users</option>
-                  <option value="ADMIN_LIST_LICENSES">List Licenses</option>
-                  <option value="ADMIN_GENERATE_LICENSE">Generate License</option>
-                  <option value="ADMIN_REVOKE_LICENSE">Revoke License</option>
-                  <option value="ADMIN_UPDATE_USER">Update User</option>
-                  <option value="ADMIN_DELETE_USER">Delete User</option>
-                  <option value="ADMIN_LIST_API_KEYS">List API Keys</option>
-                  <option value="ADMIN_CREATE_API_KEY">Create API Key</option>
-                  <option value="ADMIN_UPDATE_API_KEY">Update API Key</option>
-                  <option value="ADMIN_REVOKE_API_KEY">Revoke API Key</option>
+                  <option value="" data-vi="Tất Cả Hành Động">All Actions</option>
+                  <option value="ADMIN_LOGIN" data-vi="Đăng Nhập">Login</option>
+                  <option value="ADMIN_LIST_USERS" data-vi="Xem Người Dùng">List Users</option>
+                  <option value="ADMIN_LIST_LICENSES" data-vi="Xem Giấy Phép">List Licenses</option>
+                  <option value="ADMIN_GENERATE_LICENSE" data-vi="Tạo Giấy Phép">Generate License</option>
+                  <option value="ADMIN_REVOKE_LICENSE" data-vi="Thu Hồi Giấy Phép">Revoke License</option>
+                  <option value="ADMIN_UPDATE_USER" data-vi="Cập Nhật Người Dùng">Update User</option>
+                  <option value="ADMIN_DELETE_USER" data-vi="Xóa Người Dùng">Delete User</option>
+                  <option value="ADMIN_LIST_API_KEYS" data-vi="Xem Khóa API">List API Keys</option>
+                  <option value="ADMIN_CREATE_API_KEY" data-vi="Tạo Khóa API">Create API Key</option>
+                  <option value="ADMIN_UPDATE_API_KEY" data-vi="Cập Nhật Khóa API">Update API Key</option>
+                  <option value="ADMIN_REVOKE_API_KEY" data-vi="Thu Hồi Khóa API">Revoke API Key</option>
                 </select>
               </div>
             </div>
             <div id="logsTable">
-              <div class="empty-state">Loading...</div>
+              <div class="empty-state" data-vi="Đang tải...">Loading...</div>
             </div>
           </div>
 
           <!-- Pagination -->
           <div class="pagination" id="pagination" style="display:none;">
-            <button id="prevBtn" onclick="prevPage()" disabled>← Previous</button>
+            <button id="prevBtn" onclick="prevPage()" disabled data-vi="← Trước">← Previous</button>
             <span class="page-info" id="pageInfo">Page 1</span>
-            <button id="nextBtn" onclick="nextPage()">Next →</button>
+            <button id="nextBtn" onclick="nextPage()" data-vi="Sau →">Next →</button>
           </div>
         </section>
       </div>
@@ -1001,10 +1004,12 @@
     let auditHasMore = true;
 
     const TAB_TITLES = {
-      'tab-users': 'Users',
-      'tab-apikeys': 'API Keys',
-      'tab-audit': 'Audit Logs',
+      'tab-users': { en: 'Users', vi: 'Người Dùng' },
+      'tab-apikeys': { en: 'API Keys', vi: 'Khóa API' },
+      'tab-audit': { en: 'Audit Logs', vi: 'Nhật Ký Kiểm Toán' },
     };
+
+    function t(en, vi) { return isVi() ? vi : en; }
 
     // ── Theme Toggle ────────────────────────────────────────────
     (function() {
@@ -1034,7 +1039,8 @@
         panel.hidden = panel.id !== selectedTab.getAttribute('aria-controls');
       });
       // Update topbar title
-      document.querySelector('.topbar-title').textContent = TAB_TITLES[selectedTab.id] || 'Admin';
+      const titles = TAB_TITLES[selectedTab.id];
+      document.querySelector('.topbar-title').textContent = titles ? (isVi() ? titles.vi : titles.en) : 'Admin';
       // Lazy-load data for tabs
       if (selectedTab.id === 'tab-apikeys') fetchKeys();
       if (selectedTab.id === 'tab-audit') fetchLogs();
@@ -1089,11 +1095,11 @@
     async function fetchUsers() {
       const el = document.getElementById('usersTable');
       const query = document.getElementById('userSearch').value.trim();
-      if (!query) { el.innerHTML = '<div class="empty-state">Enter an email or ID to search</div>'; return; }
+      if (!query) { el.innerHTML = `<div class="empty-state">${t('Enter an email or ID to search', 'Nhập email hoặc ID để tìm kiếm')}</div>`; return; }
       try {
         const data = await apiCall('GET', `/api/admin/users?search=${encodeURIComponent(query)}`);
         const users = data.users || [];
-        if (users.length === 0) { el.innerHTML = '<div class="empty-state">No users found</div>'; return; }
+        if (users.length === 0) { el.innerHTML = `<div class="empty-state">${t('No users found', 'Không tìm thấy người dùng')}</div>`; return; }
         const rows = users.map(u => {
           const date = new Date(u.createdAt * 1000).toLocaleDateString();
           const tier = u.tier || 'free';
@@ -1113,7 +1119,7 @@
             </td>
           </tr>`;
         }).join('');
-        el.innerHTML = `<div class="table-container"><table class="data-table"><thead><tr><th>Email</th><th>Tier</th><th>Admin</th><th>Created</th><th style="text-align:right">Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+        el.innerHTML = `<div class="table-container"><table class="data-table"><thead><tr><th>Email</th><th>${t('Tier', 'Cấp')}</th><th>Admin</th><th>${t('Created', 'Ngày tạo')}</th><th style="text-align:right">${t('Actions', 'Thao tác')}</th></tr></thead><tbody>${rows}</tbody></table></div>`;
       } catch (err) { el.innerHTML = `<div class="empty-state" style="color:var(--rs-red);">${escapeHtml(err.message)}</div>`; }
     }
 
@@ -1166,7 +1172,7 @@
         const keys = data.keys || [];
         const isSuper = isSuperAdmin();
 
-        if (keys.length === 0) { el.innerHTML = '<div class="empty-state">No keys yet</div>'; return; }
+        if (keys.length === 0) { el.innerHTML = `<div class="empty-state">${t('No keys yet', 'Chưa có khóa nào')}</div>`; return; }
 
         const rows = keys.map(k => {
           const isRevoked = k.revoked_at !== null;
@@ -1196,7 +1202,7 @@
           </tr>`;
         }).join('');
 
-        el.innerHTML = `<div class="table-container"><table class="data-table"><thead><tr><th>Name</th><th>Key</th><th>Tier</th><th>Created</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+        el.innerHTML = `<div class="table-container"><table class="data-table"><thead><tr><th>${t('Name', 'Tên')}</th><th>${t('Key', 'Khóa')}</th><th>${t('Tier', 'Cấp')}</th><th>${t('Created', 'Ngày tạo')}</th><th>${t('Status', 'Trạng thái')}</th><th style="text-align:right">${t('Actions', 'Thao tác')}</th></tr></thead><tbody>${rows}</tbody></table></div>`;
       } catch (err) {
         el.innerHTML = `<div class="empty-state" style="color:var(--rs-red);">${escapeHtml(err.message)}</div>`;
       }
@@ -1254,8 +1260,8 @@
         <div style="color:var(--text-muted);font-size:11px;margin-bottom:16px;">${bodyHtml}</div>
         ${copyText ? `<div style="background:var(--bg);border:2px solid var(--border-strong);padding:12px;font-family:var(--mono);font-size:11px;word-break:break-all;user-select:all;margin-bottom:16px;color:var(--text);">${escapeHtml(copyText)}</div>` : ''}
         <div style="display:flex;gap:10px;justify-content:flex-end;">
-          ${copyText ? `<button id="resultCopyBtn" class="btn btn--primary btn-sm">Copy</button>` : ''}
-          <button id="resultClose" class="btn btn--secondary btn-sm">Close</button>
+          ${copyText ? `<button id="resultCopyBtn" class="btn btn--primary btn-sm">${t('Copy', 'Sao chép')}</button>` : ''}
+          <button id="resultClose" class="btn btn--secondary btn-sm">${t('Close', 'Đóng')}</button>
         </div>
       </div>`;
       document.body.appendChild(overlay);
@@ -1283,7 +1289,7 @@
         auditHasMore = logs.length >= AUDIT_PAGE_SIZE;
 
         if (logs.length === 0 && auditOffset === 0) {
-          el.innerHTML = '<div class="empty-state">No audit logs yet</div>';
+          el.innerHTML = `<div class="empty-state">${t('No audit logs yet', 'Chưa có nhật ký nào')}</div>`;
           pagination.style.display = 'none';
           return;
         }
@@ -1305,14 +1311,14 @@
         }).join('');
 
         el.innerHTML = `<div class="table-container"><table class="data-table">
-          <thead><tr><th>Time</th><th>Actor</th><th>Tier</th><th>Action</th><th>Target</th><th>Details</th></tr></thead>
+          <thead><tr><th>${t('Time', 'Thời gian')}</th><th>${t('Actor', 'Người thực hiện')}</th><th>${t('Tier', 'Cấp')}</th><th>${t('Action', 'Hành động')}</th><th>${t('Target', 'Đối tượng')}</th><th>${t('Details', 'Chi tiết')}</th></tr></thead>
           <tbody>${rows}</tbody>
         </table></div>`;
 
         pagination.style.display = 'flex';
         document.getElementById('prevBtn').disabled = auditOffset === 0;
         document.getElementById('nextBtn').disabled = !auditHasMore;
-        document.getElementById('pageInfo').textContent = `Page ${Math.floor(auditOffset / AUDIT_PAGE_SIZE) + 1}`;
+        document.getElementById('pageInfo').textContent = `${t('Page', 'Trang')} ${Math.floor(auditOffset / AUDIT_PAGE_SIZE) + 1}`;
       } catch (err) {
         el.innerHTML = `<div class="empty-state" style="color:var(--rs-red);">${escapeHtml(err.message)}</div>`;
       }
@@ -1367,7 +1373,7 @@
         <h3 style="font-family:var(--mono);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;color:var(--text);">${title}</h3>
         <div style="color:var(--text-muted);font-size:11px;margin-bottom:20px;">${bodyHtml}</div>
         <div style="display:flex;gap:10px;justify-content:flex-end;">
-          <button id="confirmCancel" class="btn btn--secondary btn-sm">Cancel</button>
+          <button id="confirmCancel" class="btn btn--secondary btn-sm">${t('Cancel', 'Hủy')}</button>
           <button id="confirmOk" class="btn btn--primary btn-sm">${confirmLabel}</button>
         </div>
       </div>`;
