@@ -418,6 +418,20 @@
       .content { padding: 16px; }
       .topbar { padding: 0 16px; }
     }
+    .lang-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      background: transparent;
+      color: #a1a1aa;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .lang-toggle:hover { border-color: #3f3f46; color: #e4e4e7; }
   </style>
 </head>
 <body>
@@ -430,32 +444,32 @@
         <small>Admin</small>
       </div>
       <nav class="sidebar-nav">
-        <div class="sidebar-section">Management</div>
+        <div class="sidebar-section" data-vi="Quản lý">Management</div>
         <a href="/" class="sidebar-link">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          Users
+          <span data-vi="Người Dùng">Users</span>
         </a>
         <a href="/api-keys" class="sidebar-link active">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-          API Keys
+          <span data-vi="Khóa API">API Keys</span>
         </a>
         <a href="/audit-logs" class="sidebar-link">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          Audit Logs
+          <span data-vi="Nhật Ký Kiểm Toán">Audit Logs</span>
         </a>
-        <div class="sidebar-section">External</div>
+        <div class="sidebar-section" data-vi="Liên kết">External</div>
         <a href="https://lbby.net" class="sidebar-link" target="_blank">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          Lbby Dashboard
+          <span data-vi="Bảng Điều Khiển Lbby">Lbby Dashboard</span>
         </a>
       </nav>
       <div class="sidebar-footer">
         <div class="avatar" id="userAvatar">?</div>
         <div class="user-info">
-          <div class="user-name" id="userName">Loading...</div>
+          <div class="user-name" id="userName" data-vi="Đang tải...">Loading...</div>
           <div class="user-role" id="userRole">—</div>
         </div>
-        <button class="logout-btn" onclick="RStudioAuth.logout()">Logout</button>
+        <button class="logout-btn" onclick="RStudioAuth.logout()" data-vi="Đăng xuất">Logout</button>
       </div>
     </aside>
 
@@ -466,10 +480,13 @@
           <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
-          <span class="topbar-title">API Keys</span>
+          <span class="topbar-title" data-vi="Khóa API">API Keys</span>
         </div>
         <div class="topbar-actions">
-          <button class="topbar-btn" onclick="fetchKeys()">↻ Refresh</button>
+          <button class="lang-toggle" id="lang-toggle" onclick="toggleLang()" aria-label="Toggle language">
+            <span id="langLabel" style="font-family:'SF Mono','Fira Code',monospace;font-size:9px;font-weight:700;">VI</span>
+          </button>
+          <button class="topbar-btn" onclick="fetchKeys()" data-vi="↻ Làm mới">↻ Refresh</button>
         </div>
       </header>
 
@@ -477,52 +494,52 @@
         <!-- Create Key -->
         <div class="section-card">
           <div class="section-header">
-            <span class="section-title">Create New Key</span>
+            <span class="section-title" data-vi="Tạo Khóa Mới">Create New Key</span>
           </div>
           <div class="section-body">
             <div class="form-grid">
               <div class="form-group">
-                <label class="form-label">Name</label>
+                <label class="form-label" data-vi="Tên">Name</label>
                 <input type="text" id="keyName" class="form-input" placeholder="e.g. Tien Anh, Hung, Phuc" maxlength="64">
               </div>
               <div class="form-group">
-                <label class="form-label">API Key</label>
+                <label class="form-label" data-vi="Khóa API">API Key</label>
                 <input type="text" id="customKeyInput" class="form-input" placeholder="e.g. aindrew, hung1234" maxlength="120" onkeydown="if(event.key==='Enter')createKey()">
               </div>
               <div class="form-group">
                 <label class="form-label">&nbsp;</label>
-                <button class="btn btn-primary" onclick="createKey()" id="createBtn">Create Key</button>
+                <button class="btn btn-primary" onclick="createKey()" id="createBtn" data-vi="Tạo Khóa">Create Key</button>
               </div>
             </div>
-            <p style="font-size:11px;color:#52525b;margin-top:8px;">Min 8 characters. Auto-prefixed with lbby_ak_ if missing.</p>
+            <p style="font-size:11px;color:#52525b;margin-top:8px;" data-vi="Tối thiểu 8 ký tự. Tự động thêm tiền tố lbby_ak_ nếu thiếu.">Min 8 characters. Auto-prefixed with lbby_ak_ if missing.</p>
 
             <div style="margin-top:20px;">
-              <label class="form-label" style="margin-bottom:8px;">Permission Tier</label>
+              <label class="form-label" style="margin-bottom:8px;" data-vi="Cấp Quyền">Permission Tier</label>
               <div class="tier-grid">
                 <div class="tier-option selected" data-tier="viewer" onclick="selectTier('viewer')">
-                  <div class="tier-name">👁️ Viewer</div>
-                  <div class="tier-desc">Read-only</div>
+                  <div class="tier-name" data-vi="👁️ Xem">👁️ Viewer</div>
+                  <div class="tier-desc" data-vi="Chỉ đọc">Read-only</div>
                 </div>
                 <div class="tier-option" data-tier="editor" onclick="selectTier('editor')">
-                  <div class="tier-name">✏️ Editor</div>
-                  <div class="tier-desc">Generate licenses</div>
+                  <div class="tier-name" data-vi="✏️ Chỉnh sửa">✏️ Editor</div>
+                  <div class="tier-desc" data-vi="Tạo giấy phép">Generate licenses</div>
                 </div>
                 <div class="tier-option" data-tier="admin" onclick="selectTier('admin')">
-                  <div class="tier-name">🛡️ Admin</div>
-                  <div class="tier-desc">Manage users</div>
+                  <div class="tier-name" data-vi="🛡️ Quản trị viên">🛡️ Admin</div>
+                  <div class="tier-desc" data-vi="Quản lý người dùng">Manage users</div>
                 </div>
                 <div class="tier-option" data-tier="super_admin" id="superAdminTier" onclick="selectTier('super_admin')" style="display:none;">
-                  <div class="tier-name">👑 Super</div>
-                  <div class="tier-desc">Full access</div>
+                  <div class="tier-name" data-vi="👑 Siêu quản trị">👑 Super</div>
+                  <div class="tier-desc" data-vi="Truy cập đầy đủ">Full access</div>
                 </div>
               </div>
             </div>
 
             <div id="createStatus" class="status-msg"></div>
             <div id="newKeyBox" class="new-key-box">
-              <div style="color:#4ade80;font-weight:700;font-size:13px;margin-bottom:8px;">✅ Key created! Send it to the team member.</div>
+              <div style="color:#4ade80;font-weight:700;font-size:13px;margin-bottom:8px;" data-vi="✅ Đã tạo khóa! Gửi cho thành viên đối.">✅ Key created! Send it to the team member.</div>
               <div class="key-value" id="newKeyValue"></div>
-              <button class="btn btn-sm" onclick="copyNewKey()" id="copyBtn">Copy Key</button>
+              <button class="btn btn-sm" onclick="copyNewKey()" id="copyBtn" data-vi="Sao chép khóa">Copy Key</button>
             </div>
           </div>
         </div>
@@ -530,29 +547,29 @@
         <!-- Permission Details -->
         <div class="section-card">
           <div class="section-header">
-            <span class="section-title">Permission Details</span>
+            <span class="section-title" data-vi="Chi Tiết Quyền">Permission Details</span>
           </div>
           <div class="section-body" style="padding:0;">
             <table class="perm-table">
               <thead>
                 <tr>
-                  <th>Feature</th>
-                  <th>👁️ Viewer</th>
-                  <th>✏️ Editor</th>
-                  <th>🛡️ Admin</th>
-                  <th>👑 Super</th>
+                  <th data-vi="Tính năng">Feature</th>
+                  <th data-vi="👁️ Xem">👁️ Viewer</th>
+                  <th data-vi="✏️ Chỉnh sửa">✏️ Editor</th>
+                  <th data-vi="🛡️ Quản trị viên">🛡️ Admin</th>
+                  <th data-vi="👑 Siêu quản trị">👑 Super</th>
                 </tr>
               </thead>
               <tbody>
-                <tr><td>List users</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
-                <tr><td>List licenses</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
-                <tr><td>Generate license</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
-                <tr><td>Revoke license</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
-                <tr><td>Update users</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
-                <tr><td>Delete users</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
-                <tr><td>Manage API keys</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
-                <tr><td>Reset passwords</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
-                <tr><td>Delete API keys</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                <tr><td data-vi="Liệt kê người dùng">List users</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                <tr><td data-vi="Liệt kê giấy phép">List licenses</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                <tr><td data-vi="Tạo giấy phép">Generate license</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                <tr><td data-vi="Thu hồi giấy phép">Revoke license</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                <tr><td data-vi="Cập nhật người dùng">Update users</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                <tr><td data-vi="Xóa người dùng">Delete users</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+                <tr><td data-vi="Quản lý khóa API">Manage API keys</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+                <tr><td data-vi="Đặt lại mật khẩu">Reset passwords</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                <tr><td data-vi="Xóa khóa API">Delete API keys</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
               </tbody>
             </table>
           </div>
@@ -561,10 +578,10 @@
         <!-- Key List -->
         <div class="section-card">
           <div class="section-header">
-            <span class="section-title">Active Keys</span>
+            <span class="section-title" data-vi="Khóa Đang Hoạt Động">Active Keys</span>
           </div>
           <div id="keysTable">
-            <div class="empty-state">Loading...</div>
+            <div class="empty-state" data-vi="Đang tải...">Loading...</div>
           </div>
         </div>
       </div>
@@ -611,10 +628,10 @@
       const status = document.getElementById('createStatus');
       const newKeyBox = document.getElementById('newKeyBox');
 
-      if (!name) { showToast('Enter a name', 'error'); return; }
-      if (!key) { showToast('Enter a key', 'error'); return; }
+      if (!name) { showToast(vi('Enter a name'), 'error'); return; }
+      if (!key) { showToast(vi('Enter a key'), 'error'); return; }
 
-      btn.disabled = true; btn.textContent = 'Creating...';
+      btn.disabled = true; btn.textContent = vi('Creating...');
       status.style.display = 'none'; newKeyBox.style.display = 'none';
 
       try {
@@ -628,14 +645,14 @@
       } catch (err) {
         showToast(err.message, 'error');
       } finally {
-        btn.disabled = false; btn.textContent = 'Create Key';
+        btn.disabled = false; btn.textContent = vi('Create Key');
       }
     }
 
     function copyNewKey() {
       navigator.clipboard.writeText(document.getElementById('newKeyValue').textContent);
-      document.getElementById('copyBtn').textContent = '✓ Copied!';
-      setTimeout(() => { document.getElementById('copyBtn').textContent = 'Copy Key'; }, 2000);
+      document.getElementById('copyBtn').textContent = vi('✓ Copied!');
+      setTimeout(() => { document.getElementById('copyBtn').textContent = vi('Copy Key'); }, 2000);
     }
 
     // ── Fetch Keys ──────────────────────────────────────────────
@@ -646,14 +663,14 @@
         const keys = data.keys || [];
         const isSuper = RStudioAuth.isSuperAdmin();
 
-        if (keys.length === 0) { el.innerHTML = '<div class="empty-state">No keys yet</div>'; return; }
+        if (keys.length === 0) { el.innerHTML = `<div class="empty-state" data-vi="Chưa có khóa nào">${vi('No keys yet')}</div>`; applyDynamicLang(); return; }
 
         const rows = keys.map(k => {
           const isRevoked = k.revoked_at !== null;
           const date = new Date(k.created_at * 1000).toLocaleDateString();
           const statusBadge = isRevoked
-            ? `<span class="badge badge-revoked">Revoked</span>`
-            : `<span class="badge badge-active">Active</span>`;
+            ? `<span class="badge badge-revoked" data-vi="Đã thu hồi">${vi('Revoked')}</span>`
+            : `<span class="badge badge-active" data-vi="Đang hoạt động">${vi('Active')}</span>`;
           const tierBadge = `<select class="tier-select" data-key-id="${k.id}" onchange="changeKeyTier(${k.id}, this.value, '${k.tier}')">
             <option value="viewer" ${k.tier === 'viewer' ? 'selected' : ''}>viewer</option>
             <option value="editor" ${k.tier === 'editor' ? 'selected' : ''}>editor</option>
@@ -661,10 +678,10 @@
             ${isSuper ? `<option value="super_admin" ${k.tier === 'super_admin' ? 'selected' : ''}>super_admin</option>` : ''}
           </select>`;
           let actions = isRevoked
-            ? `<button class="btn btn-sm" onclick="unrevokeKey(${k.id})">Restore</button> <button class="btn btn-sm btn-danger" onclick="deleteKey(${k.id}, '${escapeHtml(k.name)}')">Delete</button>`
-            : `<button class="btn btn-sm btn-danger" onclick="revokeKey(${k.id})">Revoke</button>`;
+            ? `<button class="btn btn-sm" onclick="unrevokeKey(${k.id})" data-vi="Khôi phục">${vi('Restore')}</button> <button class="btn btn-sm btn-danger" onclick="deleteKey(${k.id}, '${escapeHtml(k.name)}')" data-vi="Xóa">${vi('Delete')}</button>`
+            : `<button class="btn btn-sm btn-danger" onclick="revokeKey(${k.id})" data-vi="Thu hồi">${vi('Revoke')}</button>`;
           if (isSuper && !isRevoked) {
-            actions += ` <button class="btn btn-sm" onclick="resetPassword(${k.id}, '${escapeHtml(k.name)}')">Reset PW</button>`;
+            actions += ` <button class="btn btn-sm" onclick="resetPassword(${k.id}, '${escapeHtml(k.name)}')" data-vi="Đặt lại MK">${vi('Reset PW')}</button>`;
           }
           return `<tr>
             <td style="font-weight:600;">${escapeHtml(k.name)}</td>
@@ -676,7 +693,8 @@
           </tr>`;
         }).join('');
 
-        el.innerHTML = `<table class="data-table"><thead><tr><th>Name</th><th>Key</th><th>Tier</th><th>Created</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead><tbody>${rows}</tbody></table>`;
+        el.innerHTML = `<table class="data-table"><thead><tr><th data-vi="Tên">${vi('Name')}</th><th data-vi="Khóa">${vi('Key')}</th><th data-vi="Cấp">${vi('Tier')}</th><th data-vi="Ngày tạo">${vi('Created')}</th><th data-vi="Trạng thái">${vi('Status')}</th><th style="text-align:right" data-vi="Thao tác">${vi('Actions')}</th></tr></thead><tbody>${rows}</tbody></table>`;
+        applyDynamicLang();
       } catch (err) {
         el.innerHTML = `<div class="empty-state" style="color:#f87171;">${escapeHtml(err.message)}</div>`;
       }
@@ -685,11 +703,11 @@
     // ── Key Actions ─────────────────────────────────────────────
     async function changeKeyTier(id, newTier, currentTier) {
       if (newTier === currentTier) return;
-      showConfirm('Change Tier', `Set tier to <b>${newTier}</b>?`, 'Confirm', async () => {
+      showConfirm(vi('Change Tier'), `Set tier to <b>${newTier}</b>?`, vi('Confirm'), async () => {
         const select = document.querySelector(`select[data-key-id="${id}"]`);
         try {
           await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'change_tier', tier: newTier });
-          showToast(`Tier set to ${newTier}`);
+          showToast(`${vi('Tier set to')} ${newTier}`);
           fetchKeys();
         } catch (err) {
           showToast(err.message, 'error');
@@ -699,26 +717,26 @@
     }
 
     async function revokeKey(id) {
-      showConfirm('Revoke Key', 'Revoke this key?', 'Revoke', async () => {
-        try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'revoke' }); showToast('Key revoked'); fetchKeys(); } catch (err) { showToast(err.message, 'error'); }
+      showConfirm(vi('Revoke Key'), vi('Revoke this key?'), vi('Revoke'), async () => {
+        try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'revoke' }); showToast(vi('Key revoked')); fetchKeys(); } catch (err) { showToast(err.message, 'error'); }
       });
     }
 
     async function unrevokeKey(id) {
-      try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'unrevoke' }); showToast('Key restored'); fetchKeys(); } catch (err) { showToast(err.message, 'error'); }
+      try { await apiCall('PATCH', '/api/admin/api-keys', { id, action: 'unrevoke' }); showToast(vi('Key restored')); fetchKeys(); } catch (err) { showToast(err.message, 'error'); }
     }
 
     async function deleteKey(id, name) {
-      showConfirm('Delete Key', `Permanently delete <b>${name}</b>?`, 'Delete', async () => {
-        try { await apiCall('DELETE', '/api/admin/api-keys', { id }); showToast('Key deleted'); fetchKeys(); } catch (err) { showToast(err.message, 'error'); }
+      showConfirm(vi('Delete Key'), `${vi('Permanently delete')} <b>${name}</b>?`, vi('Delete'), async () => {
+        try { await apiCall('DELETE', '/api/admin/api-keys', { id }); showToast(vi('Key deleted')); fetchKeys(); } catch (err) { showToast(err.message, 'error'); }
       });
     }
 
     async function resetPassword(id, name) {
-      showConfirm('Reset Password', `Generate new password for <b>${name}</b>?`, 'Reset', async () => {
+      showConfirm(vi('Reset Password'), `${vi('Generate new password for')} <b>${name}</b>?`, vi('Confirm'), async () => {
         try {
           const data = await apiCall('POST', `/api/admin/api-keys/${id}/reset-password`);
-          showResult('✅ Password Reset', `New password for <b>${name}</b>:`, data.newPassword);
+          showResult(`✅ ${vi('Password Reset')}`, `${vi('New password for')} <b>${name}</b>:`, data.newPassword);
         } catch (err) { showToast(err.message, 'error'); }
       });
     }
@@ -747,13 +765,14 @@
         <h3 style="font-size:16px;font-weight:700;margin-bottom:12px;color:#e4e4e7;">${title}</h3>
         <div style="color:#a1a1aa;font-size:13px;margin-bottom:20px;">${bodyHtml}</div>
         <div style="display:flex;gap:10px;justify-content:flex-end;">
-          <button id="confirmCancel" style="padding:8px 16px;background:#27272a;border:1px solid #3f3f46;border-radius:8px;color:#a1a1aa;font-weight:600;cursor:pointer;font-size:13px;">Cancel</button>
+          <button id="confirmCancel" style="padding:8px 16px;background:#27272a;border:1px solid #3f3f46;border-radius:8px;color:#a1a1aa;font-weight:600;cursor:pointer;font-size:13px;" data-vi="Hủy">${vi('Cancel')}</button>
           <button id="confirmOk" style="padding:8px 16px;background:#8b5cf6;border:none;border-radius:8px;color:white;font-weight:600;cursor:pointer;font-size:13px;">${confirmLabel}</button>
         </div>
       </div>`;
       document.body.appendChild(overlay);
       overlay.querySelector('#confirmCancel').onclick = () => overlay.remove();
       overlay.querySelector('#confirmOk').onclick = () => { overlay.remove(); onConfirm(); };
+      applyDynamicLang();
     }
 
     // ── Result Modal ────────────────────────────────────────────
@@ -767,21 +786,47 @@
         <div style="color:#a1a1aa;font-size:13px;margin-bottom:16px;">${bodyHtml}</div>
         ${copyText ? `<div style="background:#09090b;border:1px solid #27272a;border-radius:8px;padding:12px;font-family:'SF Mono','Fira Code',monospace;font-size:13px;word-break:break-all;user-select:all;margin-bottom:16px;color:#e4e4e7;">${escapeHtml(copyText)}</div>` : ''}
         <div style="display:flex;gap:10px;justify-content:flex-end;">
-          ${copyText ? `<button id="resultCopyBtn" style="padding:8px 16px;background:#8b5cf6;border:none;border-radius:8px;color:white;font-weight:600;cursor:pointer;font-size:13px;">Copy</button>` : ''}
-          <button id="resultClose" style="padding:8px 16px;background:#27272a;border:1px solid #3f3f46;border-radius:8px;color:#a1a1aa;font-weight:600;cursor:pointer;font-size:13px;">Close</button>
+          ${copyText ? `<button id="resultCopyBtn" style="padding:8px 16px;background:#8b5cf6;border:none;border-radius:8px;color:white;font-weight:600;cursor:pointer;font-size:13px;" data-vi="Sao chép">${vi('Copy')}</button>` : ''}
+          <button id="resultClose" style="padding:8px 16px;background:#27272a;border:1px solid #3f3f46;border-radius:8px;color:#a1a1aa;font-weight:600;cursor:pointer;font-size:13px;" data-vi="Đóng">${vi('Close')}</button>
         </div>
       </div>`;
       document.body.appendChild(overlay);
       overlay.querySelector('#resultClose').onclick = () => overlay.remove();
+      applyDynamicLang();
       if (copyText) {
         overlay.querySelector('#resultCopyBtn').onclick = () => {
           navigator.clipboard.writeText(copyText);
-          overlay.querySelector('#resultCopyBtn').textContent = '✓ Copied!';
+          overlay.querySelector('#resultCopyBtn').textContent = vi('✓ Copied!');
         };
       }
     }
 
     function escapeHtml(str) { if (!str) return ''; const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+
+    // ── Dynamic Translation Helper ────────────────────────────
+    const VI_DYNAMIC = {
+      'Name': 'Tên', 'Key': 'Khóa', 'Tier': 'Cấp', 'Created': 'Ngày tạo', 'Status': 'Trạng thái', 'Actions': 'Thao tác',
+      'Active': 'Đang hoạt động', 'Revoked': 'Đã thu hồi',
+      'Restore': 'Khôi phục', 'Delete': 'Xóa', 'Revoke': 'Thu hồi', 'Reset PW': 'Đặt lại MK',
+      'Cancel': 'Hủy', 'Confirm': 'Xác nhận', 'Copy': 'Sao chép', 'Close': 'Đóng', '✓ Copied!': '✓ Đã sao chép!', 'Reset': 'Đặt lại',
+      'Creating...': 'Đang tạo...', 'Enter a name': 'Nhập tên', 'Enter a key': 'Nhập khóa',
+      'No keys yet': 'Chưa có khóa nào', 'Key revoked': 'Đã thu hồi khóa', 'Key restored': 'Đã khôi phục khóa', 'Key deleted': 'Đã xóa khóa',
+      'Tier set to': 'Đã đặt cấp thành',
+      'Change Tier': 'Đổi cấp', 'Revoke Key': 'Thu hồi khóa', 'Delete Key': 'Xóa khóa',
+      'Reset Password': 'Đặt lại mật khẩu',
+      'Revoke this key?': 'Thu hồi khóa này?',
+      'Permanently delete': 'Xóa vĩnh viễn', 'Generate new password for': 'Tạo mật khẩu mới cho',
+      'Password Reset': 'Đặt lại mật khẩu thành công', 'New password for': 'Mật khẩu mới cho',
+    };
+    function vi(text) { return RStudioAuth.isVi() ? (VI_DYNAMIC[text] || text) : text; }
+
+    function applyDynamicLang() {
+      if (!RStudioAuth.isVi()) return;
+      document.querySelectorAll('#keysTable [data-vi], #confirmModal [data-vi], #resultModal [data-vi]').forEach(el => {
+        const viText = el.getAttribute('data-vi');
+        if (viText) el.textContent = viText;
+      });
+    }
   </script>
 </body>
 </html>
