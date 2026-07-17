@@ -294,20 +294,20 @@
         <small>Admin</small>
       </div>
       <nav class="sidebar-nav">
-        <div class="sidebar-section">Management</div>
+        <div class="sidebar-section" data-vi="Quản lý">Management</div>
         <a href="/" class="sidebar-link">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          Users
+          <span data-vi="Người dùng">Users</span>
         </a>
         <a href="/api-keys" class="sidebar-link">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-          API Keys
+          <span data-vi="Khóa API">API Keys</span>
         </a>
         <a href="/audit-logs" class="sidebar-link active">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          Audit Logs
+          <span data-vi="Nhật ký kiểm tra">Audit Logs</span>
         </a>
-        <div class="sidebar-section">External</div>
+        <div class="sidebar-section" data-vi="Liên kết">External</div>
         <a href="https://lbby.net" class="sidebar-link" target="_blank">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           Lbby Dashboard
@@ -316,10 +316,10 @@
       <div class="sidebar-footer">
         <div class="avatar" id="userAvatar">?</div>
         <div class="user-info">
-          <div class="user-name" id="userName">Loading...</div>
+          <div class="user-name" id="userName" data-vi="Đang tải...">Loading...</div>
           <div class="user-role" id="userRole">—</div>
         </div>
-        <button class="logout-btn" onclick="RStudioAuth.logout()">Logout</button>
+        <button class="logout-btn" onclick="RStudioAuth.logout()" data-vi="Đăng xuất">Logout</button>
       </div>
     </aside>
 
@@ -330,10 +330,10 @@
           <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
-          <span class="topbar-title">Audit Logs</span>
+          <span class="topbar-title" data-vi="Nhật ký kiểm tra">Audit Logs</span>
         </div>
         <div class="topbar-actions">
-          <button class="topbar-btn" onclick="fetchLogs()">↻ Refresh</button>
+          <button class="topbar-btn" onclick="fetchLogs()" data-vi="↻ Làm mới">↻ Refresh</button>
         </div>
       </header>
 
@@ -341,34 +341,34 @@
         <!-- Filters -->
         <div class="section-card">
           <div class="section-header">
-            <span class="section-title">Activity Log</span>
+            <span class="section-title" data-vi="Nhật ký hoạt động">Activity Log</span>
             <div class="filter-bar">
               <select class="filter-select" id="actionFilter" onchange="currentOffset=0;fetchLogs()">
-                <option value="">All Actions</option>
-                <option value="ADMIN_LOGIN">Login</option>
-                <option value="ADMIN_LIST_USERS">List Users</option>
-                <option value="ADMIN_LIST_LICENSES">List Licenses</option>
-                <option value="ADMIN_GENERATE_LICENSE">Generate License</option>
-                <option value="ADMIN_REVOKE_LICENSE">Revoke License</option>
-                <option value="ADMIN_UPDATE_USER">Update User</option>
-                <option value="ADMIN_DELETE_USER">Delete User</option>
-                <option value="ADMIN_LIST_API_KEYS">List API Keys</option>
-                <option value="ADMIN_CREATE_API_KEY">Create API Key</option>
-                <option value="ADMIN_UPDATE_API_KEY">Update API Key</option>
-                <option value="ADMIN_REVOKE_API_KEY">Revoke API Key</option>
+                <option value="" data-vi="Tất cả hành động">All Actions</option>
+                <option value="ADMIN_LOGIN" data-vi="Đăng nhập">Login</option>
+                <option value="ADMIN_LIST_USERS" data-vi="Danh sách người dùng">List Users</option>
+                <option value="ADMIN_LIST_LICENSES" data-vi="Danh sách giấy phép">List Licenses</option>
+                <option value="ADMIN_GENERATE_LICENSE" data-vi="Tạo giấy phép">Generate License</option>
+                <option value="ADMIN_REVOKE_LICENSE" data-vi="Thu hồi giấy phép">Revoke License</option>
+                <option value="ADMIN_UPDATE_USER" data-vi="Cập nhật người dùng">Update User</option>
+                <option value="ADMIN_DELETE_USER" data-vi="Xóa người dùng">Delete User</option>
+                <option value="ADMIN_LIST_API_KEYS" data-vi="Danh sách khóa API">List API Keys</option>
+                <option value="ADMIN_CREATE_API_KEY" data-vi="Tạo khóa API">Create API Key</option>
+                <option value="ADMIN_UPDATE_API_KEY" data-vi="Cập nhật khóa API">Update API Key</option>
+                <option value="ADMIN_REVOKE_API_KEY" data-vi="Thu hồi khóa API">Revoke API Key</option>
               </select>
             </div>
           </div>
           <div id="logsTable">
-            <div class="empty-state">Loading...</div>
+            <div class="empty-state" data-vi="Đang tải...">Loading...</div>
           </div>
         </div>
 
         <!-- Pagination -->
         <div class="pagination" id="pagination" style="display:none;">
-          <button id="prevBtn" onclick="prevPage()" disabled>← Previous</button>
+          <button id="prevBtn" onclick="prevPage()" disabled data-vi="← Trước">← Previous</button>
           <span class="page-info" id="pageInfo">Page 1</span>
-          <button id="nextBtn" onclick="nextPage()">Next →</button>
+          <button id="nextBtn" onclick="nextPage()" data-vi="Tiếp theo →">Next →</button>
         </div>
       </div>
     </main>
@@ -409,7 +409,7 @@
         hasMore = logs.length >= PAGE_SIZE;
 
         if (logs.length === 0 && currentOffset === 0) {
-          el.innerHTML = '<div class="empty-state">No audit logs yet</div>';
+          el.innerHTML = '<div class="empty-state" data-vi="Chưa có nhật ký kiểm tra">No audit logs yet</div>';
           pagination.style.display = 'none';
           return;
         }
@@ -431,14 +431,15 @@
         }).join('');
 
         el.innerHTML = `<table class="data-table">
-          <thead><tr><th>Time</th><th>Actor</th><th>Tier</th><th>Action</th><th>Target</th><th>Details</th></tr></thead>
+          <thead><tr><th data-vi="Thời gian">Time</th><th data-vi="Người thực hiện">Actor</th><th data-vi="Cấp bậc">Tier</th><th data-vi="Hành động">Action</th><th data-vi="Đối tượng">Target</th><th data-vi="Chi tiết">Details</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>`;
 
         pagination.style.display = 'flex';
         document.getElementById('prevBtn').disabled = currentOffset === 0;
         document.getElementById('nextBtn').disabled = !hasMore;
-        document.getElementById('pageInfo').textContent = `Page ${Math.floor(currentOffset / PAGE_SIZE) + 1}`;
+        document.getElementById('pageInfo').textContent = `Trang ${Math.floor(currentOffset / PAGE_SIZE) + 1}`;
+        reapplyLang();
       } catch (err) {
         el.innerHTML = `<div class="empty-state" style="color:#f87171;">${escapeHtml(err.message)}</div>`;
       }
@@ -471,6 +472,25 @@
     }
 
     function escapeHtml(str) { if (!str) return ''; const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+
+    // Re-apply translations to dynamically generated elements
+    function reapplyLang() {
+      document.querySelectorAll('[data-vi]').forEach(el => {
+        if (!el.getAttribute('data-en')) {
+          el.setAttribute('data-en', el.textContent);
+        }
+      });
+      const lang = localStorage.getItem('rstudio-lang') || 'en';
+      document.querySelectorAll('[data-vi]').forEach(el => {
+        if (lang === 'vi') {
+          el.textContent = el.getAttribute('data-vi');
+        } else {
+          const en = el.getAttribute('data-en');
+          if (en) el.textContent = en;
+        }
+      });
+    }
+
   </script>
 </body>
 </html>
