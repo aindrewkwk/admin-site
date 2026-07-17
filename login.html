@@ -373,6 +373,7 @@
 
       if (!apiKey || !password) {
         status.textContent = 'Enter both API key and password';
+        status.style.display = '';
         status.className = 'status-msg error';
         return;
       }
@@ -391,6 +392,7 @@
       } catch (err) {
         RStudioAuth.recordAttempt(true);
         status.textContent = err.message || 'Authentication failed';
+        status.style.display = '';
         status.className = 'status-msg error';
       } finally {
         btn.disabled = false;
